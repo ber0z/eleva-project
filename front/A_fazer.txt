@@ -1,0 +1,22 @@
+
+
+* adicionar criacao de username no update do usuario.
+* adicionar troca de visibilidade do usuario no update (isProfilePublic).
+* adicionar troca de visibilidade das imagens do perfil (isProfileImagesPublic).
+
+
+* adicionar botão de compartilhar perfil, que gera o link. (se o perfil for privado o compartilhamento é um link com tempo)
+* adicionar botão de compartilhamento de evolução. ( escolher tempo e se as imagens são publicas )
+* adicionar botão de compartilhamento de comparação de evoluções. ( escolher evoluções, tempo, se vai ter imagens )
+
+* tirar referencias ao app
+* melhorar os textos da tela inicial
+* pesquisar se tem como fazer um botao que pedi e instala web app do navegador
+
+** verificar como funciona aquela credencial la do supabase que garante segurança ( video das vunerabilidades dos apps vibecoders)
+
+
+
+- talez na proxima versão??
+* adicionar anuncios.
+* adicionar plano para retirar anuncios.

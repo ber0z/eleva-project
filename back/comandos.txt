@@ -1,0 +1,27 @@
+
+//criar e executar migration no prisma
+npx prisma migrate dev --name init
+
+// criar e executar migration no prisma (produção)
+npx prisma migrate deploy
+
+//atualizar depois de migrar
+npx prisma generate
+
+//executar seed
+npm run prisma:seed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,236 @@
+
+
+// // src/app/controllers/fileController.ts
+// import { FastifyRequest, FastifyReply } from "fastify";
+// import { z, ZodError } from "zod";
+// import fs from "fs/promises";
+// import path from "path";
+// import mime from "mime-types";
+// import { EvolutionService } from "../services/evolutionService";
+// import { generateUniqueFilename} from "../utils/fileHelper"
+
+
+// const UPLOADS_ROOT = path.resolve(process.cwd(), "uploads");
+
+// const paramsSchema = z.object({
+//   kind: z.enum(["user-file", "evolution-image"]),
+//   id: z.coerce.number().int().positive(),
+// });
+
+// export class FileController {
+
+//   private userFileService = new UserFileService();
+//   private evolutionService = new EvolutionService();
+
+
+
+//   private async resolvePath(kind: "user-file" | "evolution-image", id: number) {
+//     if (kind === "user-file") {
+//       const record = await this.userFileService.getMetadataById(id);
+//       if (!record) throw new Error("UserFile não encontrado");
+//       return record.path;
+//     }
+//     const img = await this.evolutionService.getEvolutionImageById(id);
+//     return img.path;
+//   }
+  
+
+//   /** GET /api/file/view/:kind/:id */
+//   async view(
+//     req: FastifyRequest<{ Params: { kind: string; id: string } }>,
+//     reply: FastifyReply
+//   ) {
+//       try {
+//       // 1) ID do usuário autenticado
+//       const userId = req.user!.userId;
+
+//       // 2) Valida params via Zod
+//       const { kind, id } = paramsSchema.parse(req.params);
+
+//       // 3) Busca metadados no banco e checa dono
+//       const fileRecord = await this.userFileService.getFileById(id);
+//       if (!fileRecord) {
+//         return reply.status(404).send({ error: "Arquivo não encontrado" });
+//       }
+//       console.log("fileRecord:", fileRecord, "idUser:", userId);
+      
+//       if (fileRecord.idUser !== userId) {
+//         return reply.status(403).send({ error: "Acesso ao arquivo negado" });
+//       }
+
+//       // 4) Resolve o caminho e lê o arquivo
+//       const relPath = await this.resolvePath(kind, id);
+//       const absPath = path.join(UPLOADS_ROOT, relPath);
+
+//       // checa existência
+//       await fs.access(absPath);
+//       const buffer = await fs.readFile(absPath);
+//       const mimeType = mime.lookup(absPath) || "application/octet-stream";
+
+//       // 5) Envia o arquivo
+//       return reply
+//         .header("Content-Type", mimeType)
+//         .header("Content-Length", buffer.length.toString())
+//         .send(buffer);
+
+//     } catch (err) {
+//       if (err instanceof ZodError) {
+//         return reply
+//           .status(400)
+//           .send({ error: "Parâmetros inválidos", details: err.issues });
+//       }
+//       if (err instanceof Error && err.message.includes("não encontrado")) {
+//         return reply.status(404).send({ error: err.message });
+//       }
+//       console.error("Erro ao exibir arquivo:", err);
+//       return reply.status(500).send({ error: "Falha ao exibir arquivo" });
+//     }
+  
+//   }
+
+
+//   async download(
+//     req: FastifyRequest<{ Params: { kind: string; id: string } }>,
+//     reply: FastifyReply
+//   ) {
+//     try {
+//       const { kind, id } = paramsSchema.parse(req.params);
+
+//       let relativePath: string;
+
+//       if (kind === "user-file") {
+//         // Busca metadados do userFile
+//         const record = await this.userFileService.getMetadataById(id);
+//         if (!record) {
+//           return reply.status(404).send({ error: "UserFile não encontrado" });
+//         }
+//         relativePath = record.path; // ex: "diet/arquivo-42-12345.pdf"
+//       } if (kind === "evolution-image") {
+//         // kind === "evolutionImage"
+//         const image = await this.evolutionService.getEvolutionImageById(id);
+//         relativePath = image.path; // ex: "evolutionImages/evolution_7_pos1.webp"
+//       } else {
+//         return reply.status(404).send({ error: "Tipo de arquivo invalido" });
+//       }
+
+//       // Monta caminho absoluto
+//       const absolutePath = path.join(UPLOADS_ROOT, relativePath);
+
+//       // Verifica existência
+//       try {
+//         const stat = await fs.stat(absolutePath);
+//         if (!stat.isFile()) {
+//           return reply.status(404).send({ error: "Arquivo não encontrado" });
+//         }
+//       } catch {
+//         return reply.status(404).send({ error: "Arquivo não encontrado" });
+//       }
+
+//       // Lê e envia
+//       const buffer = await fs.readFile(absolutePath);
+//       const newFileName = generateUniqueFilename(absolutePath);
+//       const mimeType = mime.lookup(absolutePath) || "application/octet-stream";
+
+//       return reply
+//         .header("Content-Type", mimeType)
+//         .header("Content-Disposition", `attachment; filename="${newFileName}"`)
+//         .header("Content-Length", buffer.length.toString())
+//         .send(buffer);
+//     } catch (err) {
+//       if (err instanceof ZodError) {
+//         return reply.status(400).send({
+//           error: "Parâmetros inválidos",
+//           details: err.issues,
+//         });
+//       }
+//       if (err instanceof Error && err.message.includes("não encontrado")) {
+//         return reply.status(404).send({ error: err.message });
+//       }
+//       console.error("Erro ao baixar arquivo:", err);
+//       return reply.status(500).send({ error: "Falha ao baixar arquivo" });
+//     }
+//   }
+// }
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // //R2
+
+// // // src/app/controllers/fileController.ts
+// // import { FastifyRequest, FastifyReply } from 'fastify';
+// // import { GetObjectCommand } from '@aws-sdk/client-s3';
+// // import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+// // import { r2 } from '../lib/cloudflare';
+// // import { z } from 'zod';
+
+// // export class FileController {
+// //   async getFileUrl(req: FastifyRequest, reply: FastifyReply) {
+// //     const paramsSchema = z.object({
+// //       fileKey: z.string().min(1)
+// //     });
+
+// //     try {
+// //       const { fileKey } = paramsSchema.parse(req.params);
+      
+// //       const command = new GetObjectCommand({
+// //         Bucket: process.env.CLOUDFLARE_BUCKET_NAME,
+// //         Key: fileKey,
+// //       });
+
+// //       const signedUrl = await getSignedUrl(r2, command, { expiresIn: 600 });
+      
+// //       reply.redirect(signedUrl);
+
+// //     } catch (error) {
+// //       if (error instanceof z.ZodError) {
+// //         return reply.status(400).send({
+// //           error: "Invalid file key",
+// //           details: error.errors
+// //         });
+// //       }
+      
+// //       console.error('Erro ao gerar URL assinada:', error);
+// //       return reply.status(500).send({ 
+// //         error: "Failed to generate file URL",
+// //       });
+// //     }
+// //   }
+// // }

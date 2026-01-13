@@ -1,0 +1,640 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(255)
+  birthDate      DateTime
+  gender         String   @db.VarChar(255)
+  profilePicture String?  @db.VarChar(255)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lastAccess     DateTime @default(now())
+  isActive       Boolean  @default(true)
+
+  username        String? @unique @db.VarChar(32)
+  isProfilePublic Boolean @default(false)
+  isProfileImagesPublic Boolean @default(true) 
+
+  presets    Preset[]
+  measure    Measure?
+  evolutions Evolution[]
+  userFiles  File[]
+
+  diets              Diet[]
+  mealLogs           MealLogDay[]
+  trainings          Training[]
+  physicalActivities PhysicalActivity[]
+  sleeps             Sleep[]
+
+  notifications         Notification[] @relation("NotificationRecipientUser")
+  notificationsAuthored Notification[] @relation("NotificationActorUser")
+
+  professionalLinks   ProfessionalLink[]
+  professionalInvites ProfessionalInvite[]
+  authentications     Authentication[]     @relation("UserAuthentications")
+
+  shareLinksOwned ShareLink[] @relation("ShareOwner")
+}
+
+enum AuthSubjectType {
+  user
+  professional
+  admin
+}
+
+model Authentication {
+  id             Int             @id @default(autoincrement())
+  // Destino (exatamente UM dos três campos deve estar preenchido)
+  subjectType    AuthSubjectType @default(user)
+  idUser         Int?
+  idProfessional Int?
+  idAdmin        Int?
+
+  email                 String    @unique @db.VarChar(255)
+  password              String    @db.VarChar(255)
+  refreshToken          String?   @db.VarChar(255)
+  isBlocked             Boolean   @default(false)
+  recoveryCode          String?   @db.VarChar(255)
+  recoveryCodeExpiresAt DateTime?
+  lastAccess            DateTime  @default(now())
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relações nomeadas para evitar ambiguidade
+  professional Professional? @relation("ProfessionalAuthentications", fields: [idProfessional], references: [id], onDelete: Cascade)
+  admin        Admin?        @relation("AdminAuthentications", fields: [idAdmin], references: [id], onDelete: Cascade)
+  user         User?         @relation("UserAuthentications", fields: [idUser], references: [id], onDelete: Cascade)
+
+  @@index([subjectType])
+  @@index([idUser])
+  @@index([idProfessional])
+  @@index([idAdmin])
+}
+
+model Preset {
+  id              Int      @id @default(autoincrement())
+  currentGoal     String   @db.VarChar(255)
+  idUser          Int      @unique
+  terms           String   @db.VarChar(255)
+  dateSigningTerm DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [idUser], references: [id])
+}
+
+model Measure {
+  id          Int      @id @default(autoincrement())
+  idUser      Int      @unique
+  height      Float
+  weight      Float
+  rightBiceps Float?
+  leftBiceps  Float?
+  rightThigh  Float?
+  leftThigh   Float?
+  waist       Float?
+  hips        Float?
+  chest       Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [idUser], references: [id], onDelete: Cascade)
+}
+
+model Evolution {
+  id          Int      @id @default(autoincrement())
+  idUser      Int
+  date        DateTime @default(now())
+  goal        String
+  height      Float
+  weight      Float
+  rightBiceps Float?
+  leftBiceps  Float?
+  rightThigh  Float?
+  leftThigh   Float?
+  waist       Float?
+  hips        Float?
+  chest       Float?
+  message     String?  @db.VarChar(512)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user            User             @relation(fields: [idUser], references: [id])
+  EvolutionImages EvolutionImage[]
+  shareLinks      ShareLink[]      @relation("ShareEvolution")
+  shareLinksAsA   ShareLink[]      @relation("ShareEvolutionA")
+  shareLinksAsB   ShareLink[]      @relation("ShareEvolutionB")
+}
+
+model EvolutionImage {
+  id          Int      @id @default(autoincrement())
+  idEvolution Int
+  position    Int
+  path        String   @db.VarChar(512)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  evolution Evolution @relation(fields: [idEvolution], references: [id])
+}
+
+enum ShareType {
+  EVOLUTION
+  COMPARISON
+  PROFILE
+}
+
+model ShareLink {
+  id   Int       @id @default(autoincrement())
+  type ShareType
+
+  // ✅ armazene hash do token (recomendado) e não o token puro
+  tokenHash String @unique @db.Char(64)
+
+  // dono do link (quem gerou)
+  ownerId Int
+  owner   User @relation("ShareOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // ===== targets (um link pode apontar para 1 destes) =====
+
+  // EVOLUTION share (single)
+  evolutionId Int?
+  evolution   Evolution? @relation("ShareEvolution", fields: [evolutionId], references: [id], onDelete: Cascade)
+
+  // COMPARISON share (duas evoluções)
+  evolutionAId Int?
+  evolutionA   Evolution? @relation("ShareEvolutionA", fields: [evolutionAId], references: [id], onDelete: Cascade)
+
+  evolutionBId Int?
+  evolutionB   Evolution? @relation("ShareEvolutionB", fields: [evolutionBId], references: [id], onDelete: Cascade)
+
+  includeImages Boolean @default(true)
+
+  // ✅ sempre ativo / expiração / revogação
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+  revokedAt DateTime?
+
+  // ✅ views
+  viewsCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type, ownerId])
+  @@index([evolutionId])
+  @@index([evolutionAId, evolutionBId])
+}
+
+enum AdminRole {
+  superadmin // acesso total
+  manager // gestão (sem chaves destrutivas)
+  support // suporte ao usuário
+  auditor // leitura / compliance
+}
+
+model Admin {
+  id             Int         @id @default(autoincrement())
+  name           String      @db.VarChar(255)
+  roles          AdminRole[] // pode ter mais de um papel
+  profilePicture String?     @db.VarChar(255)
+  isActive       Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  authentications Authentication[] @relation("AdminAuthentications")
+}
+
+model File {
+  id             Int      @id @default(autoincrement())
+  idUser         Int
+  idProfessional Int?
+  description    String   @db.VarChar(512)
+  path           String   @db.VarChar(512)
+  fileType       String   @db.VarChar(512)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User          @relation(fields: [idUser], references: [id])
+  professional Professional? @relation(fields: [idProfessional], references: [id], onDelete: SetNull)
+}
+
+model Diet {
+  id     Int      @id @default(autoincrement())
+  idUser Int
+  title  String   @db.VarChar(255)
+  notes  String?  @db.VarChar(1024)
+  date   DateTime @db.Date
+
+  // Macros (em gramas)
+  protein Float @default(0)
+  carbs   Float @default(0)
+  fat     Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // autoria do profissional (opcional)
+  idProfessional Int?
+  professional   Professional? @relation("ProfessionalAuthoredDiets", fields: [idProfessional], references: [id])
+
+  user        User         @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  meals       DietMeal[]
+  mealLogDays MealLogDay[]
+
+  // back-rel das Notificações (se você já tem Notification.dietId)
+  notifications Notification[]
+
+  // ▼ novo: arquivo principal direto na Diet (sem tabela de junção)
+  documentPath String? @db.VarChar(512) // ex.: URL/Key do S3/R2
+  documentType String? @db.VarChar(128) // MIME ex.: application/pdf
+  documentSize Int? // bytes (opcional)
+
+  @@index([idUser, date])
+  @@index([idProfessional])
+}
+
+model DietMeal {
+  id     Int     @id @default(autoincrement())
+  idDiet Int
+  title  String  @db.VarChar(255)
+  time   String? @db.VarChar(10) // "HH:mm"
+  meal   String  @db.VarChar(1024) // descrição da refeição
+  notes  String? @db.VarChar(1024)
+
+  // Macros (em gramas)
+  protein Float @default(0)
+  carbs   Float @default(0)
+  fat     Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  diet     Diet           @relation(fields: [idDiet], references: [id], onDelete: Cascade)
+  mealLogs MealLogEntry[]
+
+  @@index([idDiet])
+}
+
+model MealLogDay {
+  id     Int      @id @default(autoincrement())
+  idUser Int
+  date   DateTime @db.Date
+  notes  String?  @db.VarChar(1024)
+
+  // resumo do dia
+  adherence Int? // 0..100 (aderência ao plano)
+  totalKcal Int?
+  protein   Float? @default(0)
+  carbs     Float? @default(0)
+  fat       Float? @default(0)
+  waterMl   Int?
+
+  // vínculo opcional ao plano do dia
+  dietId    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User  @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  diet Diet? @relation(fields: [dietId], references: [id], onDelete: SetNull)
+
+  entries MealLogEntry[]
+
+  @@unique([idUser, date]) // garante 1 registro por dia/usuário
+  @@index([dietId])
+}
+
+model MealLogEntry {
+  id          Int     @id @default(autoincrement())
+  idDay       Int
+  title       String  @db.VarChar(64)
+  time        String? @db.VarChar(10)
+  description String  @db.VarChar(1024)
+  notes       String? @db.VarChar(512)
+
+  kcal    Int?
+  protein Float? @default(0)
+  carbs   Float? @default(0)
+  fat     Float? @default(0)
+
+  dietMealId Int?
+  dietMeal   DietMeal? @relation(fields: [dietMealId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  day MealLogDay @relation(fields: [idDay], references: [id], onDelete: Cascade)
+
+  @@index([idDay])
+  @@index([dietMealId])
+}
+
+enum DayOfWeek {
+  monday
+  tuesday
+  wednesday
+  thursday
+  friday
+  saturday
+  sunday
+}
+
+model Training {
+  id        Int      @id @default(autoincrement())
+  idUser    Int
+  title     String?  @db.VarChar(255)
+  notes     String?  @db.VarChar(1024)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  idProfessional Int?
+  professional   Professional? @relation("ProfessionalAuthoredTrainings", fields: [idProfessional], references: [id])
+
+  user     User              @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  workouts TrainingWorkout[]
+
+  // back-rel das Notificações (se você já tem Notification.trainingId)
+  notifications Notification[]
+
+  // ▼ novo: arquivo principal direto no Training
+  documentPath String? @db.VarChar(512)
+  documentType String? @db.VarChar(128)
+  documentSize Int?
+
+  @@index([idUser])
+  @@index([idProfessional])
+}
+
+model TrainingWorkout {
+  id         Int       @id @default(autoincrement())
+  idTraining Int
+  title      String    @db.VarChar(255)
+  notes      String?   @db.VarChar(1024)
+  dayOfWeek  DayOfWeek
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  training   Training           @relation(fields: [idTraining], references: [id], onDelete: Cascade)
+  exercises  TrainingExercise[]
+  activities PhysicalActivity[]
+
+  @@index([idTraining, dayOfWeek])
+}
+
+model TrainingExercise {
+  id         Int      @id @default(autoincrement())
+  idWorkout  Int
+  exerciseId Int?
+  name       String   @db.VarChar(255)
+  technique  String?  @db.VarChar(255)
+  sets       Int      @default(0)
+  reps       Int?
+  weight     Float?
+  type       String?  @db.VarChar(64)
+  notes      String?  @db.VarChar(1024)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  workout  TrainingWorkout @relation(fields: [idWorkout], references: [id], onDelete: Cascade)
+  exercise Exercise?       @relation(fields: [exerciseId], references: [id])
+
+  @@index([idWorkout])
+  @@index([exerciseId])
+}
+
+model Exercise {
+  id              Int      @id @default(autoincrement())
+  name            String   @unique @db.VarChar(255)
+  muscleGroup     String?  @db.VarChar(64)
+  equipment       String?  @db.VarChar(64)
+  difficultyLevel String?  @db.VarChar(64)
+  type            String?  @db.VarChar(64)
+  description     String?  @db.VarChar(1024)
+  videoUrl        String?  @db.VarChar(1024)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  TrainingExercise TrainingExercise[]
+}
+
+model PhysicalActivity {
+  id           Int      @id @default(autoincrement())
+  idUser       Int
+  name         String   @db.VarChar(255)
+  type         String?  @db.VarChar(64)
+  duration     Int
+  calories     Int?
+  observations String?  @db.VarChar(1024)
+  date         DateTime @db.Date
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  trainingWorkoutId Int?
+  trainingWorkout   TrainingWorkout? @relation(fields: [trainingWorkoutId], references: [id], onDelete: SetNull)
+  user              User             @relation(fields: [idUser], references: [id], onDelete: Cascade)
+
+  @@index([idUser, date])
+}
+
+model Sleep {
+  id           Int      @id @default(autoincrement())
+  idUser       Int
+  date         DateTime @db.Date
+  startTime    String   @db.VarChar(10) // "HH:mm"
+  endTime      String   @db.VarChar(10) // "HH:mm"
+  duration     Float
+  sleepQuality String?  @db.VarChar(64)
+  notes        String?  @db.VarChar(1024)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [idUser], references: [id], onDelete: Cascade)
+
+  @@index([idUser, date])
+}
+
+enum ProfessionalRole {
+  trainer
+  nutritionist
+}
+
+enum LinkStatus {
+  pending
+  accepted
+  revoked
+}
+
+enum LinkPermission {
+  edit_diet
+  edit_training
+}
+
+enum InviteStatus {
+  pending
+  accepted
+  declined
+  expired
+  cancelled
+}
+
+model Professional {
+  id             Int                @id @default(autoincrement())
+  name           String             @db.VarChar(255)
+  roles          ProfessionalRole[] // ["trainer","nutritionist"] quando for ambos
+  profilePicture String?            @db.VarChar(255)
+  bio            String?            @db.VarChar(1024)
+  crefNumber     String?            @db.VarChar(64)
+  crnNumber      String?            @db.VarChar(64)
+  isActive       Boolean            @default(true)
+
+  contactPhone String? @db.VarChar(32) // E.164 sugerido
+  whatsapp     String? @db.VarChar(32)
+  instagram    String? @db.VarChar(255) // handle ou URL
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastAccess DateTime @default(now())
+
+  links   ProfessionalLink[]
+  invites ProfessionalInvite[]
+
+  notifications         Notification[] @relation("NotificationRecipientProfessional")
+  notificationsAuthored Notification[] @relation("NotificationActorProfessional")
+
+  dietsAuthored     Diet[]           @relation("ProfessionalAuthoredDiets")
+  trainingsAuthored Training[]       @relation("ProfessionalAuthoredTrainings")
+  UserFile          File[]
+  authentications   Authentication[] @relation("ProfessionalAuthentications")
+
+  @@index([contactPhone])
+  @@index([whatsapp])
+  @@index([instagram])
+}
+
+model ProfessionalLink {
+  id             Int              @id @default(autoincrement())
+  professionalId Int
+  userId         Int
+  status         LinkStatus       @default(pending)
+  permissions    LinkPermission[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  professional Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([professionalId, userId], name: "professional_user_unique")
+  @@index([userId, status])
+  @@index([professionalId, status])
+}
+
+model ProfessionalInvite {
+  id             Int          @id @default(autoincrement())
+  professionalId Int
+  userId         Int?
+  inviteeEmail   String?      @db.VarChar(255)
+  inviteePhone   String?      @db.VarChar(32)
+  status         InviteStatus @default(pending)
+
+  code       String    @unique @db.VarChar(64)
+  token      String    @unique @db.VarChar(128)
+  expiresAt  DateTime?
+  acceptedAt DateTime?
+  message    String?   @db.VarChar(1024)
+
+  permissions LinkPermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  professional Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([professionalId, status])
+  @@index([userId])
+  @@index([token])
+}
+
+enum NotificationType {
+  invite_created
+  invite_accepted
+  diet_assigned
+  training_assigned
+  meal_log_reminder
+  meal_log_submitted
+  file_attached
+  link_revoked
+}
+
+enum NotificationPriority {
+  low
+  normal
+  high
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+
+  // ---------- DESTINATÁRIO (preencha exatamente UM: user OU professional)
+  userId         Int?
+  professionalId Int?
+
+  // ---------- TIPO / CONTEÚDO
+  type     NotificationType
+  title    String               @db.VarChar(255)
+  body     String?              @db.VarChar(1024)
+  data     Json? // metadados livres (ex.: { extra: ... })
+  linkWeb  String?              @db.VarChar(1024) // URL web fallback
+  linkApp  String?              @db.VarChar(1024) // deep link app (ex.: app://...)
+  priority NotificationPriority @default(normal)
+
+  // ---------- TEMPO / STATUS DE LEITURA
+  scheduledAt DateTime?
+  readAt      DateTime?
+  expiresAt   DateTime?
+
+  // ---------- CONTEXTO (opcional): entidade relacionada
+  dietId     Int?
+  trainingId Int?
+
+  // ---------- AUTOR/ORIGEM (opcional): quem gerou
+  actorProfessionalId Int?
+  actorUserId         Int?
+
+  // ---------- Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // ---------- RELAÇÕES (nomes distintos para evitar ambiguidade)
+  user         User?         @relation("NotificationRecipientUser", fields: [userId], references: [id], onDelete: Cascade)
+  professional Professional? @relation("NotificationRecipientProfessional", fields: [professionalId], references: [id], onDelete: Cascade)
+
+  diet     Diet?     @relation(fields: [dietId], references: [id], onDelete: SetNull)
+  training Training? @relation(fields: [trainingId], references: [id], onDelete: SetNull)
+
+  actorPro  Professional? @relation("NotificationActorProfessional", fields: [actorProfessionalId], references: [id], onDelete: SetNull)
+  actorUser User?         @relation("NotificationActorUser", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  // ---------- Índices
+  @@index([userId, readAt])
+  @@index([professionalId, readAt])
+  @@index([dietId])
+  @@index([trainingId])
+  @@index([actorProfessionalId])
+  @@index([actorUserId])
+  @@index([scheduledAt])
+}
+
+model DailyMetric {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @unique @db.Date
+  signups     Int      @default(0)
+  activeUsers Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
