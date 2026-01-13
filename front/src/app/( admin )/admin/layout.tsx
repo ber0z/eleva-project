@@ -8,14 +8,10 @@ import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Users, Menu, X, LogOut } from "lucide-react";
 import { api } from "@/lib/api";
 import { isAxiosError } from "axios";
-import type { Metadata } from "next";
 
 
 const SIDEBAR_WIDTH = 260;
 
-export const metadata: Metadata = {
-  title: "Eleva",
-};
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
