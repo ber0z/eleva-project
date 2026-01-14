@@ -1,0 +1,8 @@
+//Rebuild e subir containers
+    docker compose up -d --build
+
+//aplicar migrations (opcional)
+    docker compose exec back npx prisma migrate deploy
+
+//ver logs
+    docker compose logs -f back

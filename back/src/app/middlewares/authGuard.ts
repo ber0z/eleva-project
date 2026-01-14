@@ -79,7 +79,7 @@ export const authMiddleware = async (req: FastifyRequest, reply: FastifyReply) =
   if (accessToken) {
     try {
       const p = verifyAccessTokenStrict(accessToken);
-      
+
       // ⛔ BLOQUEIO: checa na Authentication pelo authId (sub)
       const authIdNum = Number(p.sub);
       const authRow = await prisma.authentication.findUnique({
@@ -169,6 +169,8 @@ export const authMiddleware = async (req: FastifyRequest, reply: FastifyReply) =
 
   // 4) Devolve tokens
   if (refreshFromCookie) {
+    const isProd = process.env.NODE_ENV === "production";
+
     // WEB (cookies). Sempre regrava o access. O refresh só quando rotacionar.
     reply.setCookie("at", newAccess, {
       httpOnly: true,
@@ -176,6 +178,8 @@ export const authMiddleware = async (req: FastifyRequest, reply: FastifyReply) =
       sameSite: SAME_SITE,
       path: "/",
       maxAge: 60 * 10, // 10m
+      domain: isProd ? ".elevapp.com.br" : undefined,
+
     });
 
     if (rotateRefresh) {
@@ -185,6 +189,8 @@ export const authMiddleware = async (req: FastifyRequest, reply: FastifyReply) =
         sameSite: SAME_SITE === "none" ? "none" : "lax",
         path: "/",
         maxAge: 60 * 60 * 24 * 7, // 7d (ou o que você usa)
+        domain: isProd ? ".elevapp.com.br" : undefined,
+
         signed: true,
       });
     }

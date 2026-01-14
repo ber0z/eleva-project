@@ -128,23 +128,28 @@ export class AuthenticationController {
 
       // Persistir HASH do refresh no DB
       await authService.updateRefreshToken(auth.id, refreshRaw);
+      const isProd = process.env.NODE_ENV === "production";
 
       reply
         .setCookie("rt", refreshRaw, {
           httpOnly: true,
-          secure: process.env.NODE_ENV !== "development",
+          secure: isProd,
           sameSite: "lax",
           path: "/",
           maxAge: 60 * 60 * 24 * 7,
           signed: true,
+          domain: isProd ? ".elevapp.com.br" : undefined, 
+
         })
 
         .setCookie("at", accessToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV !== "development",
+          secure: isProd,
           sameSite: "lax",
           path: "/",
           maxAge: 60 * 10,
+          domain: isProd ? ".elevapp.com.br" : undefined, 
+
         });
 
       return reply.code(200).send({
