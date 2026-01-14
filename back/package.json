@@ -9,6 +9,7 @@
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:seed:prod": "tsc -p tsconfig.seed.json && node dist/prisma/seed.js",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "postinstall": "prisma generate"
   },
