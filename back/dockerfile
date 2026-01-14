@@ -15,8 +15,6 @@ COPY prisma ./prisma
 RUN npm ci --ignore-scripts
 
 # 4) Agora roda prisma generate explicitamente
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
 RUN npx prisma generate
 
 # 5) Copia o resto do código e builda
