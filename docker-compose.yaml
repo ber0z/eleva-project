@@ -32,9 +32,10 @@ services:
       context: ./back
       dockerfile: dockerfile
       args:
-        DATABASE_URL: ${DATABASE_URL}
+        DATABASE_URL: "postgresql://userAdmin:Eleva48Sjs@5DbPass@postgres:5432/appdb?schema=public"
+
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: "postgresql://userAdmin:Eleva48Sjs@5DbPass@postgres:5432/appdb?schema=public"
     restart: always
     ports:
       - "3000:3000"
