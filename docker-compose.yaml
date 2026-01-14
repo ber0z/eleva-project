@@ -30,6 +30,7 @@ services:
   back:
     build:
       context: ./back
+      dockerfile: dockerfile
     restart: always
     ports:
       - "3000:3000"
@@ -45,6 +46,7 @@ services:
   front:
     build:
       context: ./front
+      dockerfile: dockerfile
     restart: always
     ports:
       - "1988:1988"

@@ -9,6 +9,6 @@ COPY . .
 
 RUN npm run build
 
-EXPOSE 1988
+EXPOSE 1988 
 
 CMD ["npx", "next", "start", "-p", "1988"]
