@@ -1,18 +1,28 @@
-FROM node:20-alpine
-
+FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 
-# Dependências
 COPY package*.json ./
-COPY prisma ./prisma
 RUN npm ci
+
+# Prisma
+COPY prisma ./prisma
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+RUN npx prisma generate
 
 # Código
 COPY . .
 
-# Gera Prisma Client
-RUN npx prisma generate
+# Build TS -> dist
+RUN npm run build
+
+# ---- runtime ----
+FROM node:20-bookworm-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app /app
+RUN npm prune --omit=dev
 
 EXPOSE 3000
-
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+CMD ["npm","run","start"]
