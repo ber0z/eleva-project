@@ -25,12 +25,25 @@ async function buildServer() {
 
   /* 3) CORS                        */
   await fastify.register(cors, {
-    origin: ["http://localhost:1988", "http://localhost:3000"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: [], // se precisar ler headers no client
-  }); 
+  origin: (origin, cb) => {
+    // libera requests sem Origin (curl / server-to-server)
+    if (!origin) return cb(null, true);
+
+    const allowed = new Set([
+      "https://elevapp.com.br",
+      "https://api.elevapp.com.br",
+      "http://localhost:1988",
+      "http://localhost:3000",
+      "http://127.0.0.1:1988",
+      "http://127.0.0.1:3000",
+    ]);
+
+    cb(null, allowed.has(origin));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+});
 
 
   /* 5) Rate-limit (opcional Redis) */
