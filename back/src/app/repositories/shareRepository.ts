@@ -127,6 +127,9 @@ export class ShareLinkRepository {
         waist: true,
         hips: true,
         chest: true,
+        shoulder: true,
+        calf: true,
+        forearm: true,
 
         EvolutionImages: includeImages
           ? { select: { id: true, position: true, path: true } }

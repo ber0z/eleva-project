@@ -101,6 +101,9 @@ model Measure {
   waist       Float?
   hips        Float?
   chest       Float?
+  shoulder    Float?
+  calf        Float?
+  forearm     Float?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -121,6 +124,9 @@ model Evolution {
   waist       Float?
   hips        Float?
   chest       Float?
+  shoulder    Float?
+  calf        Float?
+  forearm     Float?
   message     String?  @db.VarChar(512)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -62,11 +62,20 @@ type EvoImage = {
   url: string;
 };
 
+type GoalPreset =
+  | "gain_muscle"
+  | "lose_fat"
+  | "recomposition"
+  | "maintain"
+  | "increase_strength"
+  | "improve_endurance"
+  | "improve_health";
+
 type EvolutionDetail = {
   id: number;
   idUser: number;
   date: string; // ISO
-  goal: "gain" | "lose" | "maintain" | string | null;
+  goal: GoalPreset | string | null;
   height: number | null;
   weight: number;
   rightBiceps: number | null;
@@ -76,6 +85,9 @@ type EvolutionDetail = {
   waist: number | null;
   hips: number | null;
   chest: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message: string | null;
   createdAt: string; // ISO
   updatedAt: string; // ISO
@@ -112,6 +124,31 @@ function fmtDateTimeBR(iso?: string | null) {
 function posLabel(pos: number) {
   return pos === 1 ? "Frente" : pos === 2 ? "Lado" : pos === 3 ? "Costas" : `Posição ${pos}`;
 }
+
+const GOAL_LABEL: Record<GoalPreset, string> = {
+  gain_muscle: "Ganhar massa muscular",
+  lose_fat: "Perder gordura",
+  recomposition: "Recomposição corporal",
+  maintain: "Manutenção",
+  increase_strength: "Aumentar força",
+  improve_endurance: "Melhorar resistência",
+  improve_health: "Melhorar saúde geral",
+};
+
+function goalToLabel(goal: EvolutionDetail["goal"]) {
+  if (!goal) return "-";
+
+  // legado (se ainda existir no banco)
+  if (goal === "gain") return "Ganhar massa muscular";
+  if (goal === "lose") return "Perder gordura";
+
+  // novo enum
+  if (goal in GOAL_LABEL) return GOAL_LABEL[goal as GoalPreset];
+
+  // fallback: mostra como veio
+  return String(goal);
+}
+
 
 export default function EvolutionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -469,7 +506,7 @@ export default function EvolutionDetailPage() {
                   </div>
                   <div className="rounded-xl border border-border p-3">
                     <div className="text-xs text-muted-foreground">Objetivo</div>
-                    <div className="mt-1 text-xs font-semibold capitalize">{data.goal ?? "-"}</div>
+                    <div className="mt-1 text-xs font-semibold">{goalToLabel(data.goal)}</div>
                   </div>
                 </div>
                 {data.message && (
@@ -495,6 +532,9 @@ export default function EvolutionDetailPage() {
                   <Metric label="Cintura" value={data.waist} suffix="cm" />
                   <Metric label="Quadril" value={data.hips} suffix="cm" />
                   <Metric label="Peitoral" value={data.chest} suffix="cm" />
+                  <Metric label="Ombro" value={data.shoulder} suffix="cm" />
+                  <Metric label="Panturrilha" value={data.calf} suffix="cm" />
+                  <Metric label="Antebraço" value={data.forearm} suffix="cm" />
                 </div>
               </CardContent>
             </Card>
@@ -739,7 +779,7 @@ function Lightbox({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-[60] bg-black/90"
+      className="fixed inset-0 z-60 bg-black/90"
       onClick={onClose}
     >
       {/* ✅ topo: só o X (mais baixo) */}
@@ -788,11 +828,14 @@ function Lightbox({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-3">
-          <img
+          <Image
             src={src}
             alt={title}
             className="max-h-[82svh] max-w-[96vw] object-contain select-none"
             draggable={false}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.opacity = "0.4";
+            }}
           />
 
           {/* ✅ legenda abaixo da foto */}

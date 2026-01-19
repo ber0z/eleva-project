@@ -9,7 +9,6 @@ import eleva from "../../../../../public/imgs/eleva.png";
 import {
   Weight,
   BicepsFlexed,
-  Shirt,
   // Smartphone,
   // Apple,
   X,
@@ -26,7 +25,11 @@ import NextImage, { type StaticImageData } from "next/image";
 import thigh1 from "../../../../../public/icones/thigh1.png";
 import height from "../../../../../public/icones/height.png";
 import waist from "../../../../../public/icones/waist.png";
+import chest from "../../../../../public/icones/chest.png";
 import hips from "../../../../../public/icones/hips.png";
+import shoulders from "../../../../../public/icones/calf.png";
+import calf from "../../../../../public/icones/hips.png";
+import forearm from "../../../../../public/icones/forearm.png";
 
 /* ===================== Tipos ===================== */
 type SharedUser = {
@@ -49,6 +52,9 @@ type SharedEvolution = {
   waist: number | null;
   hips: number | null;
   chest: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -80,6 +86,9 @@ const METRIC_KEYS = [
   "waist",
   "hips",
   "chest",
+  "shoulder",
+  "calf",
+  "forearm",
 ] as const;
 type MetricKey = typeof METRIC_KEYS[number];
 
@@ -94,13 +103,16 @@ type MetricCfg = Record<MetricKey, MetricCfgItem>;
 const METRICS: MetricCfg = {
   height: { label: "Altura", unit: "cm", icon: { kind: "image", src: height, alt: "Altura" } },
   weight: { label: "Peso", unit: "kg", icon: { kind: "lucide", Icon: Weight } },
-  chest: { label: "Peitoral", unit: "cm", icon: { kind: "lucide", Icon: Shirt } },
+  chest: { label: "Peitoral", unit: "cm", icon: { kind: "image", src: chest, alt: "peito" } },
   rightBiceps: { label: "Bíceps direito", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   leftBiceps: { label: "Bíceps esquerdo", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   rightThigh: { label: "Coxa direita", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   leftThigh: { label: "Coxa esquerda", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waist, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hips, alt: "Quadril" } },
+  shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
+  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
 const PRIMARY_KEYS: readonly MetricKey[] = ["weight"];
@@ -536,10 +548,10 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: LightboxProps) {
       }}
     >
       <div
-        className="relative w-full max-w-[92vw] h-[min(88svh,92vw)] max-h-[88svh] flex items-center justify-center overflow-hidden"
+        className="relative w-[min(92vw,1280px)] h-[88svh] max-h-[88svh] flex items-center justify-center overflow-hidden"
         onClick={(e) => e.stopPropagation()}
-        style={{ height: "min(88svh,92vw)", maxHeight: "88svh" }}
       >
+
         {/* PILHA DE IMAGENS (fica abaixo no z-index) */}
         <div className="relative z-10 w-[92vw] h-[88vh] max-w-[92vw] max-h-[88vh]">
           {images.map((img, i) => {

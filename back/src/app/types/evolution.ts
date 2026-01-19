@@ -37,5 +37,5 @@ export type EvolutionWritable = Pick<
   import("@prisma/client").Evolution,
   | "date" | "goal" | "height" | "weight"
   | "rightBiceps" | "leftBiceps" | "rightThigh" | "leftThigh"
-  | "waist" | "hips" | "chest" | "message"
+  | "waist" | "hips" | "chest" | "message" | "shoulder" | "calf" | "forearm"
 >;

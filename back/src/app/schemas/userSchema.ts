@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const goalEnums = ["gain_muscle", "lose_fat", "recomposition", "maintain", "increase_strength", "improve_endurance", "improve_health"] as const;
+
 export const userSchema = z.object({
   name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
   birthDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
@@ -9,7 +11,7 @@ export const userSchema = z.object({
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
   preset: z.object({
-    currentGoal: z.string().optional(),
+    currentGoal: z.enum(goalEnums).optional(),
     terms: z.string(),
   }).optional(),
 });

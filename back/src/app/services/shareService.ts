@@ -30,6 +30,9 @@ type EvolutionCore = {
   waist: number | null;
   hips: number | null;
   chest: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message: string | null;
 };
 

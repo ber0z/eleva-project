@@ -22,7 +22,7 @@ type EvolutionDetail = {
   id: number;
   idUser: number;
   date: string; // ISO
-  goal?: "gain" | "lose" | "maintain" | string | null;
+  goal?: GoalPreset | string | null;
   height: number | null;
   weight: number;
   rightBiceps: number | null;
@@ -32,11 +32,38 @@ type EvolutionDetail = {
   waist: number | null;
   hips: number | null;
   chest: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message: string | null;
   createdAt: string; // ISO
   updatedAt: string; // ISO
   EvolutionImages: EvoImage[];
 };
+
+type GoalPreset =
+  | "gain_muscle"
+  | "lose_fat"
+  | "recomposition"
+  | "maintain"
+  | "increase_strength"
+  | "improve_endurance"
+  | "improve_health";
+
+const GOAL_OPTIONS: { value: GoalPreset; label: string }[] = [
+  { value: "gain_muscle", label: "Ganhar massa muscular" },
+  { value: "lose_fat", label: "Perder gordura" },
+  { value: "recomposition", label: "Recomposição corporal" },
+  { value: "maintain", label: "Manutenção" },
+  { value: "increase_strength", label: "Aumentar força" },
+  { value: "improve_endurance", label: "Melhorar resistência" },
+  { value: "improve_health", label: "Melhorar saúde geral" },
+];
+
+function isGoalPreset(v: string): v is GoalPreset {
+  return (GOAL_OPTIONS as Array<{ value: string }>).some((o) => o.value === v);
+}
+
 
 export default function EvolutionEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -53,8 +80,11 @@ export default function EvolutionEditPage() {
   const [waist, setWaist] = useState<string>("");
   const [hips, setHips] = useState<string>("");
   const [chest, setChest] = useState<string>("");
+  const [shoulder, setShoulder] = useState<string>("");
+  const [calf, setCalf] = useState<string>("");
+  const [forearm, setForearm] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const [goal, setGoal] = useState<string>("");
+  const [goal, setGoal] = useState<GoalPreset | "">("");
 
   // imagens atuais
   const [imgFrontUrl, setImgFrontUrl] = useState<string | null>(null);
@@ -97,9 +127,14 @@ export default function EvolutionEditPage() {
         setWaist(optNum(evo.waist));
         setHips(optNum(evo.hips));
         setChest(optNum(evo.chest));
+        setShoulder(optNum(evo.shoulder));
+        setCalf(optNum(evo.calf));
+        setForearm(optNum(evo.forearm));
         setMessage(evo.message ?? "");
-        setGoal(evo.goal ? String(evo.goal) : "");
-
+        setGoal(() => {
+          const g = evo.goal ? String(evo.goal) : "";
+          return g && isGoalPreset(g) ? (g as GoalPreset) : "";
+        });
         const imgs = (evo.EvolutionImages ?? []).reduce<Record<number, string>>(
           (acc, it) => {
             acc[it.position] = it.url;
@@ -122,8 +157,8 @@ export default function EvolutionEditPage() {
         if (isAxiosError(error)) {
           setErr(
             error.response?.data?.message ||
-              error.message ||
-              "Falha ao carregar evolução"
+            error.message ||
+            "Falha ao carregar evolução"
           );
         } else {
           setErr("Falha ao carregar evolução");
@@ -169,8 +204,11 @@ export default function EvolutionEditPage() {
       appendIf(fd, "waist", waist);
       appendIf(fd, "hips", hips);
       appendIf(fd, "chest", chest);
+      appendIf(fd, "shoulder", shoulder);
+      appendIf(fd, "calf", calf);
+      appendIf(fd, "forearm", forearm);
       appendIf(fd, "message", message);
-      appendIf(fd, "goal", goal.trim());
+      appendIf(fd, "goal", goal);
 
       // uploads novos
       if (imageFront) fd.append("imageFront", imageFront);
@@ -190,8 +228,8 @@ export default function EvolutionEditPage() {
       if (isAxiosError(error)) {
         setErr(
           error.response?.data?.message ||
-            error.message ||
-            "Falha ao salvar evolução"
+          error.message ||
+          "Falha ao salvar evolução"
         );
       } else {
         setErr("Falha ao salvar evolução");
@@ -371,6 +409,31 @@ export default function EvolutionEditPage() {
                     setValue={setHips}
                   />
                 </div>
+                {/* Ombro / Panturrilha (mesma linha) */}
+                <div className="grid grid-cols-2 gap-4">
+                  <NumberField
+                    id="shoulder"
+                    label="Ombro (cm)"
+                    value={shoulder}
+                    setValue={setShoulder}
+                  />
+                  <NumberField
+                    id="calf"
+                    label="Panturrilha (cm)"
+                    value={calf}
+                    setValue={setCalf}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+
+                  <NumberField
+                    id="forearm"
+                    label="Antebraço (cm)"
+                    value={forearm}
+                    setValue={setForearm}
+                  />
+                </div>
+
                 {/* Mensagem + Meta atual (lado a lado) */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                   {/* Mensagem ocupa 2 colunas no sm */}
@@ -390,16 +453,20 @@ export default function EvolutionEditPage() {
                   {/* Meta atual (texto) */}
                   <div>
                     <Label htmlFor="goal">Meta atual</Label>
-                    <Input
+
+                    <select
                       id="goal"
-                      type="text"
                       value={goal}
-                      onChange={(e) => setGoal(e.target.value)}
-                      placeholder="Ex.: cutting, hipertrofia, manutenção"
-                      autoComplete="off"
-                      className="mt-1 h-11 w-full rounded-xl"
-                      maxLength={250}
-                    />
+                      onChange={(e) => setGoal(e.target.value as GoalPreset | "")}
+                      className="mt-1 h-12 w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <option value="">Selecione...</option>
+                      {GOAL_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -598,10 +665,10 @@ export function ImageRow({
             {removeFlag
               ? "A foto vai ser excluída"
               : newPreview
-              ? "nova imagem selecionada"
-              : currentUrl
-              ? "Imagem atual"
-              : "Sem imagem"}
+                ? "nova imagem selecionada"
+                : currentUrl
+                  ? "Imagem atual"
+                  : "Sem imagem"}
           </div>
           {!removeFlag && (
             <div className="mt-0.5 text-xs text-muted-foreground">

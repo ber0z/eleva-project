@@ -23,21 +23,24 @@ import eleva from "../../../../public/imgs/eleva.png";
 type Gender = "male" | "female" | "other";
 type EmailStatus = "idle" | "checking" | "available" | "taken" | "error";
 
-type GoalPreset = "gain_muscle" | "lose_fat" | "maintain" | "custom" | "";
+type GoalPreset =
+  | "gain_muscle"
+  | "lose_fat"
+  | "recomposition"
+  | "maintain"
+  | "increase_strength"
+  | "improve_endurance"
+  | "improve_health";
 
-const GOAL_PRESETS: { value: Exclude<GoalPreset, "">; label: string }[] = [
+const GOAL_PRESETS: { value: GoalPreset; label: string }[] = [
   { value: "gain_muscle", label: "Ganhar massa muscular" },
   { value: "lose_fat", label: "Perder gordura" },
+  { value: "recomposition", label: "Recomposição corporal" },
   { value: "maintain", label: "Manutenção" },
-  { value: "custom", label: "Outro…" },
+  { value: "increase_strength", label: "Aumentar força" },
+  { value: "improve_endurance", label: "Melhorar resistência" },
+  { value: "improve_health", label: "Melhorar saúde geral" },
 ];
-
-function goalPresetToLabel(p: GoalPreset) {
-  if (p === "gain_muscle") return "Ganhar massa muscular";
-  if (p === "lose_fat") return "Perder gordura";
-  if (p === "maintain") return "Manutenção";
-  return "";
-}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -55,9 +58,8 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showConfirmPwd, setShowConfirmPwd] = useState(false);
 
-  // ✅ Objetivo (preset + custom)
+  // ✅ Objetivo (somente presets)
   const [goalPreset, setGoalPreset] = useState<GoalPreset>("gain_muscle");
-  const [goalCustom, setGoalCustom] = useState("");
 
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [termsText] = useState("Aceito os termos de uso.");
@@ -65,18 +67,10 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const emailValid =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.trim().length > 3;
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.trim().length > 3;
   const passwordValid = password.length >= 6;
   const birthValid = /^\d{4}-\d{2}-\d{2}$/.test(birthDate);
   const passwordsMatch = password === confirmPassword;
-
-  // meta final para enviar
-  const finalGoal = useMemo(() => {
-    if (goalPreset === "custom") return goalCustom.trim();
-    const label = goalPresetToLabel(goalPreset);
-    return label.trim();
-  }, [goalPreset, goalCustom]);
 
   const disabled = useMemo(
     () =>
@@ -88,35 +82,26 @@ export default function RegisterPage() {
       !acceptTerms ||
       emailStatus === "taken" ||
       emailStatus === "checking" ||
-      !passwordsMatch ||
-      (goalPreset === "custom" && !goalCustom.trim()),
-    [
-      loading,
-      name,
-      birthValid,
-      emailValid,
-      passwordValid,
-      acceptTerms,
-      emailStatus,
-      passwordsMatch,
-      goalPreset,
-      goalCustom,
-    ]
+      !passwordsMatch,
+    [loading, name, birthValid, emailValid, passwordValid, acceptTerms, emailStatus, passwordsMatch]
   );
 
-  async function checkEmailAvailability() {
+  async function checkEmailAvailability(): Promise<EmailStatus> {
     if (!emailValid) {
       setEmailStatus("idle");
-      return;
+      return "idle";
     }
+
     try {
       setEmailStatus("checking");
-      const { data } = await api.get("/auth/check-email", { params: { email } });
-      if (data?.exists === true) setEmailStatus("taken");
-      else if (data?.exists === false) setEmailStatus("available");
-      else setEmailStatus("available");
+      const { data } = await api.get("/auth/check-email", { params: { email: email.trim() } });
+      const taken = data?.exists === true;
+      const status: EmailStatus = taken ? "taken" : "available";
+      setEmailStatus(status);
+      return status;
     } catch {
       setEmailStatus("error");
+      return "error";
     }
   }
 
@@ -129,19 +114,12 @@ export default function RegisterPage() {
       return;
     }
 
-    // validação extra do objetivo
-    if (goalPreset === "custom" && !goalCustom.trim()) {
-      setErr("Informe seu objetivo.");
-      return;
+    // Checagem de e-mail antes de criar (sem race condition)
+    let status: EmailStatus = emailStatus;
+    if (emailValid) {
+      status = await checkEmailAvailability();
     }
-
-    // Checagem de e-mail antes de criar
-    if (emailValid && emailStatus !== "taken") {
-      try {
-        await checkEmailAvailability();
-      } catch {}
-    }
-    if (emailStatus === "taken") {
+    if (status === "taken") {
       setErr("Este e-mail já está em uso.");
       return;
     }
@@ -155,7 +133,7 @@ export default function RegisterPage() {
         email: email.trim(),
         password,
         preset: {
-          currentGoal: finalGoal || "Sem objetivo definido",
+          currentGoal: goalPreset, // <-- envia o ENUM
           terms: termsText,
         },
       };
@@ -166,11 +144,7 @@ export default function RegisterPage() {
       router.refresh();
     } catch (error) {
       if (isAxiosError(error)) {
-        setErr(
-          error.response?.data?.message ||
-            error.message ||
-            "Falha ao criar conta"
-        );
+        setErr(error.response?.data?.message || error.message || "Falha ao criar conta");
       } else {
         setErr("Falha ao criar conta");
       }
@@ -186,34 +160,16 @@ export default function RegisterPage() {
         <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-primary/5 to-transparent" />
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(0,0,0,0.06),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(0,0,0,0.04),transparent_35%)]" />
         <div className="flex h-full flex-col justify-between p-10">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold"
-            aria-label="Ir para a página inicial"
-          >
-            <Image
-              src={eleva}
-              alt="Eleva"
-              width={96}
-              height={96}
-              priority
-              className="mb-6 rounded-lg"
-            />
+          <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold" aria-label="Ir para a página inicial">
+            <Image src={eleva} alt="Eleva" width={96} height={96} priority className="mb-6 rounded-lg" />
           </Link>
 
           <div className="max-w-md">
-            <h2 className="text-3xl font-semibold leading-tight">
-              Crie sua conta
-            </h2>
-            <p className="mt-3 text-muted-foreground">
-              Cadastre-se para acompanhar métricas, registrar treinos e muito
-              mais.
-            </p>
+            <h2 className="text-3xl font-semibold leading-tight">Crie sua conta</h2>
+            <p className="mt-3 text-muted-foreground">Cadastre-se para acompanhar métricas, registrar treinos e muito mais.</p>
           </div>
 
-          <div className="text-xs text-muted-foreground/80">
-            © {new Date().getFullYear()} Eleva. Todos os direitos reservados.
-          </div>
+          <div className="text-xs text-muted-foreground/80">© {new Date().getFullYear()} Eleva. Todos os direitos reservados.</div>
         </div>
       </div>
 
@@ -222,18 +178,8 @@ export default function RegisterPage() {
         <div className="w-full max-w-md">
           {/* Cabeçalho mobile */}
           <div className="mb-6 flex items-center justify-between lg:hidden">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-sm font-semibold"
-            >
-              <Image
-                src={eleva}
-                alt="Eleva"
-                width={96}
-                height={96}
-                priority
-                className="mb-6 rounded-lg"
-              />
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold">
+              <Image src={eleva} alt="Eleva" width={96} height={96} priority className="mb-6 rounded-lg" />
             </Link>
 
             <Link href="/login" className="text-sm text-primary hover:underline">
@@ -246,18 +192,12 @@ export default function RegisterPage() {
             <div className="p-6">
               <div className="mb-6">
                 <h1 className="text-xl font-semibold">Criar conta</h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Preencha seus dados para começar
-                </p>
+                <p className="mt-1 text-sm text-muted-foreground">Preencha seus dados para começar</p>
               </div>
 
               {/* Erro */}
               {err && (
-                <div
-                  className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-                  role="alert"
-                  aria-live="polite"
-                >
+                <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert" aria-live="polite">
                   {err}
                 </div>
               )}
@@ -305,7 +245,7 @@ export default function RegisterPage() {
                 {/* Gênero */}
                 <div className="grid gap-2">
                   <label htmlFor="gender" className="text-sm font-medium leading-none">
-                    Gênero
+                    Sexo
                   </label>
                   <select
                     id="gender"
@@ -337,7 +277,7 @@ export default function RegisterPage() {
                         setEmail(e.target.value);
                         setEmailStatus("idle");
                       }}
-                      onBlur={checkEmailAvailability}
+                      onBlur={() => void checkEmailAvailability()}
                       className="block w-full rounded-xl border border-input bg-background px-4 py-3 pl-10 pr-10 text-foreground placeholder-muted-foreground outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring"
                       placeholder="voce@exemplo.com"
                       aria-invalid={emailStatus === "taken" ? true : undefined}
@@ -346,21 +286,13 @@ export default function RegisterPage() {
 
                     {emailValid && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        {emailStatus === "checking" && (
-                          <Loader2 className="h-4 w-4 animate-spin opacity-60" />
-                        )}
-                        {emailStatus === "available" && (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                        )}
-                        {emailStatus === "taken" && (
-                          <XCircle className="h-4 w-4 text-destructive" />
-                        )}
+                        {emailStatus === "checking" && <Loader2 className="h-4 w-4 animate-spin opacity-60" />}
+                        {emailStatus === "available" && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
+                        {emailStatus === "taken" && <XCircle className="h-4 w-4 text-destructive" />}
                       </div>
                     )}
                   </div>
-                  {emailStatus === "taken" && (
-                    <p className="text-xs text-destructive">Este e-mail já está em uso.</p>
-                  )}
+                  {emailStatus === "taken" && <p className="text-xs text-destructive">Este e-mail já está em uso.</p>}
                   {emailStatus === "error" && (
                     <p className="text-xs text-muted-foreground">
                       Não foi possível verificar o e-mail agora. Você ainda pode tentar criar a conta.
@@ -396,9 +328,7 @@ export default function RegisterPage() {
                       {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  {!passwordValid && password.length > 0 && (
-                    <p className="text-xs text-muted-foreground">Use ao menos 6 caracteres.</p>
-                  )}
+                  {!passwordValid && password.length > 0 && <p className="text-xs text-muted-foreground">Use ao menos 6 caracteres.</p>}
                 </div>
 
                 {/* Confirmar senha */}
@@ -429,12 +359,10 @@ export default function RegisterPage() {
                       {showConfirmPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  {confirmPassword.length > 0 && !passwordsMatch && (
-                    <p className="text-xs text-destructive">As senhas não coincidem.</p>
-                  )}
+                  {confirmPassword.length > 0 && !passwordsMatch && <p className="text-xs text-destructive">As senhas não coincidem.</p>}
                 </div>
 
-                {/* ✅ Objetivo atual (PRESETS) */}
+                {/* ✅ Objetivo atual (somente presets) */}
                 <div className="grid gap-2">
                   <label htmlFor="goalPreset" className="text-sm font-medium leading-none">
                     Objetivo atual
@@ -445,11 +373,7 @@ export default function RegisterPage() {
                       id="goalPreset"
                       name="goalPreset"
                       value={goalPreset}
-                      onChange={(e) => {
-                        const v = e.target.value as GoalPreset;
-                        setGoalPreset(v);
-                        if (v !== "custom") setGoalCustom("");
-                      }}
+                      onChange={(e) => setGoalPreset(e.target.value as GoalPreset)}
                       className="block w-full rounded-xl border border-input bg-background px-4 py-3 pl-10 text-foreground outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {GOAL_PRESETS.map((opt) => (
@@ -461,21 +385,6 @@ export default function RegisterPage() {
 
                     <ClipboardList className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" />
                   </div>
-
-                  {goalPreset === "custom" && (
-                    <div className="relative">
-                      <input
-                        id="goalCustom"
-                        name="goalCustom"
-                        type="text"
-                        value={goalCustom}
-                        onChange={(e) => setGoalCustom(e.target.value)}
-                        className="block w-full rounded-xl border border-input bg-background px-4 py-3 pl-10 text-foreground placeholder-muted-foreground outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring"
-                        placeholder="Descreva seu objetivo (ex.: definir abdômen)"
-                      />
-                      <ClipboardList className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-40" />
-                    </div>
-                  )}
                 </div>
 
                 {/* Termos */}
@@ -522,9 +431,7 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Eleva
-          </p>
+          <p className="mt-6 text-center text-xs text-muted-foreground">© {new Date().getFullYear()} Eleva</p>
         </div>
       </div>
     </div>

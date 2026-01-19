@@ -6,3 +6,12 @@
 
 //ver logs
     docker compose logs -f back
+
+
+
+--back
+//criar e executar migration
+npx prisma migrate dev --name <nome_da_migration>
+
+//gera o prisma client (executar apos migration)
+npx prisma generate

@@ -9,7 +9,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   Weight,
   BicepsFlexed,
-  Shirt,
   // Smartphone,
   X,
   ChevronLeft,
@@ -25,7 +24,11 @@ import NextImage, { type StaticImageData } from "next/image";
 import thigh1 from "../../../../../../public/icones/thigh1.png";
 import height from "../../../../../../public/icones/height.png";
 import waist from "../../../../../../public/icones/waist.png";
+import chest from "../../../../../../public/icones/chest.png";
 import hips from "../../../../../../public/icones/hips.png";
+import shoulders from "../../../../../../public/icones/shoulders.png";
+import calf from "../../../../../../public/icones/calf.png";
+import forearm from "../../../../../../public/icones/forearm.png";
 
 /* ===================== Tipos ===================== */
 type SharedUser = { name: string; username: string };
@@ -43,6 +46,9 @@ type SharedEvolution = {
   waist: number | null;
   hips: number | null;
   chest: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message?: string | null;
   images?: SharedImage[];
 };
@@ -57,7 +63,10 @@ type MetricKey =
   | "leftThigh"
   | "waist"
   | "hips"
-  | "chest";
+  | "chest"
+  | "shoulder"
+  | "calf"
+  | "forearm";
 
 type ShareCompareResponse = {
   expiresAt: string;
@@ -83,6 +92,9 @@ const METRIC_KEYS: readonly MetricKey[] = [
   "waist",
   "hips",
   "chest",
+  "shoulder",
+  "calf",
+  "forearm",
 ];
 
 type IconDef =
@@ -95,13 +107,16 @@ type MetricCfg = Record<MetricKey, MetricCfgItem>;
 const METRICS: MetricCfg = {
   height: { label: "Altura", unit: "cm", icon: { kind: "image", src: height, alt: "Altura" } },
   weight: { label: "Peso", unit: "kg", icon: { kind: "lucide", Icon: Weight } },
-  chest: { label: "Peitoral", unit: "cm", icon: { kind: "lucide", Icon: Shirt } },
+  chest: { label: "Peitoral", unit: "cm", icon: { kind: "image", src: chest, alt: "peito" } },
   rightBiceps: { label: "Bíceps direito", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   leftBiceps: { label: "Bíceps esquerdo", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   rightThigh: { label: "Coxa direita", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   leftThigh: { label: "Coxa esquerda", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waist, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hips, alt: "Quadril" } },
+  shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
+  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
 const PRIMARY_KEYS: readonly MetricKey[] = ["weight"];
@@ -225,17 +240,22 @@ export default function CompareEvolutionPage({
   // diferenças (fallback caso o servidor não mande)
   const differences = useMemo(() => {
     if (data?.differences) return data.differences;
-    const diff: Record<MetricKey, number> = {
-      height: 0, weight: 0, rightBiceps: 0, leftBiceps: 0,
-      rightThigh: 0, leftThigh: 0, waist: 0, hips: 0, chest: 0,
-    };
+
+    const diff: Partial<Record<MetricKey, number | null>> = {};
+
     for (const k of METRIC_KEYS) {
       const a = (evo1?.[k] as number | null) ?? null;
       const b = (evo2?.[k] as number | null) ?? null;
-      diff[k] = a != null && b != null ? a - b : 0;
+
+      const hasA = typeof a === "number" && Number.isFinite(a);
+      const hasB = typeof b === "number" && Number.isFinite(b);
+
+      diff[k] = hasA && hasB ? a - b : null;
     }
-    return diff;
-  }, [data, evo1, evo2]);
+
+    return diff as Record<MetricKey, number> & { dateDifference?: DateDiff };
+  }, [data?.differences, evo1, evo2]);
+
 
   // ---- ações
   function openCompareByPosition(position: number) {
@@ -392,12 +412,32 @@ export default function CompareEvolutionPage({
               const cfg = METRICS[k];
               const v1 = evo1 ? (evo1[k] as number | null) : null;
               const v2 = evo2 ? (evo2[k] as number | null) : null;
-              const delta = differences?.[k] ?? 0;
-              const deltaAbs = Math.abs(delta);
-              const state =
-                delta > 0 ? "text-emerald-600" : delta < 0 ? "text-rose-600" : "text-muted-foreground";
-              const badge =
-                delta === 0 ? "Sem diferença" : delta > 0 ? `+${deltaAbs} ${cfg.unit}` : `-${deltaAbs} ${cfg.unit}`;
+
+              const hasV1 = typeof v1 === "number" && Number.isFinite(v1);
+              const hasV2 = typeof v2 === "number" && Number.isFinite(v2);
+
+              const raw = (differences)?.[k] as number | null | undefined;
+              const hasDiff = typeof raw === "number" && Number.isFinite(raw);
+
+              const showDiff = hasV1 && hasV2 && hasDiff;
+
+              const deltaAbs = showDiff ? Math.abs(raw) : 0;
+
+              const state = !showDiff
+                ? "text-muted-foreground"
+                : raw > 0
+                  ? "text-emerald-600"
+                  : raw < 0
+                    ? "text-rose-600"
+                    : "text-muted-foreground";
+
+              const badge = !showDiff
+                ? "Sem dados"
+                : raw === 0
+                  ? "Sem diferença"
+                  : raw > 0
+                    ? `+${deltaAbs} ${cfg.unit}`
+                    : `-${deltaAbs} ${cfg.unit}`;
 
               return (
                 <div
@@ -408,16 +448,19 @@ export default function CompareEvolutionPage({
                     <MetricIcon icon={cfg.icon} className="h-5 w-5 text-foreground/80" />
                     <span className="text-[11px] sm:text-xs text-muted-foreground">{cfg.label}</span>
                   </div>
+
                   <div className="mt-2 grid grid-cols-3 items-end gap-2">
                     <div className="text-base sm:text-lg font-semibold">
                       {formatVal(v1)} <span className="text-xs text-muted-foreground">{cfg.unit}</span>
                       <div className="text-[10px] text-muted-foreground mt-0.5">{date1 || "—"}</div>
                     </div>
+
                     <div className="text-center text-xs sm:text-sm font-medium">
                       <span className={`inline-block rounded-full px-2 py-0.5 ${state} bg-black/5 dark:bg-white/5`}>
                         {badge}
                       </span>
                     </div>
+
                     <div className="text-right text-base sm:text-lg font-semibold">
                       {formatVal(v2)} <span className="text-xs text-muted-foreground">{cfg.unit}</span>
                       <div className="text-[10px] text-muted-foreground mt-0.5">{date2 || "—"}</div>
@@ -426,6 +469,7 @@ export default function CompareEvolutionPage({
                 </div>
               );
             })}
+
           </div>
 
           {/* tabela medidas */}
@@ -441,32 +485,58 @@ export default function CompareEvolutionPage({
               <div className="divide-y divide-border">
                 {METRIC_KEYS.filter((k) => !PRIMARY_KEYS.includes(k)).map((k) => {
                   const cfg = METRICS[k];
+
                   const a = evo1 ? (evo1[k] as number | null) : null;
                   const b = evo2 ? (evo2[k] as number | null) : null;
-                  const d = differences?.[k] ?? 0;
-                  const sign = d === 0 ? "=" : d > 0 ? `+${Math.abs(d)} ${cfg.unit}` : `-${Math.abs(d)} ${cfg.unit}`;
-                  const state =
-                    d > 0 ? "text-emerald-600" : d < 0 ? "text-rose-600" : "text-muted-foreground";
+
+                  const hasA = typeof a === "number" && Number.isFinite(a);
+                  const hasB = typeof b === "number" && Number.isFinite(b);
+
+                  const raw = (differences)?.[k] as number | null | undefined;
+                  const hasDiff = typeof raw === "number" && Number.isFinite(raw);
+
+                  const showDiff = hasA && hasB && hasDiff;
+
+                  const sign = !showDiff
+                    ? "—"
+                    : raw === 0
+                      ? "="
+                      : raw > 0
+                        ? `+${Math.abs(raw)} ${cfg.unit}`
+                        : `-${Math.abs(raw)} ${cfg.unit}`;
+
+                  const state = !showDiff
+                    ? "text-muted-foreground"
+                    : raw > 0
+                      ? "text-emerald-600"
+                      : raw < 0
+                        ? "text-rose-600"
+                        : "text-muted-foreground";
+
                   return (
                     <div key={k} className="grid grid-cols-4 px-3 py-2 items-center">
                       <div className="flex items-center gap-2">
                         <MetricIcon icon={cfg.icon} className="h-4 w-4 text-foreground/80" />
                         <span className="text-xs">{cfg.label}</span>
                       </div>
+
                       <div className="text-right text-sm">
                         {formatVal(a)} <span className="text-[11px] text-muted-foreground">{cfg.unit}</span>
                       </div>
+
                       <div className="text-center text-xs">
                         <span className={`inline-block rounded-full px-2 py-0.5 ${state} bg-black/5 dark:bg-white/5`}>
                           {sign}
                         </span>
                       </div>
+
                       <div className="text-right text-sm">
                         {formatVal(b)} <span className="text-[11px] text-muted-foreground">{cfg.unit}</span>
                       </div>
                     </div>
                   );
                 })}
+
               </div>
             </div>
           </div>

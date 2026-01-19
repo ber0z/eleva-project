@@ -1,8 +1,11 @@
 import { z } from "zod";
 
+const goalEnums = ["gain_muscle", "lose_fat", "recomposition", "maintain", "increase_strength", "improve_endurance", "improve_health"] as const;
+
+
 export const evolutionSchema = z.object({
   date: z.coerce.date(),
-  goal: z.string().default(""),
+  goal: z.enum(goalEnums).default("gain_muscle"),
   height: z.number(),
   weight: z.number(),
   rightBiceps: z.number().optional(),
@@ -12,6 +15,9 @@ export const evolutionSchema = z.object({
   waist: z.number().optional(),
   hips: z.number().optional(),
   chest: z.number().optional(),
+  shoulder: z.number().optional(),
+  calf: z.number().optional(),
+  forearm: z.number().optional(),
   message: z.coerce.string().max(512).optional(),
   imageFront: z.instanceof(Buffer).optional(),
   imageSide: z.instanceof(Buffer).optional(),
@@ -21,7 +27,7 @@ export const evolutionSchema = z.object({
 
 export const evolutionUpdateSchema = z.object({
   date: z.coerce.date(),
-  goal: z.string().default(""),
+  goal: z.enum(goalEnums).optional(),
   height: z.number(),
   weight: z.number(),
   rightBiceps: z.number().optional(),
@@ -31,6 +37,9 @@ export const evolutionUpdateSchema = z.object({
   waist: z.number().optional(),
   hips: z.number().optional(),
   chest: z.number().optional(),
+  shoulder: z.number().optional(),
+  calf: z.number().optional(),
+  forearm: z.number().optional(),
   message: z.coerce.string().max(512).optional(),
   imageFront: z.instanceof(Buffer).optional(),
   imageSide: z.instanceof(Buffer).optional(),
@@ -51,6 +60,9 @@ export const measuresSchema = z.object({
   waist: z.number().optional(),
   hips: z.number().optional(),
   chest: z.number().optional(),
+  shoulder: z.number().optional(),
+  calf: z.number().optional(),
+  forearm: z.number().optional(),
 });
 
 export const idParamSchema = z.object({

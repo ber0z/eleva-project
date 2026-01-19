@@ -17,6 +17,9 @@ export interface CreateEvolutionDTO {
   waist?: number;
   hips?: number;
   chest?: number;
+  shoulder?: number,
+  calf?: number,
+  forearm?: number,
   message?: string;
 }
 export interface UpdateEvolutionDTO {
@@ -32,6 +35,9 @@ export interface UpdateEvolutionDTO {
   waist?: number;
   hips?: number;
   chest?: number;
+  shoulder: true,
+  calf: true,
+  forearm: true,
   message?: string;
   removeImageFront?: boolean,
   removeImageSide?: boolean,
@@ -137,25 +143,25 @@ export class EvolutionRepository {
   }
 
   async listByUser(
-  userId: number,
-  skip: number,
-  take: number,
-  tx?: Prisma.TransactionClient
-): Promise<Array<{ id: number; date: Date | null; weight: number }>> {
-  const db = tx ?? prisma;
+    userId: number,
+    skip: number,
+    take: number,
+    tx?: Prisma.TransactionClient
+  ): Promise<Array<{ id: number; date: Date | null; weight: number }>> {
+    const db = tx ?? prisma;
 
-  return db.evolution.findMany({
-    where: { idUser: userId, /* se quiser ignorar nulos: date: { not: null } */ },
-    select: { id: true, date: true, weight: true },
-    orderBy: [
-      { date: "desc" },    
-      { createdAt: "desc" },
-      { id: "desc" },
-    ],
-    skip,
-    take,
-  });
-}
+    return db.evolution.findMany({
+      where: { idUser: userId, /* se quiser ignorar nulos: date: { not: null } */ },
+      select: { id: true, date: true, weight: true },
+      orderBy: [
+        { date: "desc" },
+        { createdAt: "desc" },
+        { id: "desc" },
+      ],
+      skip,
+      take,
+    });
+  }
   async findLastEvolutions(
     userId: number,
     limit: number = 2,
@@ -181,5 +187,5 @@ export class EvolutionRepository {
     });
   }
 
-  
+
 } 

@@ -9,7 +9,7 @@ import {
   // Dumbbell,
   // Apple,
 } from "lucide-react";
-// import { Zzz } from "@/components/icons/Zzz";
+import { Zzz } from "@/components/icons/Zzz";
 
 /* pega o primeiro segmento DEPOIS de "/app" */
 function getAppSegment(pathname: string) {
@@ -33,7 +33,7 @@ export default function ResponsiveNav() {
     { href: "/app/evolutions", seg: "evolutions", label: "Evolução", Icon: ChartNoAxesCombined },
     // { href: "/app/trainings", seg: "trainings", label: "Treinamento", Icon: Dumbbell },
     // { href: "/app/diets", seg: "diets", label: "Alimentação", Icon: Apple },
-    // { href: "/app/sleep", seg: "sleep", label: "Sono", Icon: Zzz },
+    { href: "/app/sleep", seg: "sleep", label: "Sono", Icon: Zzz },
   ];
 
   return (
@@ -88,7 +88,7 @@ export default function ResponsiveNav() {
         "
         aria-label="Navegação por abas"
       >
-        <ul className="grid grid-cols-2 gap-1">
+        <ul className="grid grid-cols-3 gap-1">
           {items.map(({ href, seg, label, Icon }) => {
             const active = current === seg;
             return (

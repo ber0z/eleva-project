@@ -34,13 +34,16 @@ type EvolutionWithImagesAndUrls = {
   waist?: number | null;
   hips?: number | null;
   chest?: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message?: string | null;
   createdAt: Date;
   updatedAt: Date;
   EvolutionImages: EvolutionImageWithUrl[];
 };
 
- 
+
 export interface EvolutionImages {
   imageFront?: Buffer;
   imageSide?: Buffer;
@@ -89,6 +92,19 @@ const positionByRemoveFlag: Record<RemoveFlag, Position> = {
   removeImageBack: 3,
 };
 
+type DateDiff = { years: number; months: number; days: number };
+
+function roundTo(v: number, decimals: number) {
+  const p = 10 ** decimals;
+  const n = Math.round((v + Number.EPSILON) * p) / p;
+  return Object.is(n, -0) ? 0 : n; // evita "-0"
+}
+
+function toUTCDateOnly(d: Date) {
+  const x = new Date(d);
+  x.setUTCHours(0, 0, 0, 0);
+  return x;
+}
 
 
 export class EvolutionService {
@@ -331,6 +347,9 @@ export class EvolutionService {
       waist: data.waist,
       hips: data.hips,
       chest: data.chest,
+      shoulder: data.shoulder,
+      calf: data.calf,
+      forearm: data.forearm,
     };
   }
 
@@ -406,7 +425,7 @@ export class EvolutionService {
       const writableKeys: (keyof EvolutionWritable)[] = [
         "date", "goal", "height", "weight",
         "rightBiceps", "leftBiceps", "rightThigh", "leftThigh",
-        "waist", "hips", "chest", "message",
+        "waist", "hips", "chest", "message", "shoulder", "calf", "forearm"
       ];
       const partial: Partial<EvolutionWritable> = {};
       assignIfDefined<EvolutionWritable>(partial, updateData as Partial<EvolutionWritable>, writableKeys);
@@ -423,6 +442,7 @@ export class EvolutionService {
 
     return updated;
   }
+
   private async handleImageUpdatesR2_Flat(
     evolutionId: number,
     userId: number,
@@ -510,22 +530,40 @@ export class EvolutionService {
     };
   }
 
-  async compareEvolutions(userId: number, evo1Id: number, evo2Id: number): Promise<{
+  async compareEvolutions(
+    userId: number,
+    evo1Id: number,
+    evo2Id: number
+  ): Promise<{
     evolution1: Evolution;
     evolution2: Evolution;
-    differences: Record<string, number | { years: number; months: number; days: number }>;
+    differences: Record<string, number | null | DateDiff>;
   }> {
-    // 1) busca garantindo a propriedade
     const [evolution1, evolution2] = await Promise.all([
       prisma.evolution.findFirst({ where: { id: evo1Id, idUser: userId } }),
       prisma.evolution.findFirst({ where: { id: evo2Id, idUser: userId } }),
     ]);
 
     if (!evolution1 || !evolution2) {
-      throw new Error("Evolution não encontrada ou não pertence ao usuário"); // 403/404 no controller
+      throw new Error("Evolution não encontrada ou não pertence ao usuário");
     }
 
-    // 2) calcula diferenças
+    // Defina quantas casas cada métrica deve ter (ajuste como quiser)
+    const DECIMALS: Partial<Record<keyof Evolution, number>> = {
+      height: 0,
+      weight: 1,
+      rightBiceps: 1,
+      leftBiceps: 1,
+      rightThigh: 1,
+      leftThigh: 1,
+      waist: 1,
+      hips: 1,
+      chest: 1,
+      shoulder: 1,
+      calf: 1,
+      forearm: 1,
+    };
+
     const fields: Array<keyof Evolution> = [
       "height",
       "weight",
@@ -536,32 +574,50 @@ export class EvolutionService {
       "waist",
       "hips",
       "chest",
+      "shoulder",
+      "calf",
+      "forearm",
     ];
 
-    const differences: Record<string, number> = {};
+    const differences: Record<string, number | null> = {};
+
     for (const f of fields) {
       const v1 = evolution1[f] as number | null | undefined;
       const v2 = evolution2[f] as number | null | undefined;
-      differences[f] =
-        typeof v1 === "number" && typeof v2 === "number" ? v1 - v2 : NaN;
+
+      if (typeof v1 === "number" && typeof v2 === "number" && Number.isFinite(v1) && Number.isFinite(v2)) {
+        const dec = DECIMALS[f] ?? 1;
+        differences[f] = roundTo(v1 - v2, dec);
+      } else {
+        // Evita NaN no JSON; use null pra sinalizar "não calculável"
+        differences[f] = null;
+      }
     }
 
-    // cálculo da duração
-    const dur = intervalToDuration({ start: evolution1.date, end: evolution2.date });
-    const dateDiff = {
-      years: dur.years ?? 0,
-      months: dur.months ?? 0,
-      days: dur.days ?? 0,
+    // ===== Diferença de datas (sempre positiva e sem “dias negativos”) =====
+    const d1 = toUTCDateOnly(evolution1.date as unknown as Date);
+    const d2 = toUTCDateOnly(evolution2.date as unknown as Date);
+
+    const start = d1.getTime() <= d2.getTime() ? d1 : d2;
+    const end = d1.getTime() <= d2.getTime() ? d2 : d1;
+
+    const dur = intervalToDuration({ start, end });
+
+    const dateDiff: DateDiff = {
+      years: Math.abs(dur.years ?? 0),
+      months: Math.abs(dur.months ?? 0),
+      days: Math.abs(dur.days ?? 0),
     };
 
     return {
-      evolution1: evolution1,
-      evolution2: evolution2,
+      evolution1,
+      evolution2,
       differences: {
         ...differences,
-        dateDifference: dateDiff
-      }
+        dateDifference: dateDiff,
+      },
     };
+
   }
 
   async getLastEvolutions(userId: number): Promise<Evolution[]> {

@@ -89,4 +89,37 @@ export class SleepRepository {
 
     return { items, total, page, pageSize };
   }
+
+  async statsByUser(
+    idUser: number,
+    params: { dateFrom: Date; dateTo: Date },
+    tx?: Prisma.TransactionClient
+  ) {
+    const db = tx ?? this.db;
+    const { dateFrom, dateTo } = params;
+
+    const where: Prisma.SleepWhereInput = {
+      idUser,
+      AND: [{ date: { gte: dateFrom } }, { date: { lte: dateTo } }],
+    };
+
+    const [agg, grouped] = await Promise.all([
+      db.sleep.aggregate({
+        where,
+        _avg: { duration: true },
+        _count: { _all: true },
+      }),
+      db.sleep.groupBy({
+        by: ["sleepQuality"],
+        where: {
+          ...where,
+          sleepQuality: { not: null }, // só avaliados
+        },
+        _count: { _all: true },
+      }),
+    ]);
+
+    return { agg, grouped };
+  }
+
 }

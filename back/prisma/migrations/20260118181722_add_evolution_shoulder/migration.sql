@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE "Evolution" ADD COLUMN     "calf" DOUBLE PRECISION,
+ADD COLUMN     "forearm" DOUBLE PRECISION,
+ADD COLUMN     "shoulder" DOUBLE PRECISION;
+
+-- AlterTable
+ALTER TABLE "Measure" ADD COLUMN     "calf" DOUBLE PRECISION,
+ADD COLUMN     "forearm" DOUBLE PRECISION,
+ADD COLUMN     "shoulder" DOUBLE PRECISION;

@@ -7,7 +7,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   Weight,
   BicepsFlexed,
-  Shirt,
   // Smartphone,
   X,
   ChevronLeft,
@@ -23,8 +22,12 @@ import Image from "next/image";
 import thigh1 from "../../../../../../public/icones/thigh1.png";
 import height from "../../../../../../public/icones/height.png";
 import waist from "../../../../../../public/icones/waist.png";
+import chest from "../../../../../../public/icones/chest.png";
 import hips from "../../../../../../public/icones/hips.png";
 import eleva from "../../../../../../public/imgs/eleva.png";
+import shoulders from "../../../../../../public/icones/calf.png";
+import calf from "../../../../../../public/icones/hips.png";
+import forearm from "../../../../../../public/icones/forearm.png";
 
 /* ===================== Tipos ===================== */
 type SharedUser = {
@@ -46,6 +49,9 @@ type SharedEvolution = {
   waist: number | null;
   hips: number | null;
   chest: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message?: string | null;
   images?: SharedImage[];
 };
@@ -72,6 +78,9 @@ const METRIC_KEYS = [
   "waist",
   "hips",
   "chest",
+  "shoulder",
+  "calf",
+  "forearm",
 ] as const;
 type MetricKey = typeof METRIC_KEYS[number];
 
@@ -86,13 +95,16 @@ type MetricCfg = Record<MetricKey, MetricCfgItem>;
 const METRICS: MetricCfg = {
   height: { label: "Altura", unit: "cm", icon: { kind: "image", src: height, alt: "Altura" } },
   weight: { label: "Peso", unit: "kg", icon: { kind: "lucide", Icon: Weight } },
-  chest: { label: "Peitoral", unit: "cm", icon: { kind: "lucide", Icon: Shirt } },
+  chest: { label: "Peitoral", unit: "cm", icon: { kind: "image", src: chest, alt: "peito" }},
   rightBiceps: { label: "Bíceps direito", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   leftBiceps: { label: "Bíceps esquerdo", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   rightThigh: { label: "Coxa direita", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   leftThigh: { label: "Coxa esquerda", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waist, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hips, alt: "Quadril" } },
+  shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
+  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
 const PRIMARY_KEYS: readonly MetricKey[] = ["weight"];
@@ -191,13 +203,16 @@ export default function SharedEvolutionPage({
   const evo = data?.evolution ?? null;
 
   const dateStr = useMemo(() => {
-    if (!evo?.date) return "";
-    try {
-      return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium" }).format(new Date(evo.date));
-    } catch {
-      return "";
-    }
-  }, [evo]);
+  if (!evo?.date) return "";
+  try {
+    return new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "UTC",
+      dateStyle: "medium",
+    }).format(new Date(evo.date));
+  } catch {
+    return "";
+  }
+}, [evo?.date]);
 
   const primary = PRIMARY_KEYS.map((k) => ({
     key: k,

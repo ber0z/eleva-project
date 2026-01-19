@@ -6,12 +6,15 @@ import { api } from "@/lib/api";
 import Link from "next/link";
 import Image, { type StaticImageData } from "next/image";
 import type { LucideIcon } from "lucide-react";
-import { Weight, BicepsFlexed, Shirt } from "lucide-react";
+import { Weight, BicepsFlexed } from "lucide-react";
 import thigh1 from "../../../../../../public/icones/thigh1.png";
 import height from "../../../../../../public/icones/height.png";
 import waist from "../../../../../../public/icones/waist.png";
+import chest from "../../../../../../public/icones/chest.png";
 import hips from "../../../../../../public/icones/hips.png";
-
+import shoulders from "../../../../../../public/icones/shoulders.png";
+import calf from "../../../../../../public/icones/calf.png";
+import forearm from "../../../../../../public/icones/forearm.png";
 
 /* ===== Tipos ===== */
 type EvolutionImage = {
@@ -37,6 +40,9 @@ type Evolution = {
   waist: number | null;
   hips: number | null;
   chest: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message: string | null;
   createdAt: string;
   updatedAt: string;
@@ -54,6 +60,9 @@ type MetricKey = keyof Pick<
   | "waist"
   | "hips"
   | "chest"
+  | "shoulder"
+  | "calf"
+  | "forearm"
 >;
 
 /** Discriminated union para aceitar lucide ou imagem */
@@ -68,16 +77,19 @@ type MetricCfg = Record<MetricKey, MetricCfgItem>;
 const METRIC_CONFIG: MetricCfg = {
   height: { label: "Altura", unit: "cm", icon: { kind: "image", src: height, alt: "Altura" } },
   weight: { label: "Peso", unit: "kg", icon: { kind: "lucide", Icon: Weight } },
-  chest: { label: "Peitoral", unit: "cm", icon: { kind: "lucide", Icon: Shirt } },
+  chest: { label: "Peitoral", unit: "cm", icon: { kind: "image", src: chest, alt: "peito" }},
   rightBiceps: { label: "Bíceps direito", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   leftBiceps: { label: "Bíceps esquerdo", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   rightThigh: { label: "Coxa direita", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   leftThigh: { label: "Coxa esquerda", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waist, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hips, alt: "Quadril" } },
+  shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
+  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
-const PRIMARY_KEYS: Array<keyof typeof METRIC_CONFIG> = ["weight"];
+const PRIMARY_KEYS: Array<keyof typeof METRIC_CONFIG> = ["weight", "height"];
 
 /* ===== Utils ===== */
 function formatVal(v: number | null | undefined) {
@@ -211,7 +223,7 @@ export default function MetricsPage() {
       {/* Destaques */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {loading
-          ? Array.from({ length: 1 }).map((_, i) => <SkeletonCard key={i} />)
+          ? Array.from({ length: 2 }).map((_, i) => <SkeletonCard key={i} />)
           : primary.map(({ key, label, unit, icon, value }) => (
               <div
                 key={String(key)}
@@ -235,7 +247,7 @@ export default function MetricsPage() {
         <h2 className="text-xs sm:text-sm font-medium text-muted-foreground">Medidas</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
           {loading
-            ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
+            ? Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={i} />)
             : secondary.map(({ key, label, unit, icon, value }) => (
                 <div key={String(key)} className="rounded-xl border border-border bg-card p-2 sm:p-3">
                   <div className="flex items-start justify-between">

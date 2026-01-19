@@ -8,6 +8,7 @@ import {
   updateSleepSchema,
   sleepIdParamSchema,
   listSleepQuerySchema,
+  sleepStatsQuerySchema
 } from "../schemas/sleepSchema";
 import { toDateOnly } from "../utils/sleepTime";
 
@@ -126,6 +127,33 @@ export class SleepController {
         return reply.code(400).send({ error: "Query inválida", details: error.issues });
       }
       return reply.code(500).send({ error: "Erro ao listar sleep" });
+    }
+  };
+
+  stats = async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      if (!request.auth?.subjectType || request.auth.subjectType !== "user") {
+        return reply.code(403).send({ error: "Apenas usuário pode acessar stats de sleep" });
+      }
+      const userId = request.auth.subjectId;
+
+      const { dateFrom, dateTo } = sleepStatsQuerySchema.parse(request.query);
+
+      const result = await this.service.getStatsByUser(userId, {
+        dateFrom: toDateOnly(dateFrom),
+        dateTo: toDateOnly(dateTo),
+      });
+
+      return reply.code(200).send({
+        dateFrom,
+        dateTo,
+        ...result,
+      });
+    } catch (error: unknown) {
+      if (error instanceof ZodError) {
+        return reply.code(400).send({ error: "Query inválida", details: error.issues });
+      }
+      return reply.code(500).send({ error: "Erro ao buscar stats de sleep" });
     }
   };
 }

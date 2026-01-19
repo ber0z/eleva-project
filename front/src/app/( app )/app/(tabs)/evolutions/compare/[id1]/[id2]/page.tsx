@@ -44,14 +44,17 @@ import {
   ChevronRight,
   Weight,
   BicepsFlexed,
-  Shirt,
 } from "lucide-react";
 
-// ===== Imagens estáticas (mesmo padrão da página pública)
+// ===== Imagens estáticas
 import thigh1 from "../../../../../../../../../public/icones/thigh1.png";
 import heightIcon from "../../../../../../../../../public/icones/height.png";
 import waistIcon from "../../../../../../../../../public/icones/waist.png";
+import chest from "../../../../../../../../../public/icones/chest.png";
 import hipsIcon from "../../../../../../../../../public/icones/hips.png";
+import shoulders from "../../../../../../../../../public/icones/shoulders.png";
+import calf from "../../../../../../../../../public/icones/calf.png";
+import forearm from "../../../../../../../../../public/icones/forearm.png";
 
 /* ===================== Tipos ===================== */
 type MetricKey =
@@ -63,7 +66,10 @@ type MetricKey =
   | "leftThigh"
   | "waist"
   | "hips"
-  | "chest";
+  | "chest"
+  | "shoulder"
+  | "calf"
+  | "forearm";
 
 type DateDiff = { years: number; months: number; days: number };
 
@@ -81,6 +87,9 @@ type CompareEvolution = {
   waist: number | null;
   hips: number | null;
   chest: number | null;
+  shoulder: number | null;
+  calf: number | null;
+  forearm: number | null;
   message?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -89,7 +98,7 @@ type CompareEvolution = {
 type CompareResponse = {
   evolution1: CompareEvolution;
   evolution2: CompareEvolution;
-  differences: Record<MetricKey, number> & { dateDifference?: DateDiff };
+  differences: Partial<Record<MetricKey, number | null>> & { dateDifference?: DateDiff };
 };
 
 type EvoImage = {
@@ -115,7 +124,6 @@ type ShareCompareResponse = {
   tokenHash?: string | null;
 };
 
-
 /* ===================== TTL options ===================== */
 const TTL_OPTIONS = [
   { label: "15 min", minutes: 15 },
@@ -136,6 +144,9 @@ const METRIC_KEYS: readonly MetricKey[] = [
   "waist",
   "hips",
   "chest",
+  "shoulder",
+  "calf",
+  "forearm",
 ];
 
 const PRIMARY_KEYS: readonly MetricKey[] = ["weight"];
@@ -150,13 +161,16 @@ type MetricCfg = Record<MetricKey, MetricCfgItem>;
 const METRICS: MetricCfg = {
   height: { label: "Altura", unit: "cm", icon: { kind: "image", src: heightIcon, alt: "Altura" } },
   weight: { label: "Peso", unit: "kg", icon: { kind: "lucide", Icon: Weight } },
-  chest: { label: "Peitoral", unit: "cm", icon: { kind: "lucide", Icon: Shirt } },
+  chest: { label: "Peitoral", unit: "cm", icon: { kind: "image", src: chest, alt: "peito" } },
   rightBiceps: { label: "Bíceps direito", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   leftBiceps: { label: "Bíceps esquerdo", unit: "cm", icon: { kind: "lucide", Icon: BicepsFlexed } },
   rightThigh: { label: "Coxa direita", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   leftThigh: { label: "Coxa esquerda", unit: "cm", icon: { kind: "image", src: thigh1, alt: "Coxa" } },
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waistIcon, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hipsIcon, alt: "Quadril" } },
+  shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
+  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
 /* ===================== Utils ===================== */
@@ -168,7 +182,6 @@ function formatVal(v: number | null | undefined) {
 function fmtDateShort(iso?: string) {
   if (!iso) return "—";
   try {
-    // UTC para preservar dia
     return new Intl.DateTimeFormat("pt-BR", {
       timeZone: "UTC",
       day: "2-digit",
@@ -184,8 +197,24 @@ function fmtDateTimeBR(iso?: string | null) {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
-  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "medium", timeStyle: "short" }).format(d);
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "UTC", // preserva o dia quando vem ...Z
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(d);
 }
+function fmtDateDiff(diff?: { years: number; months: number; days: number } | null) {
+  if (!diff) return "";
+
+  const parts: string[] = [];
+  if (diff.years > 0) parts.push(`${diff.years}a`);
+  if (diff.months > 0) parts.push(`${diff.months}m`);
+  if (diff.days > 0) parts.push(`${diff.days}d`);
+
+  if (parts.length === 0) return "mesmo dia"; // ou "" se preferir não mostrar nada
+  return parts.join(" ");
+}
+
 
 function MetricIcon({ icon, className }: { icon: IconDef; className?: string }) {
   if (icon.kind === "lucide") {
@@ -387,13 +416,19 @@ export default function CompareInternalPage() {
 
           {/* Ações no desktop */}
           <div className="hidden sm:flex items-center gap-2">
-            <Button variant="outline" size="sm" className="bg-card cursor-pointer" onClick={openShare} disabled={loading || !!err}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-card cursor-pointer"
+              onClick={openShare}
+              disabled={loading || !!err}
+            >
               <Share2 className="mr-2 h-4 w-4" />
               Compartilhar
             </Button>
           </div>
 
-          {/* Ações no mobile (menu) */}
+          {/* Ações no mobile */}
           <div className="sm:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -442,20 +477,14 @@ export default function CompareInternalPage() {
         {/* Conteúdo */}
         {!loading && !err && evo1 && evo2 && differences && (
           <>
-            {/* Header */}
-            <div
-              className="relative w-full overflow-hidden rounded-2xl border border-border bg-linear-to-br from-primary/20 via-primary/10 to-transparent  h-12"            >
-            </div>
+            <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-12" />
 
-            {/* Cartão principal */}
             <section className="mx-auto -mt-10 sm:-mt-12 w-full">
               <div className="rounded-2xl border border-border bg-card/90 backdrop-blur p-4 sm:p-6 shadow-md">
                 <div className="flex flex-col gap-1">
                   <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Comparação de evoluções</h1>
                   <p className="text-sm text-muted-foreground">
-                    {differences.dateDifference
-                      ? `tempo: ${differences.dateDifference.years}a ${differences.dateDifference.months}m ${differences.dateDifference.days}d`
-                      : ""}
+                    {differences.dateDifference ? `tempo: ${fmtDateDiff(differences.dateDifference)}` : ""}
                   </p>
                 </div>
 
@@ -469,17 +498,38 @@ export default function CompareInternalPage() {
                   </div>
                 </div>
 
-                {/* Destaques */}
+                {/* Destaque: peso */}
                 <div className="mt-5 grid grid-cols-1 gap-2 sm:gap-3">
                   {PRIMARY_KEYS.map((k) => {
                     const cfg = METRICS[k];
                     const v1 = evo1[k] as number | null;
                     const v2 = evo2[k] as number | null;
-                    const delta = differences[k] ?? 0;
-                    const deltaAbs = Math.abs(delta);
-                    const state = delta > 0 ? "text-emerald-600" : delta < 0 ? "text-rose-600" : "text-muted-foreground";
-                    const badge =
-                      delta === 0 ? "Sem diferença" : delta > 0 ? `+${deltaAbs} ${cfg.unit}` : `-${deltaAbs} ${cfg.unit}`;
+
+                    const hasV1 = typeof v1 === "number" && Number.isFinite(v1);
+                    const hasV2 = typeof v2 === "number" && Number.isFinite(v2);
+
+                    const raw = (differences)?.[k] as number | null | undefined;
+                    const hasDiff = typeof raw === "number" && Number.isFinite(raw);
+
+                    const showDiff = hasV1 && hasV2 && hasDiff;
+
+                    const deltaAbs = showDiff ? Math.abs(raw) : 0;
+
+                    const state = !showDiff
+                      ? "text-muted-foreground"
+                      : raw > 0
+                        ? "text-emerald-600"
+                        : raw < 0
+                          ? "text-rose-600"
+                          : "text-muted-foreground";
+
+                    const badge = !showDiff
+                      ? "Sem dados"
+                      : raw === 0
+                        ? "Sem diferença"
+                        : raw > 0
+                          ? `+${deltaAbs} ${cfg.unit}`
+                          : `-${deltaAbs} ${cfg.unit}`;
 
                     return (
                       <div
@@ -528,12 +578,33 @@ export default function CompareInternalPage() {
                     <div className="divide-y divide-border">
                       {METRIC_KEYS.filter((k) => !PRIMARY_KEYS.includes(k)).map((k) => {
                         const cfg = METRICS[k];
+
                         const a = evo1[k] as number | null;
                         const b = evo2[k] as number | null;
-                        const d = differences[k] ?? 0;
-                        const sign = d === 0 ? "=" : d > 0 ? `+${Math.abs(d)} ${cfg.unit}` : `-${Math.abs(d)} ${cfg.unit}`;
-                        const state =
-                          d > 0 ? "text-emerald-600" : d < 0 ? "text-rose-600" : "text-muted-foreground";
+
+                        const hasA = typeof a === "number" && Number.isFinite(a);
+                        const hasB = typeof b === "number" && Number.isFinite(b);
+
+                        const raw = (differences)?.[k] as number | null | undefined;
+                        const hasDiff = typeof raw === "number" && Number.isFinite(raw);
+
+                        const showDiff = hasA && hasB && hasDiff;
+
+                        const sign = !showDiff
+                          ? "—"
+                          : raw === 0
+                            ? "="
+                            : raw > 0
+                              ? `+${Math.abs(raw)} ${cfg.unit}`
+                              : `-${Math.abs(raw)} ${cfg.unit}`;
+
+                        const state = !showDiff
+                          ? "text-muted-foreground"
+                          : raw > 0
+                            ? "text-emerald-600"
+                            : raw < 0
+                              ? "text-rose-600"
+                              : "text-muted-foreground";
 
                         return (
                           <div key={k} className="grid grid-cols-4 px-3 py-2 items-center">
@@ -587,7 +658,7 @@ export default function CompareInternalPage() {
                   </div>
                 )}
 
-                {/* Galerias (se tiver imagens) */}
+                {/* Galerias */}
                 <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Fotos — {date1}</h3>
@@ -648,7 +719,6 @@ export default function CompareInternalPage() {
                   </div>
                 </div>
               </div>
-
             </section>
           </>
         )}
@@ -735,7 +805,9 @@ export default function CompareInternalPage() {
             </div>
 
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={shareLoading} className="cursor-pointer">Fechar</AlertDialogCancel>
+              <AlertDialogCancel disabled={shareLoading} className="cursor-pointer">
+                Fechar
+              </AlertDialogCancel>
 
               <button
                 type="button"
@@ -843,7 +915,6 @@ function CompareLightbox(props: CompareLightboxProps) {
           <ChevronRight className="h-6 w-6" />
         </button>
 
-        {/* Esquerda */}
         <div className="relative w-full h-full rounded-lg overflow-hidden">
           {leftIdx >= 0 ? (
             <Image
@@ -865,7 +936,6 @@ function CompareLightbox(props: CompareLightboxProps) {
           </div>
         </div>
 
-        {/* Direita */}
         <div className="relative w-full h-full rounded-lg overflow-hidden">
           {rightIdx >= 0 ? (
             <Image

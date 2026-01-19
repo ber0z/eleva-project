@@ -69,7 +69,6 @@ export class EvolutionController {
       for (const file of files) {
         if (["imageFront", "imageSide", "imageBack"].includes(file.fieldname)) {
           images[file.fieldname as keyof typeof images] = await fs.readFile(file.filepath);
-          // NÃO faça fs.unlink aqui — o plugin vai apagar ao final
         } else {
           // opcional: se vier algum arquivo inesperado, ignore
         }
