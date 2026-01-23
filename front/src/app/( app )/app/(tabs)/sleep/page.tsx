@@ -212,21 +212,26 @@ function QualityDonutChart({
 
 
 export default function SleepPage() {
-  // ===== lista =====
+  // ===== histórico (lista) =====
   const [items, setItems] = useState<Sleep[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState<number | null>(null);
 
-  const [initialLoading, setInitialLoading] = useState(true);
+  // agora o histórico começa DESLIGADO
+  const [historyEnabled, setHistoryEnabled] = useState(false);
+
+  // loading do histórico começa falso (não vamos buscar nada ao abrir)
+  const [initialLoading, setInitialLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const hasMore = useMemo(() => {
+    if (!historyEnabled) return false;
     if (!totalPages) return false;
     return page < totalPages;
-  }, [page, totalPages]);
+  }, [historyEnabled, page, totalPages]);
 
   // ===== stats (semana atual + filtros ocultos) =====
   const initialWeek = getThisWeekRange();
@@ -237,7 +242,7 @@ export default function SleepPage() {
 
   const canApplyStats = useMemo(() => {
     if (!dateFrom || !dateTo) return false;
-    return dateFrom <= dateTo; // YYYY-MM-DD compara ok
+    return dateFrom <= dateTo;
   }, [dateFrom, dateTo]);
 
   const [statsLoading, setStatsLoading] = useState(true);
@@ -310,13 +315,16 @@ export default function SleepPage() {
     }
   }
 
+  // ✅ ao abrir a página: SOMENTE stats
   useEffect(() => {
-    fetchPage(1);
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ✅ infinite scroll só quando histórico estiver habilitado
   useEffect(() => {
+    if (!historyEnabled) return;
+
     const el = sentinelRef.current;
     if (!el) return;
 
@@ -332,7 +340,7 @@ export default function SleepPage() {
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [hasMore, loadingMore, initialLoading, page]);
+  }, [historyEnabled, hasMore, loadingMore, initialLoading, page]);
 
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -342,6 +350,17 @@ export default function SleepPage() {
     const v = stats?.avgSleepHours;
     return typeof v === "number" && Number.isFinite(v) ? fmtDurationHours(v) ?? "—" : "—";
   }, [stats]);
+
+  function enableHistory() {
+    if (historyEnabled) return;
+    setHistoryEnabled(true);
+    // reset básico (caso já tenha usado antes)
+    setItems([]);
+    setPage(1);
+    setTotalPages(null);
+    // agora sim busca o histórico
+    fetchPage(1);
+  }
 
   return (
     <div className="min-h-svh bg-background text-foreground">
@@ -356,8 +375,8 @@ export default function SleepPage() {
             variant="outline"
             className="shrink-0 bg-card cursor-pointer"
             onClick={() => {
-              fetchPage(1);
               fetchStats();
+              if (historyEnabled) fetchPage(1);
             }}
             disabled={initialLoading || loadingMore || statsLoading}
             title="Atualizar"
@@ -367,7 +386,7 @@ export default function SleepPage() {
           </Button>
         </div>
 
-        {/* ===== Card compacto: stats (ANTES da lista) ===== */}
+        {/* ===== Card compacto: stats ===== */}
         <Card className="mb-4">
           <CardHeader className="py-3">
             <div className="flex items-center justify-between gap-2">
@@ -411,8 +430,6 @@ export default function SleepPage() {
               <div className="text-sm text-muted-foreground">Sem dados.</div>
             )}
 
-
-            {/* Filtros + gráfico (apenas quando expandir) */}
             {filtersOpen ? (
               <div className="rounded-xl border border-border bg-card/60 p-3 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
@@ -448,11 +465,7 @@ export default function SleepPage() {
                       disabled={statsLoading || !canApplyStats}
                       title={!canApplyStats ? "Verifique as datas" : "Aplicar"}
                     >
-                      {statsLoading ? (
-                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                      )}
+                      {statsLoading ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                       Aplicar
                     </Button>
 
@@ -465,9 +478,8 @@ export default function SleepPage() {
                         const w = getThisWeekRange();
                         setDateFrom(w.from);
                         setDateTo(w.to);
-                        fetchStats({ dateFrom: w.from, dateTo: w.to }); // <- garante datas certas na 1ª
+                        fetchStats({ dateFrom: w.from, dateTo: w.to });
                       }}
-
                       disabled={statsLoading}
                       title="Semana atual"
                     >
@@ -479,104 +491,122 @@ export default function SleepPage() {
             ) : null}
 
             {stats && !statsLoading ? (
-              <div className="-mt-1">
-                <QualityDonutChart
-                  percent={stats.quality.percent}
-                  count={stats.quality.count}
-                  totalRated={stats.quality.totalRated}
-                />
-              </div>
+              <>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <div className="text-sm text-muted-foreground">Qualidade do sono </div>
+                </div>
+                <div className="-mt-1">
+                  <QualityDonutChart percent={stats.quality.percent} count={stats.quality.count} totalRated={stats.quality.totalRated} />
+                </div>
+              </>
             ) : null}
-
           </CardContent>
         </Card>
 
-        {/* Erro lista */}
-        {err && !initialLoading && (
-          <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {err}
-            <div className="mt-2">
-              <Button size="sm" variant="outline" onClick={() => fetchPage(1)}>
-                Tentar novamente
-              </Button>
-            </div>
-          </div>
-        )}
+        {/* ===== Histórico ===== */}
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="text-sm font-semibold">Histórico</div>
 
-        {/* Lista / Empty / Skeleton */}
-        {initialLoading ? (
-          <div className="grid gap-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Card key={i}>
-                <CardHeader className="flex-row items-center gap-3">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="flex-1">
-                    <Skeleton className="h-4 w-40" />
-                    <Skeleton className="mt-2 h-3 w-44" />
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        ) : sortedItems.length === 0 ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Moon className="h-5 w-5" />
-                Sem registros de sono
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Registre seu sono para acompanhar qualidade e horários.
-              <div className="mt-4">
-                <Button asChild>
-                  <Link href="/app/sleep/new">Registrar sono</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {!historyEnabled ? (
+            <Button variant="outline" size="sm" className="bg-card cursor-pointer" onClick={enableHistory}>
+              Exibir histórico
+            </Button>
+          ) : null}
+        </div>
+
+        {/* ✅ se ainda não habilitou, não faz GET e mostra “anúncio” */}
+        {!historyEnabled ? (
+          <></>
         ) : (
           <>
-            <ul className="grid gap-3">
-              {sortedItems.map((s) => {
-                const title = fmtDateShort(s.date);
-                const dur = fmtDurationHours(s.duration) ?? "—";
-                return (
-                  <li key={s.id}>
-                    <Link
-                      href={`/app/sleep/${s.id}`}
-                      className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl"
-                      aria-label={`Abrir registro de sono de ${title}`}
-                    >
-                      <Card className="group cursor-pointer transition hover:shadow-sm">
-                        <CardHeader className="flex-row items-center gap-3">
-                          <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/15">
-                            <Moon className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <CardTitle className="text-base group-hover:underline">{title}</CardTitle>
-                            <p className="text-xs text-muted-foreground">
-                              {dur} • Qualidade:  {qualityLabel(s.sleepQuality)}
-                            </p>
-                          </div>
-                        </CardHeader>
-                      </Card>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="mt-4 flex items-center justify-center">
-              {loadingMore && (
-                <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  Carregando mais...
+            {/* Erro lista */}
+            {err && !initialLoading && (
+              <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {err}
+                <div className="mt-2">
+                  <Button size="sm" variant="outline" onClick={() => fetchPage(1)}>
+                    Tentar novamente
+                  </Button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div ref={sentinelRef} className="h-8 w-full" />
+            {/* Lista / Empty / Skeleton */}
+            {initialLoading ? (
+              <div className="grid gap-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader className="flex-row items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-40" />
+                        <Skeleton className="mt-2 h-3 w-44" />
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            ) : sortedItems.length === 0 ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Moon className="h-5 w-5" />
+                    Sem registros de sono
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Registre seu sono para acompanhar qualidade e horários.
+                  <div className="mt-4">
+                    <Button asChild>
+                      <Link href="/app/sleep/new">Registrar sono</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <ul className="grid gap-3">
+                  {sortedItems.map((s) => {
+                    const title = fmtDateShort(s.date);
+                    const dur = fmtDurationHours(s.duration) ?? "—";
+                    return (
+                      <li key={s.id}>
+                        <Link
+                          href={`/app/sleep/${s.id}`}
+                          className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl"
+                          aria-label={`Abrir registro de sono de ${title}`}
+                        >
+                          <Card className="group cursor-pointer transition hover:shadow-sm">
+                            <CardHeader className="flex-row items-center gap-3">
+                              <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/15">
+                                <Moon className="h-5 w-5 text-primary" />
+                              </div>
+                              <div className="flex-1">
+                                <CardTitle className="text-base group-hover:underline">{title}</CardTitle>
+                                <p className="text-xs text-muted-foreground">
+                                  {dur} • Qualidade: {qualityLabel(s.sleepQuality)}
+                                </p>
+                              </div>
+                            </CardHeader>
+                          </Card>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <div className="mt-4 flex items-center justify-center">
+                  {loadingMore && (
+                    <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Carregando mais...
+                    </div>
+                  )}
+                </div>
+
+                <div ref={sentinelRef} className="h-8 w-full" />
+              </>
+            )}
           </>
         )}
       </div>
@@ -590,3 +620,4 @@ export default function SleepPage() {
     </div>
   );
 }
+

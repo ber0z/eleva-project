@@ -22,7 +22,7 @@ export default function SettingsPage() {
     setPending(true);
     setError(null);
     try {
-      await api.post(LOGOUT_URL, null, { withCredentials: true });
+      await api.post(LOGOUT_URL, {}, { withCredentials: true });
       router.replace(REDIRECT_AFTER_LOGOUT);
     } catch {
       setError("Não foi possível encerrar a sessão agora. Tente novamente.");

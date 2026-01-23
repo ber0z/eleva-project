@@ -136,7 +136,7 @@ export class AuthenticationController {
           secure: isProd,
           sameSite: "lax",
           path: "/",
-          maxAge: 60 * 60 * 24 * 7,
+          maxAge: 60 * 60 * 24 * 7, 
           signed: true,
           domain: isProd ? ".elevapp.com.br" : undefined, 
 
@@ -295,64 +295,76 @@ export class AuthenticationController {
   }
 
   async logoutUser(request: FastifyRequest, reply: FastifyReply) {
-    try {
-      let authId: number | null = null;
+  try {
+    let authId: number | null = null;
 
-      // 1) se passou pelo authMiddleware, já temos:
-      if (request.auth?.authId) {
-        authId = request.auth.authId;
-      }
+    if (request.auth?.authId) authId = request.auth.authId;
 
-      // 2) senão, tenta via Authorization: Bearer <access>
-      if (!authId) {
-        const h = request.headers.authorization;
-        const at = h?.startsWith("Bearer ") ? h.slice(7) : null;
-        if (at) {
-          try {
-            const p = verifyAccessTokenStrict(at);
-            authId = Number(p.sub);
-          } catch {
-            // access inválido/expirado — segue
-          }
+    if (!authId) {
+      const h = request.headers.authorization;
+      const at = h?.startsWith("Bearer ") ? h.slice(7) : null;
+      if (at) {
+        try {
+          const p = verifyAccessTokenStrict(at);
+          authId = Number(p.sub);
+        } catch {
+          //
         }
       }
-
-      // 3) por fim, tenta via refresh (cookie assinado "rt" ou header x-refresh-token)
-      if (!authId) {
-        const rawCookie = request.cookies?.rt ?? null;
-        let refreshRaw: string | null = null;
-        if (rawCookie) {
-          const u = request.unsignCookie(rawCookie);
-          refreshRaw = u.valid ? (u.value as string) : rawCookie; // aceita assinado ou não
-        } else {
-          const rh = request.headers["x-refresh-token"];
-          refreshRaw = Array.isArray(rh) ? rh[0] : rh || null;
-        }
-        if (refreshRaw) {
-          try {
-            const pr = verifyRefreshTokenStrict(refreshRaw);
-            authId = Number(pr.sub);
-          } catch {
-            // refresh inválido — segue para limpar cookies mesmo assim
-          }
-        }
-      }
-
-      // Invalida o refresh no banco (id = authId da tabela Authentication)
-      if (authId) {
-        await authService.updateRefreshToken(authId, ""); // ou null, conforme seu schema
-      }
-
-      // Limpa cookies (web). No mobile você ignora isso e só apaga do storage.
-      reply
-        .clearCookie("at", { path: "/" })
-        .clearCookie("rt", { path: "/" });
-
-      return reply.code(200).send({ message: "Logout realizado com sucesso" });
-    } catch {
-      return reply.code(500).send({ error: "Erro ao fazer logout" });
     }
+
+    if (!authId) {
+      const rawCookie = request.cookies?.rt ?? null;
+      let refreshRaw: string | null = null;
+
+      if (rawCookie) {
+        const u = request.unsignCookie(rawCookie);
+        refreshRaw = u.valid ? (u.value as string) : rawCookie;
+      } else {
+        const rh = request.headers["x-refresh-token"];
+        refreshRaw = Array.isArray(rh) ? rh[0] : rh || null;
+      }
+
+      if (refreshRaw) {
+        try {
+          const pr = verifyRefreshTokenStrict(refreshRaw);
+          authId = Number(pr.sub);
+        } catch {
+          //
+          }
+      }
+    }
+
+    if (authId) {
+      await authService.updateRefreshToken(authId, "");
+    }
+
+    const isProd = process.env.NODE_ENV === "production";
+    const cookieDomain = isProd ? ".elevapp.com.br" : undefined;
+
+    const base = {
+      path: "/",
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "lax" as const, // igual ao login
+    };
+
+    // Apaga cookie com domain (o que você setou em prod)
+    reply
+      .clearCookie("at", { ...base, domain: cookieDomain })
+      .clearCookie("rt", { ...base, domain: cookieDomain });
+
+    // Apaga também host-only (caso exista de dev/teste)
+    reply
+      .clearCookie("at", { ...base })
+      .clearCookie("rt", { ...base });
+
+    return reply.code(200).send({ message: "Logout realizado com sucesso" });
+  } catch {
+    return reply.code(500).send({ error: "Erro ao fazer logout" });
   }
+}
+
   //check if the email is already registered
   async checkEmail(request: FastifyRequest, reply: FastifyReply) {
     try {

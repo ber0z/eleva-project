@@ -17,9 +17,9 @@ model User {
   lastAccess     DateTime @default(now())
   isActive       Boolean  @default(true)
 
-  username        String? @unique @db.VarChar(32)
-  isProfilePublic Boolean @default(false)
-  isProfileImagesPublic Boolean @default(true) 
+  username              String? @unique @db.VarChar(32)
+  isProfilePublic       Boolean @default(false)
+  isProfileImagesPublic Boolean @default(true)
 
   presets    Preset[]
   measure    Measure?
@@ -436,7 +436,7 @@ model PhysicalActivity {
   duration     Int
   calories     Int?
   observations String?  @db.VarChar(1024)
-  date         DateTime @db.Date
+  date         DateTime @db.Timestamptz(3)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

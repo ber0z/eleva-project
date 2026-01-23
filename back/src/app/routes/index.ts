@@ -6,7 +6,7 @@ import { shareRoutes } from "./shareRoutes";
 // import { professionalRoutes } from "./professionalRoutes";
 import { adminRoutes } from "./adminRoutes";
 // import { exerciseRoutes } from "./exerciseRoutes";
-// import { physicalActivityRoutes } from "./physicalActivityRoutes";
+import { physicalActivityRoutes } from "./physicalActivityRoutes";
 import { sleepRoutes } from "./sleepRoutes";
 // import { trainingRoutes } from "./trainingRoutes";
 // import { dietRoutes } from "./dietRoutes";
@@ -26,7 +26,7 @@ export async function registerRoutes(fastify: FastifyInstance) {
   // await fastify.register(mealLogRoutes, { prefix: "/meal-log-day" });
   await fastify.register(reportRoutes, { prefix: "/report" });
   // await fastify.register(exerciseRoutes, { prefix: "/exercise" });
-  // await fastify.register(physicalActivityRoutes, { prefix: "/physical-activities" });
+  await fastify.register(physicalActivityRoutes, { prefix: "/physical-activities" });
   await fastify.register(userRoutes, { prefix: "/user" });
   await fastify.register(evolutionRoutes, { prefix: "/evolution" });
 

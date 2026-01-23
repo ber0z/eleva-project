@@ -6,7 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   ChartNoAxesColumnIncreasing,
   ChartNoAxesCombined,
-  // Dumbbell,
+  Dumbbell,
   // Apple,
 } from "lucide-react";
 import { Zzz } from "@/components/icons/Zzz";
@@ -31,7 +31,7 @@ export default function ResponsiveNav() {
   const items: NavItem[] = [
     { href: "/app/metrics", seg: "metrics", label: "Medidas", Icon: ChartNoAxesColumnIncreasing },
     { href: "/app/evolutions", seg: "evolutions", label: "Evolução", Icon: ChartNoAxesCombined },
-    // { href: "/app/trainings", seg: "trainings", label: "Treinamento", Icon: Dumbbell },
+    { href: "/app/activities/physical", seg: "activities", label: "Atividade", Icon: Dumbbell },
     // { href: "/app/diets", seg: "diets", label: "Alimentação", Icon: Apple },
     { href: "/app/sleep", seg: "sleep", label: "Sono", Icon: Zzz },
   ];
@@ -88,7 +88,7 @@ export default function ResponsiveNav() {
         "
         aria-label="Navegação por abas"
       >
-        <ul className="grid grid-cols-3 gap-1">
+        <ul className="grid grid-cols-4 gap-1">
           {items.map(({ href, seg, label, Icon }) => {
             const active = current === seg;
             return (

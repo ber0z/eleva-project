@@ -9,9 +9,7 @@ import { LayoutDashboard, Users, Menu, X, LogOut } from "lucide-react";
 import { api } from "@/lib/api";
 import { isAxiosError } from "axios";
 
-
 const SIDEBAR_WIDTH = 260;
-
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -41,14 +39,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (loggingOut) return;
     setLoggingOut(true);
     try {
-      await api.post("/auth/logout");
+      await api.post("/auth/logout", {}, { withCredentials: true });
     } catch (error) {
       if (isAxiosError(error)) {
         console.error("Erro ao deslogar:", error.response?.data || error.message);
       } else {
         console.error("Erro ao deslogar:", error);
       }
-      // mesmo se der erro, vamos mandar o cara pro login
     } finally {
       setLoggingOut(false);
       router.replace("/login");
@@ -60,24 +57,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-svh bg-background text-foreground">
       {/* Topbar (mobile) */}
       <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3 md:hidden">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setOpen(true)}
-          aria-label="Abrir menu"
-        >
+        <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label="Abrir menu">
           <Menu className="h-5 w-5" />
         </Button>
-        <Link
-          href="/admin/dashboard"
-          className="inline-flex items-center gap-2"
-        >
+
+        <Link href="/admin/dashboard" className="inline-flex items-center gap-2">
           <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10">
             <span className="text-primary text-sm font-bold">∞</span>
           </div>
           <span className="text-sm font-semibold">Admin</span>
         </Link>
-        <div className="w-9" /> {/* spacer */}
+
+        <div className="w-9" />
       </header>
 
       <div className="relative flex">
@@ -97,12 +88,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               onClick={() => setOpen(false)}
               aria-label="Fechar menu"
             />
+
+            {/* ✅ Drawer em coluna: header fixo, miolo rolável, footer fixo */}
             <div
-              className="fixed inset-y-0 left-0 z-50 w-[82%] max-w-[320px] border-r border-border bg-background shadow-xl md:hidden"
+              className="fixed inset-y-0 left-0 z-50 w-[82%] max-w-[320px] border-r border-border bg-background shadow-xl md:hidden flex flex-col"
               role="dialog"
               aria-modal="true"
+              style={{
+                paddingTop: "env(safe-area-inset-top)",
+                paddingBottom: "env(safe-area-inset-bottom)",
+              }}
             >
-              <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
+              {/* Header fixo */}
+              <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3 shrink-0">
                 <Link
                   href="/admin/dashboard"
                   className="inline-flex items-center gap-2"
@@ -113,28 +111,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </div>
                   <span className="text-sm font-semibold">Admin</span>
                 </Link>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setOpen(false)}
-                  aria-label="Fechar menu"
-                >
+
+                <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Fechar menu">
                   <X className="h-5 w-5" />
                 </Button>
               </div>
 
-              {/* Navegação + logout no mobile */}
-              <nav className="flex h-full flex-col justify-between p-2">
+              {/* Miolo rolável */}
+              <div className="flex-1 overflow-y-auto p-2">
                 <div className="space-y-1">
                   {nav.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={() => setOpen(false)}
-                      className={cn(
-                        baseLinkCls,
-                        item.active ? activeLinkCls : inactiveLinkCls
-                      )}
+                      className={cn(baseLinkCls, item.active ? activeLinkCls : inactiveLinkCls)}
                       aria-current={item.active ? "page" : undefined}
                     >
                       {item.icon}
@@ -142,38 +133,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </Link>
                   ))}
                 </div>
+              </div>
 
-                <div className="mt-4 space-y-3">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setOpen(false);
-                      await handleLogout();
-                    }}
-                    className={cn(
-                      baseLinkCls,
-                      "w-full text-left text-destructive hover:bg-destructive/10"
-                    )}
-                    disabled={loggingOut}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>{loggingOut ? "Saindo..." : "Sair"}</span>
-                  </button>
+              {/* Footer fixo */}
+              <div className="shrink-0 border-t border-border p-2 space-y-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setOpen(false);
+                    await handleLogout();
+                  }}
+                  className={cn(baseLinkCls, "w-full text-left text-destructive hover:bg-destructive/10")}
+                  disabled={loggingOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>{loggingOut ? "Saindo..." : "Sair"}</span>
+                </button>
 
-                  <div className="px-2 text-[11px] text-muted-foreground">
-                    © {new Date().getFullYear()} Eleva
-                  </div>
-                </div>
-              </nav>
+                <div className="px-2 text-[11px] text-muted-foreground">© {new Date().getFullYear()} Eleva</div>
+              </div>
             </div>
           </>
         )}
 
         {/* Main */}
         <div className="flex-1 md:ml-0" style={{ minWidth: 0 }}>
-          <div className="mx-auto w-full max-w-7xl px-4 py-6 md:pl-6">
-            {children}
-          </div>
+          <div className="mx-auto w-full max-w-7xl px-4 py-6 md:pl-6">{children}</div>
         </div>
       </div>
     </div>
@@ -197,9 +182,7 @@ function SidebarContent({
         </div>
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold">Admin</div>
-          <div className="truncate text-[11px] text-muted-foreground">
-            Painel de controle
-          </div>
+          <div className="truncate text-[11px] text-muted-foreground">Painel de controle</div>
         </div>
       </div>
 
@@ -209,10 +192,7 @@ function SidebarContent({
           <Link
             key={item.href}
             href={item.href}
-            className={cn(
-              baseLinkCls,
-              item.active ? activeLinkCls : inactiveLinkCls
-            )}
+            className={cn(baseLinkCls, item.active ? activeLinkCls : inactiveLinkCls)}
             aria-current={item.active ? "page" : undefined}
           >
             {item.icon}
@@ -226,19 +206,14 @@ function SidebarContent({
         <button
           type="button"
           onClick={onLogout}
-          className={cn(
-            baseLinkCls,
-            "w-full text-left text-destructive hover:bg-destructive/10"
-          )}
+          className={cn(baseLinkCls, "w-full text-left text-destructive hover:bg-destructive/10")}
           disabled={loggingOut}
         >
           <LogOut className="h-4 w-4" />
           <span>{loggingOut ? "Saindo..." : "Sair"}</span>
         </button>
 
-        <div className="px-2 text-[11px] text-muted-foreground">
-          © {new Date().getFullYear()} Eleva
-        </div>
+        <div className="px-2 text-[11px] text-muted-foreground">© {new Date().getFullYear()} Eleva</div>
       </div>
     </div>
   );

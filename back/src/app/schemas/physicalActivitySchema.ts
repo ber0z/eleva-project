@@ -1,24 +1,32 @@
 import { z } from "zod";
 
+const typeEnum = z.enum([
+  'strength',
+  'cardio',
+  'sports',
+  'mobility',
+  'yoga_pilates',
+  'recovery',
+  'other'
+]);
+
 export const createPhysicalActivitySchema = z.object({
   name: z.string().min(1).max(255),
-  type: z.string().max(64).nullable().optional(),
+  type: typeEnum, //optional
   duration: z.coerce.number().int().positive(),                 // minutos
   calories: z.coerce.number().int().min(0).optional(),
   observations: z.string().max(1024).nullable().optional(),
-  date: z.string().refine((v) => !Number.isNaN(Date.parse(v)), { // "YYYY-MM-DD"
-    message: "Data inválida",
-  }),
+  date: z.string(),
   trainingWorkoutId: z.coerce.number().int().positive().nullable().optional(),
 });
 
 export const updatePhysicalActivitySchema = z.object({
   name: z.string().min(1).max(255).optional(),
-  type: z.string().max(64).nullable().optional(),
+  type: typeEnum,
   duration: z.coerce.number().int().positive().optional(),
   calories: z.coerce.number().int().min(0).optional(),
   observations: z.string().max(1024).nullable().optional(),
-  date: z.string().refine((v) => !Number.isNaN(Date.parse(v)), { message: "Data inválida" }).optional(),
+  date: z.string(),
   trainingWorkoutId: z.coerce.number().int().positive().nullable().optional(),
 }).refine((d) => Object.keys(d).length > 0, {
   message: "Envie ao menos um campo para atualização",
@@ -36,3 +44,19 @@ export const listPhysicalActivitiesQuerySchema = z.object({
   type: z.string().max(64).optional(),
   trainingWorkoutId: z.coerce.number().int().positive().optional(),
 });
+
+
+const YMD_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+export const activityStatsQuerySchema = z
+  .object({
+    dateFrom: z.string().regex(YMD_REGEX, "dateFrom inválido (YYYY-MM-DD)"),
+    dateTo: z.string().regex(YMD_REGEX, "dateTo inválido (YYYY-MM-DD)"),
+    groupBy: z.enum(["day", "week", "month"]).optional().default("day"),
+    type: z.string().trim().max(64).optional(), // filtro opcional
+    top: z.coerce.number().int().min(1).max(50).optional().default(10),
+  })
+  .refine(
+    (v) => new Date(v.dateFrom).getTime() <= new Date(v.dateTo).getTime(),
+    { message: "dateFrom não pode ser maior que dateTo", path: ["dateFrom"] }
+  );

@@ -14,5 +14,9 @@ export async function physicalActivityRoutes(app: FastifyInstance) {
     app.get("/:id", { preHandler: [requireSubject("user")] },  controller.getOne);
     app.put("/:id", { preHandler: [requireSubject("user")] },  controller.update); 
     app.delete("/:id", { preHandler: [requireSubject("user")] },  controller.delete);
+
+
+    app.get("/stats", { preHandler: [requireSubject("user")] },  controller.stats);
+
 }
   

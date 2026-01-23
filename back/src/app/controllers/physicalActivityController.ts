@@ -7,6 +7,7 @@ import {
   updatePhysicalActivitySchema,
   idParamSchema,
   listPhysicalActivitiesQuerySchema,
+  activityStatsQuerySchema,
 } from "../schemas/physicalActivitySchema";
 
 function toDateOnly(d: string): Date {
@@ -32,7 +33,7 @@ export class PhysicalActivityController {
         duration: body.duration,
         calories: body.calories ?? null,
         observations: body.observations ?? null,
-        date: toDateOnly(body.date),
+        date: new Date(body.date),
         trainingWorkoutId: body.trainingWorkoutId ?? null,
       });
 
@@ -136,6 +137,36 @@ export class PhysicalActivityController {
         return reply.code(400).send({ error: "Query inválida", details: error.issues });
       }
       return reply.code(500).send({ error: "Erro ao listar atividades" });
+    }
+  };
+
+
+  stats = async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      if (!request.auth?.subjectType || request.auth.subjectType !== "user") {
+        return reply.code(403).send({ error: "Apenas usuário pode acessar stats" });
+      }
+      const userId = request.auth.subjectId;
+
+      const q = activityStatsQuerySchema.parse(request.query);
+
+      const result = await this.service.statsByUser(userId, {
+        dateFrom: q.dateFrom,
+        dateTo: q.dateTo,
+        groupBy: q.groupBy,
+        typeFilter: q.type ?? null,
+        top: q.top,
+      });
+
+      return reply.code(200).send(result);
+    } catch (error: unknown) {
+      if (error instanceof ZodError) {
+        return reply.code(400).send({ error: "Query inválida", details: error.issues });
+      }
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return reply.code(500).send({ error: "Erro Prisma", code: error.code });
+      }
+      return reply.code(500).send({ error: "Erro ao buscar stats" });
     }
   };
 }
