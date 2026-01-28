@@ -35,8 +35,10 @@ type EvolutionWithImagesAndUrls = {
   hips?: number | null;
   chest?: number | null;
   shoulder: number | null;
-  calf: number | null;
-  forearm: number | null;
+  rightCalf: number | null;
+  leftCalf: number | null;
+  rightForearm: number | null;
+  leftForearm: number | null;
   message?: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -348,18 +350,15 @@ export class EvolutionService {
       hips: data.hips,
       chest: data.chest,
       shoulder: data.shoulder,
-      calf: data.calf,
-      forearm: data.forearm,
+      rightCalf: data.rightCalf,
+      leftCalf: data.leftCalf,
+      rightForearm: data.rightForearm,
+      leftForearm: data.leftForearm,
+
     };
   }
 
 
-
-
-
-
-
-  // testar e refatorar tudo abaixo
 
 
   private async isLatestEvolution(
@@ -425,7 +424,7 @@ export class EvolutionService {
       const writableKeys: (keyof EvolutionWritable)[] = [
         "date", "goal", "height", "weight",
         "rightBiceps", "leftBiceps", "rightThigh", "leftThigh",
-        "waist", "hips", "chest", "message", "shoulder", "calf", "forearm"
+        "waist", "hips", "chest", "message", "shoulder", "rightCalf", "leftCalf", "rightForearm", "leftForearm"
       ];
       const partial: Partial<EvolutionWritable> = {};
       assignIfDefined<EvolutionWritable>(partial, updateData as Partial<EvolutionWritable>, writableKeys);
@@ -560,8 +559,10 @@ export class EvolutionService {
       hips: 1,
       chest: 1,
       shoulder: 1,
-      calf: 1,
-      forearm: 1,
+      rightCalf: 1,
+      leftCalf: 1,
+      rightForearm: 1,
+      leftForearm: 1,
     };
 
     const fields: Array<keyof Evolution> = [
@@ -575,8 +576,10 @@ export class EvolutionService {
       "hips",
       "chest",
       "shoulder",
-      "calf",
-      "forearm",
+      "rightCalf",
+      "leftCalf",
+      "rightForearm",
+      "leftForearm",
     ];
 
     const differences: Record<string, number | null> = {};

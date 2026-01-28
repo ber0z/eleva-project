@@ -55,8 +55,11 @@ export default function EvolutionNewPage() {
   const [hips, setHips] = useState<string>("");
   const [chest, setChest] = useState<string>("");
   const [shoulder, setShoulder] = useState<string>("");
-  const [calf, setCalf] = useState<string>("");
-  const [forearm, setForearm] = useState<string>("");
+  const [rightCalf, setRightCalf] = useState<string>("");
+  const [leftCalf, setLeftCalf] = useState<string>("");
+  const [rightForearm, setRightForearm] = useState<string>("");
+  const [leftForearm, setLeftForearm] = useState<string>("");
+
   const [message, setMessage] = useState<string>("");
   const [goal, setGoal] = useState<GoalPreset | "">("");
 
@@ -102,8 +105,11 @@ export default function EvolutionNewPage() {
       appendIf(fd, "hips", hips);
       appendIf(fd, "chest", chest);
       appendIf(fd, "shoulder", shoulder);
-      appendIf(fd, "calf", calf);
-      appendIf(fd, "forearm", forearm);
+      appendIf(fd, "rightCalf", rightCalf);
+      appendIf(fd, "leftCalf", leftCalf);
+      appendIf(fd, "rightForearm", rightForearm);
+      appendIf(fd, "leftForearm", leftForearm);
+
       appendIf(fd, "message", message);
       appendIf(fd, "goal", goal);
 
@@ -328,27 +334,46 @@ export default function EvolutionNewPage() {
                   />
                 </div>
 
+
+
+                {/* Panturrilha D/E */}
+                <div className="grid grid-cols-2 gap-4">
+                  <NumberField
+                    id="rightCalf"
+                    label="Panturrilha direita (cm)"
+                    value={rightCalf}
+                    setValue={setRightCalf}
+                  />
+                  <NumberField
+                    id="leftCalf"
+                    label="Panturrilha esquerda (cm)"
+                    value={leftCalf}
+                    setValue={setLeftCalf}
+                  />
+                </div>
+
+                {/* Antebraço D/E */}
+                <div className="grid grid-cols-2 gap-4">
+                  <NumberField
+                    id="rightForearm"
+                    label="Antebraço direito (cm)"
+                    value={rightForearm}
+                    setValue={setRightForearm}
+                  />
+                  <NumberField
+                    id="leftForearm"
+                    label="Antebraço esquerdo (cm)"
+                    value={leftForearm}
+                    setValue={setLeftForearm}
+                  />
+                </div>
+                {/* Ombro */}
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="shoulder"
                     label="Ombro (cm)"
                     value={shoulder}
                     setValue={setShoulder}
-                  />
-                  <NumberField
-                    id="calf"
-                    label="Panturrilha (cm)"
-                    value={calf}
-                    setValue={setCalf}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-
-                  <NumberField
-                    id="forearm"
-                    label="Antebraço (cm)"
-                    value={forearm}
-                    setValue={setForearm}
                   />
                 </div>
 

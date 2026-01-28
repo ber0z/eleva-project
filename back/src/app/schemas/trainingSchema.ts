@@ -9,11 +9,12 @@ const trainingExerciseInput = z.object({
   exerciseId: z.number().int().positive().optional(),
   name: z.string().max(255).optional(),
   technique: z.string().max(255).optional(),
+  restTime: z.number().int().min(0).optional(),
   sets: z.number().int().min(0).default(0),
   reps: z.number().int().positive().optional(),
   weight: z.number().positive().optional(),
   type: z.string().max(64).optional(),
-  notes: z.string().max(1024).optional(),
+  notes: z.string().max(1024).optional(), 
 }).refine(
   (v) => typeof v.exerciseId === "number" || typeof v.name === "string",
   { message: "Envie exerciseId ou name no TrainingExercise." }
@@ -48,6 +49,7 @@ const trainingExercisePatch = z.object({
   exerciseId: z.number().int().positive().nullable().optional(),
   name: z.string().max(255).optional(),
   technique: z.string().max(255).optional(),
+  restTime: z.number().int().min(0).optional(),
   sets: z.number().int().min(0).optional(),
   reps: z.number().int().positive().nullable().optional(),
   weight: z.number().positive().nullable().optional(),

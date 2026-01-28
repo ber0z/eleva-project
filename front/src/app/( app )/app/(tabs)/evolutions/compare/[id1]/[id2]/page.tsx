@@ -68,8 +68,10 @@ type MetricKey =
   | "hips"
   | "chest"
   | "shoulder"
-  | "calf"
-  | "forearm";
+  | "rightCalf"
+  | "leftCalf"
+  | "rightForearm"
+  | "leftForearm"
 
 type DateDiff = { years: number; months: number; days: number };
 
@@ -88,8 +90,10 @@ type CompareEvolution = {
   hips: number | null;
   chest: number | null;
   shoulder: number | null;
-  calf: number | null;
-  forearm: number | null;
+  rightCalf: number | null;
+  leftCalf: number | null;
+  rightForearm: number | null;
+  leftForearm: number | null;
   message?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -145,8 +149,10 @@ const METRIC_KEYS: readonly MetricKey[] = [
   "hips",
   "chest",
   "shoulder",
-  "calf",
-  "forearm",
+  "rightCalf",
+  "leftCalf",
+  "rightForearm",
+  "leftForearm",
 ];
 
 const PRIMARY_KEYS: readonly MetricKey[] = ["weight"];
@@ -169,8 +175,10 @@ const METRICS: MetricCfg = {
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waistIcon, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hipsIcon, alt: "Quadril" } },
   shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
-  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
-  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
+  rightCalf: { label: "Panturrilha direita", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  leftCalf: { label: "Panturrilha esquerda", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  rightForearm: { label: "Antebraço direito", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
+  leftForearm: { label: "Antebraço esquerdo", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
 /* ===================== Utils ===================== */

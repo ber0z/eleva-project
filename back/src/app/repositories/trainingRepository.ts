@@ -78,7 +78,7 @@ export class TrainingRepository {
   }
 
   async createExercisesBulk(items: Array<{
-    idWorkout: number; exerciseId?: number | null; name: string; technique?: string | null;
+    idWorkout: number; exerciseId?: number | null; name: string; technique?: string | null; restTime?: number | null;
     sets: number; reps?: number | null; weight?: number | null; type?: string | null; notes?: string | null;
   }>, tx: Prisma.TransactionClient) {
     if (items.length === 0) return;
@@ -108,7 +108,7 @@ export class TrainingRepository {
 
 
   async updateExercise(id: number, data: {
-    idWorkout?: number; exerciseId?: number | null; name?: string; technique?: string | null;
+    idWorkout?: number; exerciseId?: number | null; name?: string; technique?: string | null; restTime?: number | null;
     sets?: number; reps?: number | null; weight?: number | null; type?: string | null; notes?: string | null;
   }, tx: Prisma.TransactionClient) {
     return tx.trainingExercise.update({ where: { id }, data });

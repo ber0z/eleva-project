@@ -33,8 +33,10 @@ type EvolutionDetail = {
   hips: number | null;
   chest: number | null;
   shoulder: number | null;
-  calf: number | null;
-  forearm: number | null;
+  rightCalf: number | null;
+  leftCalf: number | null;
+  rightForearm: number | null;
+  leftForearm: number | null;
   message: string | null;
   createdAt: string; // ISO
   updatedAt: string; // ISO
@@ -81,8 +83,11 @@ export default function EvolutionEditPage() {
   const [hips, setHips] = useState<string>("");
   const [chest, setChest] = useState<string>("");
   const [shoulder, setShoulder] = useState<string>("");
-  const [calf, setCalf] = useState<string>("");
-  const [forearm, setForearm] = useState<string>("");
+  const [rightCalf, setRightCalf] = useState<string>("");
+  const [leftCalf, setLeftCalf] = useState<string>("");
+  const [rightForearm, setRightForearm] = useState<string>("");
+  const [leftForearm, setLeftForearm] = useState<string>("");
+
   const [message, setMessage] = useState<string>("");
   const [goal, setGoal] = useState<GoalPreset | "">("");
 
@@ -128,8 +133,10 @@ export default function EvolutionEditPage() {
         setHips(optNum(evo.hips));
         setChest(optNum(evo.chest));
         setShoulder(optNum(evo.shoulder));
-        setCalf(optNum(evo.calf));
-        setForearm(optNum(evo.forearm));
+        setRightCalf(optNum(evo.rightCalf));
+        setLeftCalf(optNum(evo.leftCalf));
+        setRightForearm(optNum(evo.rightForearm));
+        setLeftForearm(optNum(evo.leftForearm));
         setMessage(evo.message ?? "");
         setGoal(() => {
           const g = evo.goal ? String(evo.goal) : "";
@@ -205,8 +212,10 @@ export default function EvolutionEditPage() {
       appendIf(fd, "hips", hips);
       appendIf(fd, "chest", chest);
       appendIf(fd, "shoulder", shoulder);
-      appendIf(fd, "calf", calf);
-      appendIf(fd, "forearm", forearm);
+      appendIf(fd, "rightCalf", rightCalf);
+      appendIf(fd, "leftCalf", leftCalf);
+      appendIf(fd, "rightForearm", rightForearm);
+      appendIf(fd, "leftForearm", leftForearm);
       appendIf(fd, "message", message);
       appendIf(fd, "goal", goal);
 
@@ -409,7 +418,40 @@ export default function EvolutionEditPage() {
                     setValue={setHips}
                   />
                 </div>
-                {/* Ombro / Panturrilha (mesma linha) */}
+                
+
+                {/* Panturrilha D/E */}
+                <div className="grid grid-cols-2 gap-4">
+                  <NumberField
+                    id="rightCalf"
+                    label="Panturrilha direita (cm)"
+                    value={rightCalf}
+                    setValue={setRightCalf}
+                  />
+                  <NumberField
+                    id="leftCalf"
+                    label="Panturrilha esquerda (cm)"
+                    value={leftCalf}
+                    setValue={setLeftCalf}
+                  />
+                </div>
+
+                {/* Antebraço D/E */}
+                <div className="grid grid-cols-2 gap-4">
+                  <NumberField
+                    id="rightForearm"
+                    label="Antebraço direito (cm)"
+                    value={rightForearm}
+                    setValue={setRightForearm}
+                  />
+                  <NumberField
+                    id="leftForearm"
+                    label="Antebraço esquerdo (cm)"
+                    value={leftForearm}
+                    setValue={setLeftForearm}
+                  />
+                </div>
+                {/* Ombro */}
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="shoulder"
@@ -417,22 +459,9 @@ export default function EvolutionEditPage() {
                     value={shoulder}
                     setValue={setShoulder}
                   />
-                  <NumberField
-                    id="calf"
-                    label="Panturrilha (cm)"
-                    value={calf}
-                    setValue={setCalf}
-                  />
+                  <div /> {/* mantém o grid alinhado */}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
 
-                  <NumberField
-                    id="forearm"
-                    label="Antebraço (cm)"
-                    value={forearm}
-                    setValue={setForearm}
-                  />
-                </div>
 
                 {/* Mensagem + Meta atual (lado a lado) */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

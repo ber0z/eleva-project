@@ -9,14 +9,12 @@ import type { LucideIcon } from "lucide-react";
 import {
   Weight,
   BicepsFlexed,
-  // Smartphone,
   X,
   ChevronLeft,
   ChevronRight,
   Loader2,
   AlertTriangle,
   Link as LinkIcon,
-
 } from "lucide-react";
 import NextImage, { type StaticImageData } from "next/image";
 
@@ -47,8 +45,10 @@ type SharedEvolution = {
   hips: number | null;
   chest: number | null;
   shoulder: number | null;
-  calf: number | null;
-  forearm: number | null;
+  rightCalf: number | null;
+  leftCalf: number | null;
+  rightForearm: number | null;
+  leftForearm: number | null;
   message?: string | null;
   images?: SharedImage[];
 };
@@ -65,8 +65,10 @@ type MetricKey =
   | "hips"
   | "chest"
   | "shoulder"
-  | "calf"
-  | "forearm";
+  | "rightCalf"
+  | "leftCalf"
+  | "rightForearm"
+  | "leftForearm";
 
 type ShareCompareResponse = {
   expiresAt: string;
@@ -78,8 +80,6 @@ type ShareCompareResponse = {
 
 /* ===================== Branding / Links ===================== */
 const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? "Eleva";
-// const ANDROID_URL = process.env.NEXT_PUBLIC_ANDROID_URL ?? "";
-// const HAS_ANDROID = ANDROID_URL.length > 0;
 
 /* ===================== Métricas (padrão metrics) ===================== */
 const METRIC_KEYS: readonly MetricKey[] = [
@@ -93,8 +93,10 @@ const METRIC_KEYS: readonly MetricKey[] = [
   "hips",
   "chest",
   "shoulder",
-  "calf",
-  "forearm",
+  "rightCalf",
+  "leftCalf",
+  "rightForearm",
+  "leftForearm",
 ];
 
 type IconDef =
@@ -115,16 +117,66 @@ const METRICS: MetricCfg = {
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waist, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hips, alt: "Quadril" } },
   shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
-  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
-  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
+  rightCalf: { label: "Panturrilha direita", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  leftCalf: { label: "Panturrilha esquerda", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  rightForearm: { label: "Antebraço direito", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
+  leftForearm: { label: "Antebraço esquerdo", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
 const PRIMARY_KEYS: readonly MetricKey[] = ["weight"];
 
-/* ===================== Utils ===================== */
-function formatVal(v: number | null | undefined) {
+/* ===================== Utils (anti-float) ===================== */
+const DECIMALS_BY_KEY: Record<MetricKey, number> = {
+  weight: 1,
+  height: 1,
+  rightBiceps: 1,
+  leftBiceps: 1,
+  rightThigh: 1,
+  leftThigh: 1,
+  waist: 1,
+  hips: 1,
+  chest: 1,
+  shoulder: 1,
+  rightCalf: 1,
+  leftCalf: 1,
+  rightForearm: 1,
+  leftForearm: 1,
+};
+
+function roundTo(n: number, decimals: number) {
+  const p = 10 ** decimals;
+  return Math.round((n + Number.EPSILON) * p) / p;
+}
+
+function formatNumberPtBR(n: number, decimals: number) {
+  const r = roundTo(n, decimals);
+
+  // evita "-0" em alguns casos
+  const safe = Object.is(r, -0) ? 0 : r;
+
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  }).format(safe);
+}
+
+function formatVal(v: number | null | undefined, key: MetricKey) {
   if (v === null || v === undefined) return "—";
-  return Number.isFinite(v) ? String(v) : "—";
+  if (!Number.isFinite(v)) return "—";
+  const d = DECIMALS_BY_KEY[key] ?? 1;
+  return formatNumberPtBR(v, d);
+}
+
+function formatDiff(raw: number, key: MetricKey, unit: string) {
+  const d = DECIMALS_BY_KEY[key] ?? 1;
+  const r = roundTo(raw, d);
+
+  if (r === 0) return { text: "Sem diferença", state: "text-muted-foreground" as const };
+
+  const sign = r > 0 ? "+" : "";
+  const text = `${sign}${formatNumberPtBR(r, d)} ${unit}`;
+  const state = r > 0 ? ("text-emerald-600" as const) : ("text-rose-600" as const);
+  return { text, state };
 }
 
 function formatDateUTC(iso?: string | null) {
@@ -138,7 +190,6 @@ function formatDateUTC(iso?: string | null) {
     return "";
   }
 }
-
 
 function MetricIcon({ icon, className }: { icon: IconDef; className?: string }) {
   if (icon.kind === "lucide") {
@@ -158,22 +209,15 @@ function MetricIcon({ icon, className }: { icon: IconDef; className?: string }) 
 }
 
 /* ===================== Página ===================== */
-export default function CompareEvolutionPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function CompareEvolutionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = useUnwrap(params);
 
-  // ---- state
   const [data, setData] = useState<ShareCompareResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  // posição atualmente aberta no lightbox (comparação)
   const [lbPos, setLbPos] = useState<number | null>(null);
 
-  // ---- fetch
   useEffect(() => {
     let active = true;
     (async () => {
@@ -198,14 +242,11 @@ export default function CompareEvolutionPage({
     };
   }, [id]);
 
-  // ---- derivados
   const evo1 = data?.evolution1 ?? null;
   const evo2 = data?.evolution2 ?? null;
 
-
   const date1 = useMemo(() => formatDateUTC(evo1?.date), [evo1?.date]);
   const date2 = useMemo(() => formatDateUTC(evo2?.date), [evo2?.date]);
-
 
   const images1 = useMemo(
     () => (evo1?.images ? [...evo1.images].sort((a, b) => a.position - b.position) : []),
@@ -216,7 +257,6 @@ export default function CompareEvolutionPage({
     [evo2]
   );
 
-  // position → index (para achar rápido)
   const posIndex1 = useMemo(() => {
     const m = new Map<number, number>();
     images1.forEach((img, idx) => m.set(img.position, idx));
@@ -229,7 +269,6 @@ export default function CompareEvolutionPage({
     return m;
   }, [images2]);
 
-  // todas as positions existentes (união ordenada)
   const allPositions = useMemo(() => {
     const set = new Set<number>();
     images1.forEach((i) => set.add(i.position));
@@ -256,8 +295,6 @@ export default function CompareEvolutionPage({
     return diff as Record<MetricKey, number> & { dateDifference?: DateDiff };
   }, [data?.differences, evo1, evo2]);
 
-
-  // ---- ações
   function openCompareByPosition(position: number) {
     setLbPos(position);
   }
@@ -275,7 +312,6 @@ export default function CompareEvolutionPage({
     if (idx >= 0 && idx < allPositions.length - 1) setLbPos(allPositions[idx + 1]);
   }
 
-  // ---- loading / erro
   if (loading) {
     return (
       <div className="min-h-dvh grid place-items-center bg-background">
@@ -303,92 +339,43 @@ export default function CompareEvolutionPage({
 
           <div className="mt-4 flex items-center justify-center gap-2">
             <a
-              href={'/'}
+              href={"/"}
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs shadow hover:opacity-90"
             >
               <LinkIcon className="h-4 w-4" />
               <span>Compartilhe suas evoluções</span>
             </a>
-            {/* {HAS_ANDROID ? (
-              <a
-                href={ANDROID_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs shadow hover:opacity-90"
-              >
-                <Smartphone className="h-4 w-4" />
-                <span>Baixar app Android</span>
-              </a>
-            ) : null} */}
           </div>
         </div>
       </div>
     );
   }
 
-  // ---- UI principal
   return (
     <div className="min-h-dvh bg-background">
       {/* HERO */}
       <div
-        className="relative w-full overflow-hidden  rounded-b-3xl border-b border-border bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-36 sm:h-44"
+        className="relative w-full overflow-hidden rounded-b-3xl border-b border-border bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-36 sm:h-44"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        {/* Brand bar */}
         <div className="absolute inset-x-0 top-0 z-10 mt-1">
-          <div className="mx-auto w-full max-w-5xl px-3 sm:px-4  py-2 flex items-center justify-between">
+          <div className="mx-auto w-full max-w-5xl px-3 sm:px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="h-7 w-24 rounded-md ">
-                <Image
-                  src={eleva}
-                  alt="Eleva"
-                  width={96}
-                  height={96}
-                  priority
-                  className="mb-6 rounded-lg"
-                />
+              <div className="h-7 w-24 rounded-md">
+                <Image src={eleva} alt="Eleva" width={96} height={96} priority className="mb-6 rounded-lg" />
               </div>
               <span className="sr-only">{BRAND_NAME}</span>
             </div>
-
-            {/* <div className="flex items-center gap-2">
-              <span className="text-xs text-white/90">Baixe o app:</span>
-              {HAS_ANDROID ? (
-                <a
-                  href={ANDROID_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${BRAND_NAME} no Android`}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs shadow hover:opacity-90"
-                >
-                  <Smartphone className="h-4 w-4" />
-                  <span>Android</span>
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  aria-disabled
-                  className="inline-flex items-center gap-2 rounded-full bg-primary/40 text-primary-foreground/80 px-3 py-1.5 text-xs opacity-60 cursor-not-allowed"
-                >
-                  <Smartphone className="h-4 w-4" />
-                  <span>Android</span>
-                </button>
-              )}
-            </div> */}
           </div>
         </div>
 
-        {/* ornamento */}
         <div className="pointer-events-none absolute inset-0 opacity-[0.07] [background:radial-gradient(40rem_40rem_at_20%_-10%,--theme(--color-primary/60),transparent_60%),radial-gradient(32rem_32rem_at_120%_20%,--theme(--color-primary/40),transparent_60%)]" />
-
       </div>
 
       {/* CARTÃO */}
       <section className="mx-auto -mt-16 sm:-mt-24 lg:-mt-28 w-full max-w-5xl px-3 sm:px-4 pb-8">
         <div className="rounded-2xl border border-border bg-card/90 backdrop-blur p-4 sm:p-6 shadow-md">
-          {/* header */}
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
               Comparando evoluções de {data.user.name}
@@ -406,7 +393,7 @@ export default function CompareEvolutionPage({
             </div>
           </div>
 
-          {/* destaques */}
+          {/* destaques (peso) */}
           <div className="mt-5 grid grid-cols-1 gap-2 sm:gap-3">
             {PRIMARY_KEYS.map((k) => {
               const cfg = METRICS[k];
@@ -418,26 +405,11 @@ export default function CompareEvolutionPage({
 
               const raw = (differences)?.[k] as number | null | undefined;
               const hasDiff = typeof raw === "number" && Number.isFinite(raw);
-
               const showDiff = hasV1 && hasV2 && hasDiff;
 
-              const deltaAbs = showDiff ? Math.abs(raw) : 0;
-
-              const state = !showDiff
-                ? "text-muted-foreground"
-                : raw > 0
-                  ? "text-emerald-600"
-                  : raw < 0
-                    ? "text-rose-600"
-                    : "text-muted-foreground";
-
-              const badge = !showDiff
-                ? "Sem dados"
-                : raw === 0
-                  ? "Sem diferença"
-                  : raw > 0
-                    ? `+${deltaAbs} ${cfg.unit}`
-                    : `-${deltaAbs} ${cfg.unit}`;
+              const badgeInfo = !showDiff
+                ? { text: "Sem dados", state: "text-muted-foreground" as const }
+                : formatDiff(raw, k, cfg.unit);
 
               return (
                 <div
@@ -451,25 +423,24 @@ export default function CompareEvolutionPage({
 
                   <div className="mt-2 grid grid-cols-3 items-end gap-2">
                     <div className="text-base sm:text-lg font-semibold">
-                      {formatVal(v1)} <span className="text-xs text-muted-foreground">{cfg.unit}</span>
+                      {formatVal(v1, k)} <span className="text-xs text-muted-foreground">{cfg.unit}</span>
                       <div className="text-[10px] text-muted-foreground mt-0.5">{date1 || "—"}</div>
                     </div>
 
                     <div className="text-center text-xs sm:text-sm font-medium">
-                      <span className={`inline-block rounded-full px-2 py-0.5 ${state} bg-black/5 dark:bg-white/5`}>
-                        {badge}
+                      <span className={`inline-block rounded-full px-2 py-0.5 ${badgeInfo.state} bg-black/5 dark:bg-white/5`}>
+                        {badgeInfo.text}
                       </span>
                     </div>
 
                     <div className="text-right text-base sm:text-lg font-semibold">
-                      {formatVal(v2)} <span className="text-xs text-muted-foreground">{cfg.unit}</span>
+                      {formatVal(v2, k)} <span className="text-xs text-muted-foreground">{cfg.unit}</span>
                       <div className="text-[10px] text-muted-foreground mt-0.5">{date2 || "—"}</div>
                     </div>
                   </div>
                 </div>
               );
             })}
-
           </div>
 
           {/* tabela medidas */}
@@ -482,6 +453,7 @@ export default function CompareEvolutionPage({
                 <div className="text-center">Diferença</div>
                 <div className="text-right">{date2 || "—"}</div>
               </div>
+
               <div className="divide-y divide-border">
                 {METRIC_KEYS.filter((k) => !PRIMARY_KEYS.includes(k)).map((k) => {
                   const cfg = METRICS[k];
@@ -497,21 +469,9 @@ export default function CompareEvolutionPage({
 
                   const showDiff = hasA && hasB && hasDiff;
 
-                  const sign = !showDiff
-                    ? "—"
-                    : raw === 0
-                      ? "="
-                      : raw > 0
-                        ? `+${Math.abs(raw)} ${cfg.unit}`
-                        : `-${Math.abs(raw)} ${cfg.unit}`;
-
-                  const state = !showDiff
-                    ? "text-muted-foreground"
-                    : raw > 0
-                      ? "text-emerald-600"
-                      : raw < 0
-                        ? "text-rose-600"
-                        : "text-muted-foreground";
+                  const badgeInfo = !showDiff
+                    ? { text: "—", state: "text-muted-foreground" as const }
+                    : formatDiff(raw, k, cfg.unit);
 
                   return (
                     <div key={k} className="grid grid-cols-4 px-3 py-2 items-center">
@@ -521,22 +481,21 @@ export default function CompareEvolutionPage({
                       </div>
 
                       <div className="text-right text-sm">
-                        {formatVal(a)} <span className="text-[11px] text-muted-foreground">{cfg.unit}</span>
+                        {formatVal(a, k)} <span className="text-[11px] text-muted-foreground">{cfg.unit}</span>
                       </div>
 
                       <div className="text-center text-xs">
-                        <span className={`inline-block rounded-full px-2 py-0.5 ${state} bg-black/5 dark:bg-white/5`}>
-                          {sign}
+                        <span className={`inline-block rounded-full px-2 py-0.5 ${badgeInfo.state} bg-black/5 dark:bg-white/5`}>
+                          {badgeInfo.text === "Sem diferença" ? "=" : badgeInfo.text}
                         </span>
                       </div>
 
                       <div className="text-right text-sm">
-                        {formatVal(b)} <span className="text-[11px] text-muted-foreground">{cfg.unit}</span>
+                        {formatVal(b, k)} <span className="text-[11px] text-muted-foreground">{cfg.unit}</span>
                       </div>
                     </div>
                   );
                 })}
-
               </div>
             </div>
           </div>
@@ -559,7 +518,7 @@ export default function CompareEvolutionPage({
             </div>
           )}
 
-          {/* galerias: clique abre por position (comparação) */}
+          {/* galerias: clique abre por position */}
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Fotos — {date1 || "—"}</h3>
@@ -618,7 +577,7 @@ export default function CompareEvolutionPage({
         </p>
       </section>
 
-      {/* LIGHTBOX DE COMPARAÇÃO (lado a lado por position) */}
+      {/* LIGHTBOX */}
       {lbPos !== null && (
         <CompareLightbox
           position={lbPos}
@@ -668,14 +627,15 @@ function CompareLightbox(props: CompareLightboxProps) {
     onNext,
   } = props;
 
-  // indices existentes nessa position (ou -1 se não existir)
   const leftIdx = leftMap.get(position) ?? -1;
   const rightIdx = rightMap.get(position) ?? -1;
 
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, []);
 
   useEffect(() => {
@@ -699,7 +659,6 @@ function CompareLightbox(props: CompareLightboxProps) {
         className="relative w-[min(96vw,1280px)] h-[min(88vh,calc(100svh-64px))] grid grid-cols-1 sm:grid-cols-2 gap-2 items-center"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Fechar */}
         <button
           onClick={onClose}
           aria-label="Fechar"
@@ -708,7 +667,6 @@ function CompareLightbox(props: CompareLightboxProps) {
           <X className="h-5 w-5" />
         </button>
 
-        {/* Prev / Next (navegam por position) */}
         <button
           onClick={onPrev}
           aria-label="Anterior"
@@ -726,7 +684,6 @@ function CompareLightbox(props: CompareLightboxProps) {
           <ChevronRight className="h-6 w-6" />
         </button>
 
-        {/* Coluna esquerda (evolução 1) */}
         <div className="relative w-full h-full rounded-lg overflow-hidden">
           {leftIdx >= 0 ? (
             <NextImage
@@ -741,16 +698,13 @@ function CompareLightbox(props: CompareLightboxProps) {
               draggable={false}
             />
           ) : (
-            <div className="grid place-items-center w-full h-full text-white/70 text-sm">
-              Sem foto nessa posição
-            </div>
+            <div className="grid place-items-center w-full h-full text-white/70 text-sm">Sem foto nessa posição</div>
           )}
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-center text-xs text-white/80">
             {leftTitle} • posição {position}
           </div>
         </div>
 
-        {/* Coluna direita (evolução 2) */}
         <div className="relative w-full h-full rounded-lg overflow-hidden">
           {rightIdx >= 0 ? (
             <NextImage
@@ -765,9 +719,7 @@ function CompareLightbox(props: CompareLightboxProps) {
               draggable={false}
             />
           ) : (
-            <div className="grid place-items-center w-full h-full text-white/70 text-sm">
-              Sem foto nessa posição
-            </div>
+            <div className="grid place-items-center w-full h-full text-white/70 text-sm">Sem foto nessa posição</div>
           )}
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-center text-xs text-white/80">
             {rightTitle} • posição {position}

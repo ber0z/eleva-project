@@ -7,7 +7,6 @@ import {
   ChartNoAxesColumnIncreasing,
   ChartNoAxesCombined,
   Dumbbell,
-  // Apple,
 } from "lucide-react";
 import { Zzz } from "@/components/icons/Zzz";
 
@@ -25,14 +24,32 @@ type NavItem = {
 };
 
 export default function ResponsiveNav() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
+
+  const HIDE_TABS_ON_SUBROUTES_OF = [
+    "/app/activities/workouts",
+    "/app/activities/physical",
+    "/app/evolutions",
+    "/app/sleep",
+  ] as const;
+
+  const normalize = (p: string) => (p === "/" ? "/" : p.replace(/\/+$/, "")); // remove trailing slash
+  const path = normalize(pathname);
+
+  const shouldHide = HIDE_TABS_ON_SUBROUTES_OF.some((base) => {
+    const b = normalize(base);
+    // esconde se for "base + /alguma-coisa"
+    return path.startsWith(b + "/");
+  });
+
+  if (shouldHide) return null;
+
   const current = getAppSegment(pathname);
 
   const items: NavItem[] = [
     { href: "/app/metrics", seg: "metrics", label: "Medidas", Icon: ChartNoAxesColumnIncreasing },
     { href: "/app/evolutions", seg: "evolutions", label: "Evolução", Icon: ChartNoAxesCombined },
     { href: "/app/activities/physical", seg: "activities", label: "Atividade", Icon: Dumbbell },
-    // { href: "/app/diets", seg: "diets", label: "Alimentação", Icon: Apple },
     { href: "/app/sleep", seg: "sleep", label: "Sono", Icon: Zzz },
   ];
 
@@ -41,12 +58,11 @@ export default function ResponsiveNav() {
       {/* ===== Sidebar fixa (desktop), abaixo do header ===== */}
       <aside
         className="
-    hidden md:flex fixed inset-y-0 left-0 w-24
-    border-r border-border bg-background z-30
-  "
+          hidden md:flex fixed inset-y-0 left-0 w-24
+          border-r border-border bg-background z-30
+        "
         aria-label="Navegação lateral"
       >
-        {/* Reserva a altura do header aqui dentro */}
         <nav className="h-full overflow-y-auto p-2 pt-22 w-24">
           <ul className="flex min-h-full flex-col gap-2">
             {items.map(({ href, seg, label, Icon }) => {
@@ -57,14 +73,15 @@ export default function ResponsiveNav() {
                     href={href}
                     aria-current={active ? "page" : undefined}
                     className={`
-                aspect-square w-full
-                flex flex-col items-center justify-center
-                rounded-xl transition
-                border ${active ? "border-primary/35" : "border-transparent"}
-                ${active
+                      aspect-square w-full
+                      flex flex-col items-center justify-center
+                      rounded-xl transition
+                      border ${active ? "border-primary/35" : "border-transparent"}
+                      ${active
                         ? "text-primary bg-primary/15"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted hover:border-border"}
-              `}
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted hover:border-border"
+                      }
+                    `}
                   >
                     <Icon className="size-5" strokeWidth={active ? 2.2 : 1.7} aria-hidden />
                     <span className="mt-1 text-[11px] leading-none text-center">{label}</span>
@@ -100,16 +117,10 @@ export default function ResponsiveNav() {
                     flex flex-col items-center justify-center rounded-xl py-2
                     text-xs font-medium transition
                     border ${active ? "border-primary/35" : "border-transparent"}
-                    ${active
-                      ? "text-primary bg-primary/15"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"}
+                    ${active ? "text-primary bg-primary/15" : "text-muted-foreground hover:text-foreground hover:bg-muted"}
                   `}
                 >
-                  <Icon
-                    className="size-5"
-                    strokeWidth={active ? 2.2 : 1.7}
-                    aria-hidden
-                  />
+                  <Icon className="size-5" strokeWidth={active ? 2.2 : 1.7} aria-hidden />
                   <span className="mt-1">{label}</span>
                 </Link>
               </li>

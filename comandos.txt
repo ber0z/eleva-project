@@ -15,3 +15,6 @@ npx prisma migrate dev --name <nome_da_migration>
 
 //gera o prisma client (executar apos migration)
 npx prisma generate
+
+
+

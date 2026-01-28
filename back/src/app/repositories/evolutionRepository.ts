@@ -18,8 +18,10 @@ export interface CreateEvolutionDTO {
   hips?: number;
   chest?: number;
   shoulder?: number,
-  calf?: number,
-  forearm?: number,
+  rightForearm?: number,
+  leftForearm?: number,
+  rightCalf?: number,
+  leftCalf?: number,
   message?: string;
 }
 export interface UpdateEvolutionDTO {
@@ -36,8 +38,10 @@ export interface UpdateEvolutionDTO {
   hips?: number;
   chest?: number;
   shoulder: true,
-  calf: true,
-  forearm: true,
+  rightForearm?: number,
+  leftForearm?: number,
+  rightCalf?: number,
+  leftCalf?: number,
   message?: string;
   removeImageFront?: boolean,
   removeImageSide?: boolean,

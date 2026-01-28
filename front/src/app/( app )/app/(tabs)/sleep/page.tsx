@@ -4,7 +4,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { isAxiosError } from "axios";
-import { Plus, Moon, RefreshCw, ChartColumn } from "lucide-react";
+import {
+  Plus,
+  Moon,
+  RefreshCw,
+  ChartColumn,
+  CalendarRange,
+  Clock,
+  ListChecks,
+} from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -127,6 +135,77 @@ function getThisWeekRange() {
   };
 }
 
+/* ====== KPI style (igual atividade física) ====== */
+function KpiCard({
+  label,
+  value,
+  icon: Icon,
+}: {
+  label: string;
+  value: React.ReactNode; 
+  icon: typeof CalendarRange;
+}) {
+  return (
+    <div className="rounded-2xl border border-border/60 p-3 shadow-sm transition hover:shadow-md bg-background/40">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] text-muted-foreground">{label}</p>
+          <p className="mt-1 text-lg font-semibold leading-none tracking-tight">{value}</p>
+        </div>
+
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-background/60">
+          <Icon className="h-4 w-4 text-foreground/80" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function KpiDuoCard({
+  leftLabel,
+  leftValue,
+  rightLabel,
+  rightValue,
+}: {
+  leftLabel: string;
+  leftValue: string;
+  rightLabel: string;
+  rightValue: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border/60 p-3 shadow-sm transition hover:shadow-md bg-background/40">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <div className="grid h-8 w-8 place-items-center rounded-xl bg-background/60 shrink-0">
+              <Clock className="h-4 w-4 text-foreground/80" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground leading-tight">{leftLabel}</p>
+              <p className="text-sm font-semibold whitespace-nowrap tabular-nums">{leftValue}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="h-8 w-px bg-border/60 shrink-0" />
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 justify-end">
+            <div className="grid h-8 w-8 place-items-center rounded-xl bg-background/60 shrink-0">
+              <ListChecks className="h-4 w-4 text-foreground/80" />
+            </div>
+            <div className="min-w-0 text-right">
+              <p className="text-[11px] text-muted-foreground leading-tight">{rightLabel}</p>
+              <p className="text-sm font-semibold whitespace-nowrap tabular-nums">{rightValue}</p>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function QualityDonutChart({
   percent,
   count,
@@ -139,17 +218,17 @@ function QualityDonutChart({
   const ORDER: SleepQuality[] = ["excellent", "good", "average", "poor", "very_poor"];
 
   const COLOR_BY_QUALITY: Record<SleepQuality, string> = {
-    excellent: "#2ECC71",  // verde
-    good: "#2D9CDB",       // azul
-    average: "#F2C94C",    // amarelo
-    poor: "#F2994A",       // laranja
-    very_poor: "#EB5757",  // vermelho
+    excellent: "#2ECC71",
+    good: "#2D9CDB",
+    average: "#F2C94C",
+    poor: "#F2994A",
+    very_poor: "#EB5757",
   };
 
   const data = ORDER.map((q) => ({
     key: q,
     name: qualityLabel(q),
-    value: Math.max(0, Number(percent?.[q] ?? 0)), // %
+    value: Math.max(0, Number(percent?.[q] ?? 0)),
     count: Math.max(0, Number(count?.[q] ?? 0)),
     color: COLOR_BY_QUALITY[q],
   })).filter((d) => d.value > 0);
@@ -210,17 +289,13 @@ function QualityDonutChart({
   );
 }
 
-
 export default function SleepPage() {
   // ===== histórico (lista) =====
   const [items, setItems] = useState<Sleep[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState<number | null>(null);
 
-  // agora o histórico começa DESLIGADO
   const [historyEnabled, setHistoryEnabled] = useState(false);
-
-  // loading do histórico começa falso (não vamos buscar nada ao abrir)
   const [initialLoading, setInitialLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -233,10 +308,19 @@ export default function SleepPage() {
     return page < totalPages;
   }, [historyEnabled, page, totalPages]);
 
-  // ===== stats (semana atual + filtros ocultos) =====
+  // ===== stats =====
   const initialWeek = getThisWeekRange();
   const [dateFrom, setDateFrom] = useState(() => initialWeek.from);
   const [dateTo, setDateTo] = useState(() => initialWeek.to);
+
+  const defaultWeekRef = useRef<{ from: string; to: string }>({
+    from: initialWeek.from,
+    to: initialWeek.to,
+  });
+
+  const isDefaultWeekRange = useMemo(() => {
+    return dateFrom === defaultWeekRef.current.from && dateTo === defaultWeekRef.current.to;
+  }, [dateFrom, dateTo]);
 
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -248,6 +332,10 @@ export default function SleepPage() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsErr, setStatsErr] = useState<string | null>(null);
   const [stats, setStats] = useState<SleepStatsResponse | null>(null);
+
+  const hasStatsData = useMemo(() => {
+    return (stats?.totalRecords ?? 0) > 0;
+  }, [stats]);
 
   async function fetchStats(override?: { dateFrom: string; dateTo: string }) {
     setStatsLoading(true);
@@ -315,13 +403,11 @@ export default function SleepPage() {
     }
   }
 
-  // ✅ ao abrir a página: SOMENTE stats
   useEffect(() => {
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ✅ infinite scroll só quando histórico estiver habilitado
   useEffect(() => {
     if (!historyEnabled) return;
 
@@ -354,11 +440,9 @@ export default function SleepPage() {
   function enableHistory() {
     if (historyEnabled) return;
     setHistoryEnabled(true);
-    // reset básico (caso já tenha usado antes)
     setItems([]);
     setPage(1);
     setTotalPages(null);
-    // agora sim busca o histórico
     fetchPage(1);
   }
 
@@ -371,22 +455,10 @@ export default function SleepPage() {
             <h1 className="text-xl font-semibold">Sono</h1>
           </div>
 
-          <Button
-            variant="outline"
-            className="shrink-0 bg-card cursor-pointer"
-            onClick={() => {
-              fetchStats();
-              if (historyEnabled) fetchPage(1);
-            }}
-            disabled={initialLoading || loadingMore || statsLoading}
-            title="Atualizar"
-          >
-            <RefreshCw className={initialLoading || loadingMore || statsLoading ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
-            Atualizar
-          </Button>
+          
         </div>
 
-        {/* ===== Card compacto: stats ===== */}
+        {/* ===== Card: stats ===== */}
         <Card className="mb-4">
           <CardHeader className="py-3">
             <div className="flex items-center justify-between gap-2">
@@ -413,19 +485,55 @@ export default function SleepPage() {
                 {statsErr}
               </div>
             ) : statsLoading ? (
-              <Skeleton className="h-10 w-full" />
-            ) : stats ? (
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted/20 px-3 py-2">
-                <div className="text-xs text-muted-foreground">
-                  {formatYMD(stats.dateFrom)} → {formatYMD(stats.dateTo)}
-                </div>
+              <Skeleton className="h-20 w-full rounded-xl" />
+            ) : stats && !hasStatsData ? (
+              isDefaultWeekRange ? (
+                <div className="rounded-xl border border-border bg-muted/20 p-4">
+                  <div className="text-sm font-medium">Nenhum registro de sono nesta semana ainda</div>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    Assim que você registrar seu sono, suas estatísticas semanais vão aparecer aqui.
+                  </div>
 
-                <div className="text-sm font-medium">
-                  <span className="text-muted-foreground">Média:</span> {avgSleepLabel}
-                  <span className="mx-2 text-muted-foreground">•</span>
-                  <span className="text-muted-foreground">Registros:</span> {stats.totalRecords}
+                  <div className="mt-4">
+                    <Button asChild>
+                      <Link href="/app/sleep/new">Registrar sono</Link>
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="rounded-xl border border-border bg-muted/20 p-4">
+                  <div className="text-sm font-medium">Sem dados no período</div>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    Não encontramos registros entre <b>{formatYMD(dateFrom)}</b> e <b>{formatYMD(dateTo)}</b>.
+                    Ajuste as datas para ver estatísticas.
+                  </div>
+                </div>
+              )
+            ) : stats ? (
+              <>
+                {/* ✅ infos estilo "atividade física" */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 ">
+                  <KpiCard
+                    label="Período"
+                    value={
+                      <>
+                        <span className="whitespace-nowrap">{formatYMD(stats.dateFrom)}</span>
+                        <br />
+                        <span className="text-muted-foreground">→</span>{" "}
+                        <span className="whitespace-nowrap">{formatYMD(stats.dateTo)}</span>
+                      </>
+                    }
+                    icon={CalendarRange}
+                  />
+
+                  <KpiDuoCard
+                    leftLabel="Média"
+                    leftValue={avgSleepLabel}
+                    rightLabel="Registros"
+                    rightValue={String(stats.totalRecords)}
+                  />
+                </div>
+              </>
             ) : (
               <div className="text-sm text-muted-foreground">Sem dados.</div>
             )}
@@ -490,13 +598,18 @@ export default function SleepPage() {
               </div>
             ) : null}
 
-            {stats && !statsLoading ? (
+            {/* Donut */}
+            {stats && !statsLoading && hasStatsData ? (
               <>
                 <div className="mb-3 flex items-center justify-between gap-2">
-                  <div className="text-sm text-muted-foreground">Qualidade do sono </div>
+                  <div className="text-sm text-muted-foreground">Qualidade do sono</div>
                 </div>
                 <div className="-mt-1">
-                  <QualityDonutChart percent={stats.quality.percent} count={stats.quality.count} totalRated={stats.quality.totalRated} />
+                  <QualityDonutChart
+                    percent={stats.quality.percent}
+                    count={stats.quality.count}
+                    totalRated={stats.quality.totalRated}
+                  />
                 </div>
               </>
             ) : null}
@@ -505,7 +618,7 @@ export default function SleepPage() {
 
         {/* ===== Histórico ===== */}
         <div className="mb-3 flex items-center justify-between gap-2">
-          <div className="text-sm font-semibold">Histórico</div>
+          <div className="text-sm font-semibold">Histórico de sono</div>
 
           {!historyEnabled ? (
             <Button variant="outline" size="sm" className="bg-card cursor-pointer" onClick={enableHistory}>
@@ -514,12 +627,10 @@ export default function SleepPage() {
           ) : null}
         </div>
 
-        {/* ✅ se ainda não habilitou, não faz GET e mostra “anúncio” */}
         {!historyEnabled ? (
           <></>
         ) : (
           <>
-            {/* Erro lista */}
             {err && !initialLoading && (
               <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 {err}
@@ -531,7 +642,6 @@ export default function SleepPage() {
               </div>
             )}
 
-            {/* Lista / Empty / Skeleton */}
             {initialLoading ? (
               <div className="grid gap-3">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -620,4 +730,3 @@ export default function SleepPage() {
     </div>
   );
 }
-

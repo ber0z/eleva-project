@@ -34,7 +34,7 @@ type PhysicalActivity = {
   idUser: number;
   name: string;
   type: ActivityType;
-  duration: number;
+  duration: number; // minutos
   calories: number | null;
   observations?: string | null;
   date: string; // ISO no retorno
@@ -51,12 +51,34 @@ function todayYMD() {
 }
 
 function combineDateTime(dateYmd: string, timeHm?: string) {
-  // Se hora vazia, envia só YYYY-MM-DD (como você já fazia)
   if (!timeHm?.trim()) return dateYmd;
-
-  // envia como ISO "YYYY-MM-DDTHH:mm:00.000Z" (UTC) para evitar problemas de timezone no backend
-  // (Se seu backend prefere sem Z, troque para `${dateYmd}T${timeHm}:00`)
   return `${dateYmd}T${timeHm}:00.000Z`;
+}
+
+/** Converte "HH:mm" em minutos */
+function parseTimeToMinutes(hhmm: string): number | null {
+  const s = (hhmm ?? "").trim();
+  if (!s) return null;
+  const m = s.match(/^(\d{2}):(\d{2})$/);
+  if (!m) return null;
+
+  const hh = Number(m[1]);
+  const mm = Number(m[2]);
+
+  if (!Number.isFinite(hh) || !Number.isFinite(mm)) return null;
+  if (hh < 0 || hh > 23) return null;
+  if (mm < 0 || mm > 59) return null;
+
+  const total = hh * 60 + mm;
+  return total > 0 ? total : null;
+}
+
+function formatMinutesAsH(mins: number) {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  if (h <= 0) return `${m} min`;
+  if (m === 0) return `${h}h`;
+  return `${h}h${String(m).padStart(2, "0")}`;
 }
 
 export default function NewPhysicalActivityPage() {
@@ -64,30 +86,40 @@ export default function NewPhysicalActivityPage() {
 
   const [name, setName] = useState("");
   const [type, setType] = useState<ActivityType>("strength");
-  const [duration, setDuration] = useState<string>("45");
+
+  // ✅ duração como "HH:mm" (seletor nativo)
+  // exemplos: 00:45, 01:30, 02:00
+  const [durationTime, setDurationTime] = useState<string>("00:45");
+
   const [calories, setCalories] = useState<string>("");
   const [observations, setObservations] = useState<string>("");
   const [date, setDate] = useState<string>(todayYMD());
-  const [time, setTime] = useState<string>(""); // opcional "HH:mm"
+  const [time, setTime] = useState<string>(""); // hora de início opcional
 
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  const durationMinutes = useMemo(() => parseTimeToMinutes(durationTime), [durationTime]);
 
   const canSave = useMemo(() => {
     if (!name.trim()) return false;
     if (!date) return false;
 
-    const dur = Number(duration);
-    if (!Number.isFinite(dur) || dur <= 0) return false;
+    if (durationMinutes == null || durationMinutes <= 0) return false;
 
-    // se preencher hora, valida formato HH:mm
+    // hora de início (se preencher)
     if (time && !/^\d{2}:\d{2}$/.test(time)) return false;
 
+    if (calories.trim()) {
+      const c = Number(calories);
+      if (!Number.isFinite(c) || c < 0) return false;
+    }
+
     return true;
-  }, [name, date, duration, time]);
+  }, [name, date, durationMinutes, time, calories]);
 
   async function onSubmit() {
-    if (!canSave) return;
+    if (!canSave || durationMinutes == null) return;
 
     setSaving(true);
     setErr(null);
@@ -95,17 +127,15 @@ export default function NewPhysicalActivityPage() {
     try {
       const body = {
         name: name.trim(),
-        type, // enum
-        duration: Number(duration),
+        type,
+        duration: durationMinutes, // ✅ envia em minutos
         calories: calories.trim() ? Number(calories) : null,
         observations: observations.trim() ? observations.trim() : null,
-        date: combineDateTime(date, time), // <-- date + hora opcional
+        date: combineDateTime(date, time),
       };
 
-      const { data } = await api.post<PhysicalActivity>("/physical-activities", body);
-
-      // ajuste a rota se seu detalhe estiver em /app/physical-activities/[id]
-      router.push(`/app/activities/physical/${data.id}`);
+      await api.post<PhysicalActivity>("/physical-activities", body);
+      router.push(`/app/activities/physical`);
     } catch (error) {
       if (isAxiosError(error)) {
         setErr(error.response?.data?.message || error.message || "Falha ao registrar atividade");
@@ -174,15 +204,24 @@ export default function NewPhysicalActivityPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs text-muted-foreground">Duração (min)</label>
+                  <label className="text-xs text-muted-foreground">Duração (HH:mm)</label>
                   <input
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    type="number"
-                    min={1}
+                    value={durationTime}
+                    onChange={(e) => setDurationTime(e.target.value)}
+                    type="time"
+                    step={60} // 1 minuto (alguns browsers respeitam)
                     className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     disabled={saving}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    {durationMinutes != null ? (
+                      <>
+                        <b>{formatMinutesAsH(durationMinutes)}</b> ({durationMinutes} min)
+                      </>
+                    ) : (
+                      "Selecione uma duração válida."
+                    )}
+                  </p>
                 </div>
 
                 <div className="space-y-1">

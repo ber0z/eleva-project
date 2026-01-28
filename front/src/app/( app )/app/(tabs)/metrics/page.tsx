@@ -41,8 +41,10 @@ type Evolution = {
   hips: number | null;
   chest: number | null;
   shoulder: number | null;
-  calf: number | null;
-  forearm: number | null;
+  rightCalf: number | null;
+  leftCalf: number | null;
+  rightForearm: number | null;
+  leftForearm: number | null;
   message: string | null;
   createdAt: string;
   updatedAt: string;
@@ -61,8 +63,10 @@ type MetricKey = keyof Pick<
   | "hips"
   | "chest"
   | "shoulder"
-  | "calf"
-  | "forearm"
+  | "rightCalf"
+  | "leftCalf"
+  | "rightForearm"
+  | "leftForearm"
 >;
 
 /** Discriminated union para aceitar lucide ou imagem */
@@ -85,8 +89,10 @@ const METRIC_CONFIG: MetricCfg = {
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waist, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hips, alt: "Quadril" } },
   shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
-  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
-  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
+  rightCalf: { label: "Panturrilha direita", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  leftCalf: { label: "Panturrilha esquerda", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  rightForearm: { label: "Antebraço direito", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
+  leftForearm: { label: "Antebraço esquerdo", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
 const PRIMARY_KEYS: Array<keyof typeof METRIC_CONFIG> = ["weight", "height"];

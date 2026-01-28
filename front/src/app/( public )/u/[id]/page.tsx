@@ -27,8 +27,8 @@ import height from "../../../../../public/icones/height.png";
 import waist from "../../../../../public/icones/waist.png";
 import chest from "../../../../../public/icones/chest.png";
 import hips from "../../../../../public/icones/hips.png";
-import shoulders from "../../../../../public/icones/calf.png";
-import calf from "../../../../../public/icones/hips.png";
+import shoulders from "../../../../../public/icones/shoulders.png";
+import calf from "../../../../../public/icones/calf.png";
 import forearm from "../../../../../public/icones/forearm.png";
 
 /* ===================== Tipos ===================== */
@@ -53,8 +53,10 @@ type SharedEvolution = {
   hips: number | null;
   chest: number | null;
   shoulder: number | null;
-  calf: number | null;
-  forearm: number | null;
+  rightCalf: number | null;
+  leftCalf: number | null;
+  rightForearm: number | null;
+  leftForearm: number | null;
   message?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -87,8 +89,10 @@ const METRIC_KEYS = [
   "hips",
   "chest",
   "shoulder",
-  "calf",
-  "forearm",
+  "rightCalf",
+  "leftCalf",
+  "rightForearm",
+  "leftForearm",
 ] as const;
 type MetricKey = typeof METRIC_KEYS[number];
 
@@ -111,8 +115,10 @@ const METRICS: MetricCfg = {
   waist: { label: "Cintura", unit: "cm", icon: { kind: "image", src: waist, alt: "Cintura" } },
   hips: { label: "Quadril", unit: "cm", icon: { kind: "image", src: hips, alt: "Quadril" } },
   shoulder: { label: "Ombro", unit: "cm", icon: { kind: "image", src: shoulders, alt: "Ombro" } },
-  calf: { label: "Panturrilha", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
-  forearm: { label: "Antebraço", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
+  rightCalf: { label: "Panturrilha direita", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  leftCalf: { label: "Panturrilha esquerda", unit: "cm", icon: { kind: "image", src: calf, alt: "Panturrilha" } },
+  rightForearm: { label: "Antebraço direito", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
+  leftForearm: { label: "Antebraço esquerdo", unit: "cm", icon: { kind: "image", src: forearm, alt: "Antebraço" } },
 };
 
 const PRIMARY_KEYS: readonly MetricKey[] = ["weight"];

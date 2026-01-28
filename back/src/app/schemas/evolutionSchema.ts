@@ -16,8 +16,10 @@ export const evolutionSchema = z.object({
   hips: z.number().optional(),
   chest: z.number().optional(),
   shoulder: z.number().optional(),
-  calf: z.number().optional(),
-  forearm: z.number().optional(),
+  rightCalf: z.number().optional(),
+  leftCalf: z.number().optional(),
+  rightForearm: z.number().optional(),
+  leftForearm: z.number().optional(),
   message: z.coerce.string().max(512).optional(),
   imageFront: z.instanceof(Buffer).optional(),
   imageSide: z.instanceof(Buffer).optional(),
@@ -61,8 +63,10 @@ export const measuresSchema = z.object({
   hips: z.number().optional(),
   chest: z.number().optional(),
   shoulder: z.number().optional(),
-  calf: z.number().optional(),
-  forearm: z.number().optional(),
+  rightCalf: z.number().optional(),
+  leftCalf: z.number().optional(),
+  rightForearm: z.number().optional(),
+  leftForearm: z.number().optional(),
 });
 
 export const idParamSchema = z.object({

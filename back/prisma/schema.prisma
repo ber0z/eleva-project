@@ -90,46 +90,50 @@ model Preset {
 }
 
 model Measure {
-  id          Int      @id @default(autoincrement())
-  idUser      Int      @unique
-  height      Float
-  weight      Float
-  rightBiceps Float?
-  leftBiceps  Float?
-  rightThigh  Float?
-  leftThigh   Float?
-  waist       Float?
-  hips        Float?
-  chest       Float?
-  shoulder    Float?
-  calf        Float?
-  forearm     Float?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  idUser       Int      @unique
+  height       Float
+  weight       Float
+  rightBiceps  Float?
+  leftBiceps   Float?
+  rightThigh   Float?
+  leftThigh    Float?
+  waist        Float?
+  hips         Float?
+  chest        Float?
+  shoulder     Float?
+  rightCalf    Float?
+  leftCalf     Float?
+  rightForearm Float?
+  leftForearm  Float?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   user User @relation(fields: [idUser], references: [id], onDelete: Cascade)
 }
 
 model Evolution {
-  id          Int      @id @default(autoincrement())
-  idUser      Int
-  date        DateTime @default(now())
-  goal        String
-  height      Float
-  weight      Float
-  rightBiceps Float?
-  leftBiceps  Float?
-  rightThigh  Float?
-  leftThigh   Float?
-  waist       Float?
-  hips        Float?
-  chest       Float?
-  shoulder    Float?
-  calf        Float?
-  forearm     Float?
-  message     String?  @db.VarChar(512)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  idUser       Int
+  date         DateTime @default(now())
+  goal         String
+  height       Float
+  weight       Float
+  rightBiceps  Float?
+  leftBiceps   Float?
+  rightThigh   Float?
+  leftThigh    Float?
+  waist        Float?
+  hips         Float?
+  chest        Float?
+  shoulder     Float?
+  rightCalf    Float?
+  leftCalf     Float?
+  rightForearm Float?
+  leftForearm  Float?
+  message      String?  @db.VarChar(512)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   user            User             @relation(fields: [idUser], references: [id])
   EvolutionImages EvolutionImage[]
@@ -403,6 +407,7 @@ model TrainingExercise {
   weight     Float?
   type       String?  @db.VarChar(64)
   notes      String?  @db.VarChar(1024)
+  restTime   Int?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

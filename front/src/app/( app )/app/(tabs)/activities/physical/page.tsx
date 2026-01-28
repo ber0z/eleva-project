@@ -17,9 +17,14 @@ import {
   Flower2,
   Bandage,
   Shapes,
+  ListChecks,
+  Clock,
+  Gauge,
+  Flame,
+  Zap,
+  CalendarDays,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -149,7 +154,9 @@ const TYPE_ICON: Record<ActivityType, LucideIcon> = {
 };
 
 function asActivityType(t: string): ActivityType | null {
-  return (ACTIVITY_TYPES as Array<{ value: string }>).some((x) => x.value === t) ? (t as ActivityType) : null;
+  return (ACTIVITY_TYPES as Array<{ value: string }>).some((x) => x.value === t)
+    ? (t as ActivityType)
+    : null;
 }
 
 const PAGE_SIZE = 10;
@@ -185,11 +192,24 @@ function todayYMD() {
   return `${y}-${m}-${day}`;
 }
 
-function firstDayOfMonthYMD() {
+// ✅ semana atual começando na segunda-feira
+function startOfWeekYMD() {
   const d = new Date();
+  const day = d.getDay(); // 0 dom, 1 seg...
+  const diff = (day + 6) % 7; // quantos dias voltar até segunda
+  d.setDate(d.getDate() - diff);
+
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
-  return `${y}-${m}-01`;
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
+}
+
+function formatDias(value: unknown) {
+  const n = Number(String(value ?? "").trim());
+  if (!Number.isFinite(n)) return String(value ?? "—");
+  const i = Math.trunc(n);
+  return `${i} ${i === 1 ? "dia" : "dias"}`;
 }
 
 function bucketLabel(bucket: string, groupBy: "day" | "week" | "month") {
@@ -197,6 +217,21 @@ function bucketLabel(bucket: string, groupBy: "day" | "week" | "month") {
   if (groupBy === "month" && bucket.length >= 7) return `${bucket.slice(5, 7)}/${bucket.slice(0, 4)}`;
   if (groupBy === "week" && bucket.length >= 10) return `Sem ${bucket.slice(8, 10)}/${bucket.slice(5, 7)}`;
   return bucket;
+}
+
+function formatDateFromYMD(value: unknown, yearDigits: 2 | 4 = 4) {
+  const s = String(value ?? "").trim();
+  if (!s) return "—";
+
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return s;
+
+  const yyyy = m[1];
+  const mm = m[2];
+  const dd = m[3];
+
+  const y = yearDigits === 2 ? yyyy.slice(-2) : yyyy;
+  return `${dd}-${mm}-${y}`;
 }
 
 // cores fixas por tipo
@@ -210,6 +245,84 @@ const TYPE_COLORS: Record<ActivityType, string> = {
   other: "#EB5757",
 };
 
+/* ===================== UI helpers (KPIs + Insights) ===================== */
+
+function KpiCard({
+  label,
+  value,
+  sub,
+  icon: Icon,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <div className="rounded-2xl border border-border/60 p-3 shadow-sm transition hover:shadow-md bg-background/40">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] text-muted-foreground">{label}</p>
+          <p className="mt-1 text-lg font-semibold leading-none tracking-tight">{value}</p>
+          {sub ? <p className="mt-2 text-xs text-muted-foreground">{sub}</p> : null}
+        </div>
+
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-background/60">
+          <Icon className="h-4 w-4 text-foreground/80" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InsightsRow({
+  streak,
+  bestDay,
+}: {
+  streak: Insight | null;
+  bestDay: Insight | null;
+}) {
+  if (!streak && !bestDay) return null;
+
+  const streakValue = streak ? formatDias(streak.value) : null;
+  // ✅ 22-01-26 (ano 2 dígitos)
+  const bestDayValue = bestDay ? formatDateFromYMD(bestDay.value, 2) : null;
+
+  return (
+    <div className="rounded-2xl border border-border/60 px-3 py-2 shadow-sm bg-background/40">
+      {/* ✅ mesma linha: deixa streak truncar e mantém a data inteira visível */}
+      <div className="flex items-center gap-3 flex-nowrap">
+        {streak ? (
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-background/60">
+              <Zap className="h-4 w-4 text-foreground/80" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground leading-tight">{streak.label}</p>
+              <p className="text-sm font-semibold truncate">{streakValue}</p>
+            </div>
+          </div>
+        ) : null}
+
+        {streak && bestDay ? <div className="h-8 w-px bg-border/60 shrink-0" /> : null}
+
+        {bestDay ? (
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-background/60">
+              <CalendarDays className="h-4 w-4 text-foreground/80" />
+            </div>
+            <div>
+              <p className="text-[11px] text-muted-foreground leading-tight">{bestDay.label}</p>
+              {/* ✅ não corta no mobile */}
+              <p className="text-sm font-semibold whitespace-nowrap tabular-nums">{bestDayValue}</p>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 /* ===================== Page ===================== */
 
 export default function PhysicalActivitiesPage() {
@@ -218,16 +331,21 @@ export default function PhysicalActivitiesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState<number | null>(null);
 
-  const [initialLoading, setInitialLoading] = useState(true);
+  // ✅ histórico só carrega quando usuário clicar
+  const [historyEnabled, setHistoryEnabled] = useState(false);
+
+  // ✅ como não carregamos no mount, começa falso
+  const [initialLoading, setInitialLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const hasMore = useMemo(() => {
+    if (!historyEnabled) return false;
     if (!totalPages) return false;
     return page < totalPages;
-  }, [page, totalPages]);
+  }, [historyEnabled, page, totalPages]);
 
   async function fetchPage(targetPage: number, reset = false) {
     const isFirst = targetPage === 1;
@@ -270,11 +388,23 @@ export default function PhysicalActivitiesPage() {
     }
   }
 
-  useEffect(() => {
-    void fetchPage(1);
-  }, []);
+  function enableHistory() {
+    if (historyEnabled) return;
+    setHistoryEnabled(true);
 
+    // reset
+    setItems([]);
+    setPage(1);
+    setTotalPages(null);
+    setErr(null);
+
+    void fetchPage(1, true);
+  }
+
+  // ✅ infinite scroll só quando histórico estiver habilitado
   useEffect(() => {
+    if (!historyEnabled) return;
+
     const el = sentinelRef.current;
     if (!el) return;
 
@@ -290,9 +420,8 @@ export default function PhysicalActivitiesPage() {
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [hasMore, loadingMore, initialLoading, page]);
+  }, [historyEnabled, hasMore, loadingMore, initialLoading, page]);
 
-  // ✅ histórico sem filtros (só ordenação)
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [items]);
@@ -300,11 +429,16 @@ export default function PhysicalActivitiesPage() {
   // ===== stats =====
   const [statsFiltersOpen, setStatsFiltersOpen] = useState(false);
 
-  // obrigatórios
-  const [statsFrom, setStatsFrom] = useState<string>(firstDayOfMonthYMD());
-  const [statsTo, setStatsTo] = useState<string>(todayYMD());
+  const [statsFrom, setStatsFrom] = useState<string>(() => startOfWeekYMD());
+  const [statsTo, setStatsTo] = useState<string>(() => todayYMD());
 
-  // opcionais
+  const defaultWeekFromRef = useRef<string>(startOfWeekYMD());
+  const defaultWeekToRef = useRef<string>(todayYMD());
+
+  const isDefaultWeekRange = useMemo(() => {
+    return statsFrom === defaultWeekFromRef.current && statsTo === defaultWeekToRef.current;
+  }, [statsFrom, statsTo]);
+
   const [statsGroupBy, setStatsGroupBy] = useState<ActivitiesStatsResponse["groupBy"]>("day");
   const [statsType, setStatsType] = useState<ActivityType | "">("");
   const [statsTop, setStatsTop] = useState<string>("3");
@@ -354,6 +488,11 @@ export default function PhysicalActivitiesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const hasStatsData = useMemo(() => {
+    if (!stats) return false;
+    return (stats.totals?.totalRecords ?? 0) > 0;
+  }, [stats]);
+
   const seriesChart = useMemo(() => {
     const s = stats?.series ?? [];
     const gb = stats?.groupBy ?? "day";
@@ -381,13 +520,6 @@ export default function PhysicalActivitiesPage() {
     return stats?.insights?.find((i) => i.key === "best_day") ?? null;
   }, [stats]);
 
-  function refreshAll() {
-    void fetchStats();
-    setItems([]);
-    setPage(1);
-    setTotalPages(null);
-    void fetchPage(1, true);
-  }
 
   return (
     <div className="min-h-svh bg-background text-foreground">
@@ -398,16 +530,7 @@ export default function PhysicalActivitiesPage() {
             <h1 className="text-xl font-semibold">Atividades físicas</h1>
           </div>
 
-          <Button
-            variant="outline"
-            className="bg-card cursor-pointer"
-            onClick={refreshAll}
-            disabled={initialLoading || loadingMore || statsLoading}
-            title="Atualizar tudo"
-          >
-            <RefreshCw className={(initialLoading || loadingMore || statsLoading) ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
-            Atualizar
-          </Button>
+      
         </div>
 
         {/* ===== Stats Card ===== */}
@@ -433,7 +556,6 @@ export default function PhysicalActivitiesPage() {
           </CardHeader>
 
           <CardContent className="space-y-3">
-            {/* filtros escondidos */}
             {statsFiltersOpen ? (
               <div className="rounded-xl border border-border bg-card/60 p-3 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 items-end">
@@ -526,51 +648,42 @@ export default function PhysicalActivitiesPage() {
               </div>
             ) : statsLoading ? (
               <Skeleton className="h-40 w-full" />
-            ) : stats ? (
-              <>
-                {/* totals */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
-                    <div className="text-[11px] text-muted-foreground">Registros</div>
-                    <div className="text-sm font-semibold">{stats.totals.totalRecords}</div>
+            ) : stats && !hasStatsData ? (
+              isDefaultWeekRange ? (
+                <div className="rounded-xl border border-border bg-muted/20 p-4">
+                  <div className="text-sm font-medium">Nenhuma atividade nesta semana ainda</div>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    Assim que você registrar uma atividade, suas estatísticas semanais vão aparecer aqui.
                   </div>
-                  <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
-                    <div className="text-[11px] text-muted-foreground">Tempo total</div>
-                    <div className="text-sm font-semibold">{fmtDuration(stats.totals.totalDurationMin)}</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
-                    <div className="text-[11px] text-muted-foreground">Média</div>
-                    <div className="text-sm font-semibold">{fmtDuration(Math.round(stats.totals.avgDurationMin))}</div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
-                    <div className="text-[11px] text-muted-foreground">Calorias</div>
-                    <div className="text-sm font-semibold">{stats.totals.totalCalories} kcal</div>
+
+                  <div className="mt-4">
+                    <Button asChild>
+                      <Link href="/app/activities/physical/new">Registrar atividade</Link>
+                    </Button>
                   </div>
                 </div>
-
-                {/* ✅ streak + best day (na mesma linha) */}
-                {(streak || bestDay) ? (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted/10 px-3 py-2">
-                    {streak ? (
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[11px] text-muted-foreground">{streak.label}:</span>
-                        <span className="text-sm font-semibold">
-                          {String(streak.value)}{streak.unit ? ` ${streak.unit}` : ""}
-                        </span>
-                      </div>
-                    ) : null}
-
-                    {bestDay ? (
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[11px] text-muted-foreground">{bestDay.label}:</span>
-                        <span className="text-sm font-semibold">{String(bestDay.value)}</span>
-                      </div>
-                    ) : null}
+              ) : (
+                <div className="rounded-xl border border-border bg-muted/20 p-4">
+                  <div className="text-sm font-medium">Sem dados no período</div>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    Não encontramos atividades entre <b>{fmtDateShort(statsFrom)}</b> e <b>{fmtDateShort(statsTo)}</b>.
+                    Ajuste as datas nos filtros para ver estatísticas.
                   </div>
-                ) : null}
+                </div>
+              )
+            ) : stats ? (
+              <>
+                {/* KPIs */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <KpiCard label="Registros" value={String(stats.totals.totalRecords)} icon={ListChecks} />
+                  <KpiCard label="Tempo total" value={fmtDuration(stats.totals.totalDurationMin)} icon={Clock} />
+                  <KpiCard label="Média" value={fmtDuration(Math.round(stats.totals.avgDurationMin))} icon={Gauge} />
+                  <KpiCard label="Calorias" value={`${stats.totals.totalCalories} kcal`} icon={Flame} />
+                </div>
 
+                <InsightsRow streak={streak} bestDay={bestDay} />
 
-                {/* charts */}
+                {/* charts (mantidos como estavam) */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   <div className="rounded-xl border border-border bg-card/60 p-3">
                     <div className="mb-2 text-xs text-muted-foreground">
@@ -636,7 +749,6 @@ export default function PhysicalActivitiesPage() {
                           </ResponsiveContainer>
                         </div>
 
-
                         <div className="space-y-2">
                           {donutData.map((d) => (
                             <div key={d.key} className="flex items-center justify-between text-sm">
@@ -698,99 +810,111 @@ export default function PhysicalActivitiesPage() {
 
         {/* ===== Histórico ===== */}
         <div className="mb-3 flex items-center justify-between gap-2">
-          <div className="text-sm font-semibold">Histórico</div>
+          <div className="text-sm font-semibold">Histórico de atividades</div>
+
+          {!historyEnabled ? (
+            <Button variant="outline" size="sm" className="bg-card cursor-pointer" onClick={enableHistory}>
+              Exibir histórico
+            </Button>
+          ) : null}
         </div>
 
-        {/* Erro */}
-        {err && !initialLoading && (
-          <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {err}
-            <div className="mt-2">
-              <Button size="sm" variant="outline" onClick={() => fetchPage(1, true)}>
-                Tentar novamente
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Lista */}
-        {initialLoading ? (
-          <div className="grid gap-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Card key={i}>
-                <CardHeader className="flex-row items-center gap-3">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="flex-1">
-                    <Skeleton className="h-4 w-44" />
-                    <Skeleton className="mt-2 h-3 w-40" />
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        ) : sortedItems.length === 0 ? (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Dumbbell className="h-5 w-5" />
-                Sem atividades ainda
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Registre sua primeira atividade para acompanhar duração e calorias.
-              <div className="mt-4">
-                <Button asChild>
-                  <Link href="/app/activities/physical/new">Registrar atividade</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {!historyEnabled ? (
+         <></>
         ) : (
           <>
-            <ul className="grid gap-3">
-              {sortedItems.map((a) => (
-                <li key={a.id}>
-                  <Link
-                    href={`/app/activities/physical/${a.id}`}
-                    className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl"
-                    aria-label={`Abrir atividade ${a.name}`}
-                  >
-                    <Card className="group cursor-pointer transition hover:shadow-sm">
-                      <CardHeader className="flex-row items-center gap-3">
-                        {(() => {
-                          const t = asActivityType(a.type);
-                          const Icon = t ? TYPE_ICON[t] : Dumbbell; // fallback se vier type desconhecido
-                          return (
-                            <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/15">
-                              <Icon className="h-5 w-5 text-primary" />
-                            </div>
-                          );
-                        })()}
-
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-base truncate group-hover:underline">{a.name}</CardTitle>
-                          <p className="text-xs text-muted-foreground">
-                            {fmtDateShort(a.date)} • {typeLabel(a.type)} • {fmtDuration(a.duration)}
-                            {typeof a.calories === "number" && a.calories > 0 ? ` • ${a.calories} kcal` : ""}
-                          </p>
-                        </div>
-                      </CardHeader>
-                    </Card>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-4 flex items-center justify-center">
-              {loadingMore && (
-                <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  Carregando mais...
+            {/* Erro */}
+            {err && !initialLoading && (
+              <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                {err}
+                <div className="mt-2">
+                  <Button size="sm" variant="outline" onClick={() => fetchPage(1, true)}>
+                    Tentar novamente
+                  </Button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div ref={sentinelRef} className="h-8 w-full" />
+            {/* Lista */}
+            {initialLoading ? (
+              <div className="grid gap-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader className="flex-row items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div className="flex-1">
+                        <Skeleton className="h-4 w-44" />
+                        <Skeleton className="mt-2 h-3 w-40" />
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            ) : sortedItems.length === 0 ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Dumbbell className="h-5 w-5" />
+                    Sem atividades ainda
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground">
+                  Registre sua primeira atividade para acompanhar duração e calorias.
+                  <div className="mt-4">
+                    <Button asChild>
+                      <Link href="/app/activities/physical/new">Registrar atividade</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <ul className="grid gap-3">
+                  {sortedItems.map((a) => (
+                    <li key={a.id}>
+                      <Link
+                        href={`/app/activities/physical/${a.id}`}
+                        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl"
+                        aria-label={`Abrir atividade ${a.name}`}
+                      >
+                        <Card className="group cursor-pointer transition hover:shadow-sm">
+                          <CardHeader className="flex-row items-center gap-3">
+                            {(() => {
+                              const t = asActivityType(a.type);
+                              const Icon = t ? TYPE_ICON[t] : Dumbbell;
+                              return (
+                                <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/15">
+                                  <Icon className="h-5 w-5 text-primary" />
+                                </div>
+                              );
+                            })()}
+
+                            <div className="flex-1 min-w-0">
+                              <CardTitle className="text-base truncate group-hover:underline">{a.name}</CardTitle>
+                              <p className="text-xs text-muted-foreground">
+                                {fmtDateShort(a.date)} • {typeLabel(a.type)} • {fmtDuration(a.duration)}
+                                {typeof a.calories === "number" && a.calories > 0 ? ` • ${a.calories} kcal` : ""}
+                              </p>
+                            </div>
+                          </CardHeader>
+                        </Card>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-4 flex items-center justify-center">
+                  {loadingMore && (
+                    <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Carregando mais...
+                    </div>
+                  )}
+                </div>
+
+                <div ref={sentinelRef} className="h-8 w-full" />
+              </>
+            )}
           </>
         )}
       </div>

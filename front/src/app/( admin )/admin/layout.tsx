@@ -31,6 +31,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         icon: <Users className="h-4 w-4" />,
         active: pathname?.startsWith("/admin/users"),
       },
+      {
+        href: "/admin/exercises",
+        label: "Exercícios",
+        icon: <Users className="h-4 w-4" />,
+        active: pathname?.startsWith("/admin/exercises"),
+      },
     ],
     [pathname]
   );
@@ -62,10 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </Button>
 
         <Link href="/admin/dashboard" className="inline-flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10">
-            <span className="text-primary text-sm font-bold">∞</span>
-          </div>
-          <span className="text-sm font-semibold">Admin</span>
+          <span className="text-sm font-semibold">Eleva - Admin</span>
         </Link>
 
         <div className="w-9" />

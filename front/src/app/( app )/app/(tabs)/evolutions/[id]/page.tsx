@@ -86,8 +86,10 @@ type EvolutionDetail = {
   hips: number | null;
   chest: number | null;
   shoulder: number | null;
-  calf: number | null;
-  forearm: number | null;
+  rightCalf: number | null;
+  leftCalf: number | null;
+  rightForearm: number | null;
+  leftForearm: number | null;
   message: string | null;
   createdAt: string; // ISO
   updatedAt: string; // ISO
@@ -533,8 +535,10 @@ export default function EvolutionDetailPage() {
                   <Metric label="Quadril" value={data.hips} suffix="cm" />
                   <Metric label="Peitoral" value={data.chest} suffix="cm" />
                   <Metric label="Ombro" value={data.shoulder} suffix="cm" />
-                  <Metric label="Panturrilha" value={data.calf} suffix="cm" />
-                  <Metric label="Antebraço" value={data.forearm} suffix="cm" />
+                  <Metric label="Panturrilha direita" value={data.rightCalf} suffix="cm" />
+                  <Metric label="Panturrilha esquerda" value={data.leftCalf} suffix="cm" />
+                  <Metric label="Antebraço direito" value={data.rightForearm} suffix="cm" />
+                  <Metric label="Antebraço esquerdo" value={data.leftForearm} suffix="cm" />
                 </div>
               </CardContent>
             </Card>

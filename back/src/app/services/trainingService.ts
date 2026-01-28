@@ -71,7 +71,8 @@ export class TrainingService {
                             idWorkout: wk.id,
                             exerciseId: base ? e.exerciseId! : null,   // ✅ só persiste FK se existir
                             name: e.name ?? base?.name ?? "Exercise",
-                            technique: e.technique ?? null,            // não hidrata de Exercise (seu modelo não tem)
+                            technique: e.technique ?? null, 
+                            restTime: e.restTime ?? null,
                             sets: e.sets ?? 0,
                             reps: e.reps ?? null,
                             weight: e.weight ?? null,
@@ -213,6 +214,7 @@ export class TrainingService {
                             exerciseId?: number | null;
                             name: string;
                             technique?: string | null;
+                            restTime?: number | null;
                             sets: number;
                             reps?: number | null;
                             weight?: number | null;
@@ -241,6 +243,7 @@ export class TrainingService {
                                         ...(exerciseRel ? { exercise: exerciseRel } : {}),
                                         name: e.name ?? base?.name ?? "Exercise",
                                         technique: e.technique ?? null,
+                                        restTime: e.restTime ?? null,
                                         sets: e.sets ?? existingExercises.get(e.id)!.sets,
                                         reps: e.reps ?? null,
                                         weight: e.weight ?? null,
@@ -257,6 +260,7 @@ export class TrainingService {
                                     exerciseId: typeof e.exerciseId === "number" ? e.exerciseId : null,
                                     name: e.name ?? base?.name ?? "Exercise",
                                     technique: e.technique ?? null,
+                                    restTime: e.restTime ?? null,
                                     sets: e.sets ?? 0,
                                     reps: e.reps ?? null,
                                     weight: e.weight ?? null,
