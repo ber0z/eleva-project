@@ -113,14 +113,14 @@ export class MealLogService {
                     adherence: body.adherence ?? current.adherence ?? null,
                     waterMl: body.waterMl ?? current.waterMl ?? null,
 
-                    // macros e kcal: se o payload mandou explicitamente, usa. Se não mandou, usa soma
                     totalKcal: body.totalKcal ?? sums.totalKcal,
                     protein: body.protein ?? sums.protein,
                     carbs: body.carbs ?? sums.carbs,
                     fat: body.fat ?? sums.fat,
 
-                    diet: { connect: { id: diet.id } }, // vincula a Diet escolhida
+                    diet: { connect: { id: diet.id } },
                 };
+
 
                 const updatedDay = await this.repo.updateDayOwned(idDay, idUser, dayUpdateData, tx);
                 return updatedDay;

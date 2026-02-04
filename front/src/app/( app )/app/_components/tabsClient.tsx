@@ -7,6 +7,7 @@ import {
   ChartNoAxesColumnIncreasing,
   ChartNoAxesCombined,
   Dumbbell,
+  Apple
 } from "lucide-react";
 import { Zzz } from "@/components/icons/Zzz";
 
@@ -29,6 +30,8 @@ export default function ResponsiveNav() {
   const HIDE_TABS_ON_SUBROUTES_OF = [
     "/app/activities/workouts",
     "/app/activities/physical",
+    "/app/diets/plans",
+    "/app/diets/meals",
     "/app/evolutions",
     "/app/sleep",
   ] as const;
@@ -49,11 +52,12 @@ export default function ResponsiveNav() {
   const items: NavItem[] = [
     { href: "/app/metrics", seg: "metrics", label: "Medidas", Icon: ChartNoAxesColumnIncreasing },
     { href: "/app/evolutions", seg: "evolutions", label: "Evolução", Icon: ChartNoAxesCombined },
+    { href: "/app/diets/meals", seg: "diets", label: "Dieta", Icon: Apple },
     { href: "/app/activities/physical", seg: "activities", label: "Atividade", Icon: Dumbbell },
     { href: "/app/sleep", seg: "sleep", label: "Sono", Icon: Zzz },
   ];
 
-  return (
+  return ( 
     <>
       {/* ===== Sidebar fixa (desktop), abaixo do header ===== */}
       <aside
@@ -105,7 +109,7 @@ export default function ResponsiveNav() {
         "
         aria-label="Navegação por abas"
       >
-        <ul className="grid grid-cols-4 gap-1">
+        <ul className="grid grid-cols-5 gap-1">
           {items.map(({ href, seg, label, Icon }) => {
             const active = current === seg;
             return (

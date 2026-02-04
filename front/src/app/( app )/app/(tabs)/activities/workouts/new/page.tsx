@@ -129,7 +129,8 @@ function uid(prefix = "k") {
 const inputBase =
   "w-full max-w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+
+function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <div className="space-y-1 min-w-0">
       <label className="text-xs text-muted-foreground">{label}</label>
@@ -138,7 +139,8 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-const isNonEmptyString = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
+const isNonEmptyString = (v: unknown): v is string =>
+  typeof v === "string" && v.trim().length > 0;
 
 const toIntOrUndef = (v: string): number | undefined => {
   const s = (v ?? "").trim();
@@ -364,8 +366,6 @@ export default function TrainingCreatePage() {
     setWorkouts((prev) => [w, ...prev]);
     setOpenWorkouts((prev) => ({ ...prev, [wKey]: true }));
     setOpenExercises((prev) => ({ ...prev, [exKey]: true }));
-
-    // ✅ NÃO abre modal automaticamente
   }
 
   function updateWorkout(workoutKey: string, patch: Partial<UiWorkout>) {
@@ -392,8 +392,6 @@ export default function TrainingCreatePage() {
 
     setOpenWorkouts((prev) => ({ ...prev, [workoutKey]: true }));
     setOpenExercises((prev) => ({ ...prev, [exKey]: true }));
-
-    // ✅ NÃO abre modal automaticamente
   }
 
   function removeExercise(workoutKey: string, exKey: string) {
@@ -452,6 +450,28 @@ export default function TrainingCreatePage() {
     return `${v.toFixed(i === 0 ? 0 : 1)} ${units[i]}`;
   }
 
+  // ===== Regras de obrigatoriedade =====
+  // 1) precisa ter pelo menos 1 workout com title e pelo menos 1 exercise válido (catálogo ou nome)
+  // 2) cada workout precisa ter dayOfWeek (já tem default, mas mantemos)
+  const canSave = useMemo(() => {
+    if (saving) return false;
+
+    if (title.trim().length < 1) return false;
+    // precisa ter ao menos 1 treino com título
+    const workoutsWithTitle = workouts.filter((w) => w.title.trim().length > 0);
+    if (workoutsWithTitle.length < 1) return false;
+
+    // precisa existir ao menos 1 exercício válido em qualquer treino com título
+    const hasAnyValidExercise = workoutsWithTitle.some((w) =>
+      (w.exercises ?? []).some((ex) => {
+        const hasCatalog = typeof ex.exerciseId === "number";
+        const hasName = ex.name.trim().length > 0;
+        return hasCatalog || hasName;
+      })
+    );
+
+    return hasAnyValidExercise;
+  }, [workouts, saving, title]);
 
   // ===== Payload (mesmo estilo do edit, mas SEM deleteDocument) =====
   function buildPayloadWorkouts(): TrainingWorkoutCreateBody[] {
@@ -583,7 +603,13 @@ export default function TrainingCreatePage() {
             Voltar
           </Button>
 
-          <Button type="submit" form="training-create-form" disabled={saving} className="cursor-pointer">
+          <Button
+            type="submit"
+            form="training-create-form"
+            disabled={saving || !canSave}
+            className="cursor-pointer"
+            title={!canSave ? "Preencha os campos obrigatórios para salvar" : "Salvar"}
+          >
             <Save className="mr-2 h-4 w-4" />
             {saving ? "Salvando..." : "Salvar"}
           </Button>
@@ -597,6 +623,7 @@ export default function TrainingCreatePage() {
                 <Dumbbell className="h-4 w-4 text-primary" />
                 Novo treino
               </h2>
+              
             </div>
 
             <CardContent className="grid gap-4 pt-5 px-4 sm:px-6">
@@ -607,7 +634,7 @@ export default function TrainingCreatePage() {
               ) : null}
 
               <div className="grid gap-3">
-                <Field label="Título (opcional)">
+                <Field label="Título (obrigatório)">
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
@@ -633,14 +660,8 @@ export default function TrainingCreatePage() {
                     </p>
                   </div>
 
-                  {/* Botão de selecionar/trocar */}
                   <label
-                    className="
-        inline-flex cursor-pointer items-center gap-2
-        rounded-xl border border-border bg-background
-        px-3 py-2 text-sm
-        hover:bg-muted transition
-      "
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm hover:bg-muted transition"
                     title={documentFile ? "Trocar arquivo" : "Selecionar arquivo"}
                   >
                     <Plus className="h-4 w-4" />
@@ -685,12 +706,7 @@ export default function TrainingCreatePage() {
                     </Button>
                   ) : null}
                 </div>
-
-                <p className="mt-2 text-[11px] text-muted-foreground">
-                  Formatos aceitos: PDF e imagens. (Se não precisar, pode deixar sem documento.)
-                </p>
               </div>
-
             </CardContent>
           </Card>
 
@@ -698,8 +714,8 @@ export default function TrainingCreatePage() {
           <div className="grid gap-3">
             <div className="flex flex-wrap items-center justify-between gap-2 px-1">
               <div>
-                <h2 className="text-sm font-semibold">Treinos</h2>
-                <p className="text-xs text-muted-foreground">Adicione treinos e exercícios (mínimo 1 de cada).</p>
+                <h2 className="text-md font-semibold">Treinos</h2>
+                
               </div>
 
               <Button type="button" variant="outline" className="bg-card cursor-pointer" onClick={addWorkout}>
@@ -709,10 +725,7 @@ export default function TrainingCreatePage() {
               </Button>
             </div>
 
-            {/* catálogo info */}
             <div className="px-1 flex flex-wrap items-center justify-between gap-2">
-
-
               {exHasMore ? (
                 <Button
                   type="button"
@@ -735,7 +748,9 @@ export default function TrainingCreatePage() {
 
             {workouts.length === 0 ? (
               <Card>
-                <CardContent className="py-6 text-sm text-muted-foreground">Adicione pelo menos um treino.</CardContent>
+                <CardContent className="py-6 text-sm text-muted-foreground">
+                  Adicione pelo menos um treino.
+                </CardContent>
               </Card>
             ) : (
               <div className="grid gap-3">
@@ -782,20 +797,24 @@ export default function TrainingCreatePage() {
                         <CardContent className="px-3 sm:px-4 py-4 bg-muted/20">
                           <div className="rounded-xl bg-muted/40 p-3 sm:p-4">
                             <div className="grid gap-3 sm:grid-cols-2">
-                              <Field label="Título do treino">
+                              <Field label={"Título do treino"}>
                                 <input
                                   value={w.title}
                                   onChange={(e) => updateWorkout(w.__key, { title: e.target.value })}
                                   className={inputBase}
                                   placeholder="Ex.: A - Peito/Tríceps"
+                                  required
                                 />
                               </Field>
 
-                              <Field label="Dia da semana">
+                              <Field label={"Dia da semana"}>
                                 <select
                                   value={w.dayOfWeek}
-                                  onChange={(e) => updateWorkout(w.__key, { dayOfWeek: e.target.value as DayOfWeek })}
+                                  onChange={(e) =>
+                                    updateWorkout(w.__key, { dayOfWeek: e.target.value as DayOfWeek })
+                                  }
                                   className={inputBase}
+                                  required
                                 >
                                   {Object.keys(DOW_LABEL).map((k) => (
                                     <option key={k} value={k}>
@@ -827,9 +846,17 @@ export default function TrainingCreatePage() {
                                       {w.exercises.length}
                                     </span>
                                   </p>
+                                  <p className="mt-1 text-[11px] text-muted-foreground">
+                                    Obrigatório: cada exercício precisa ter <b>catálogo</b> ou <b>nome</b>.
+                                  </p>
                                 </div>
 
-                                <Button type="button" variant="outline" className="bg-card cursor-pointer" onClick={() => addExercise(w.__key)}>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="bg-card cursor-pointer"
+                                  onClick={() => addExercise(w.__key)}
+                                >
                                   <Plus className="h-4 w-4" />
                                   <span className="ml-2 hidden sm:inline">Adicionar</span>
                                 </Button>
@@ -845,7 +872,8 @@ export default function TrainingCreatePage() {
                                       typeof ex.exerciseId === "number" ? exById.get(ex.exerciseId) : null;
                                     const videoUrl = selectedCatalog?.videoUrl ?? null;
 
-                                    const titleLine = ex.name?.trim() || selectedCatalog?.name || `Exercício ${exIdx + 1}`;
+                                    const titleLine =
+                                      ex.name?.trim() || selectedCatalog?.name || `Exercício ${exIdx + 1}`;
 
                                     const meta = [
                                       ex.sets?.trim() ? `${ex.sets} séries` : null,
@@ -860,8 +888,10 @@ export default function TrainingCreatePage() {
                                       ex.exerciseId && selectedCatalog?.name
                                         ? selectedCatalog.name
                                         : ex.exerciseId
-                                          ? `Catálogo #${ex.exerciseId}`
-                                          : "Personalizado";
+                                        ? `Catálogo #${ex.exerciseId}`
+                                        : "Personalizado";
+
+                                    const hasRequired = typeof ex.exerciseId === "number" || ex.name.trim().length > 0;
 
                                     return (
                                       <div key={ex.__key} className="relative overflow-hidden rounded-2xl bg-card shadow-sm">
@@ -872,6 +902,12 @@ export default function TrainingCreatePage() {
                                             <div className="min-w-0 flex-1">
                                               <p className="text-sm font-semibold truncate">{titleLine}</p>
                                               <p className="text-xs text-muted-foreground truncate">{meta || "—"}</p>
+
+                                              {!hasRequired ? (
+                                                <p className="mt-1 text-[11px] text-destructive">
+                                                  Selecione do catálogo ou informe um nome.
+                                                </p>
+                                              ) : null}
                                             </div>
 
                                             <div className="flex flex-wrap items-center justify-end gap-2">
@@ -881,7 +917,11 @@ export default function TrainingCreatePage() {
                                                 className="cursor-pointer px-3"
                                                 onClick={() => toggleExerciseOpen(ex.__key)}
                                               >
-                                                {exOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                                                {exOpen ? (
+                                                  <ChevronDown className="h-4 w-4" />
+                                                ) : (
+                                                  <ChevronRight className="h-4 w-4" />
+                                                )}
                                                 <span className="ml-2 hidden sm:inline">{exOpen ? "Fechar" : "Editar"}</span>
                                               </Button>
 
@@ -901,10 +941,11 @@ export default function TrainingCreatePage() {
                                             <div className="mt-4 rounded-xl bg-muted/40 p-3 sm:p-4">
                                               <div className="grid gap-3 sm:grid-cols-2">
                                                 <div className="min-w-0">
-                                                  <label className="text-xs text-muted-foreground">Exercício do catálogo (opcional)</label>
+                                                  <label className="text-xs text-muted-foreground">
+                                                    Exercício do catálogo (opcional)
+                                                  </label>
 
                                                   <div className="relative mt-1">
-                                                    {/* ✅ NOVO: abre o MODAL */}
                                                     <button
                                                       type="button"
                                                       className={`${inputBase} flex items-center justify-between gap-2 text-left`}
@@ -916,13 +957,18 @@ export default function TrainingCreatePage() {
                                                   </div>
                                                 </div>
 
-                                                <Field label="Nome (obrigatório se personalizado)">
+                                                <Field label={"Nome (se personalizado)"}>
                                                   <input
                                                     value={ex.name}
-                                                    onChange={(e) => updateExercise(w.__key, ex.__key, { name: e.target.value })}
+                                                    onChange={(e) =>
+                                                      updateExercise(w.__key, ex.__key, { name: e.target.value })
+                                                    }
                                                     className={inputBase}
                                                     placeholder="Ex.: Crucifixo máquina"
                                                   />
+                                                  <p className="text-[11px] text-muted-foreground">
+                                                    Se não escolher do catálogo, o nome é obrigatório.
+                                                  </p>
                                                 </Field>
                                               </div>
 
@@ -932,7 +978,9 @@ export default function TrainingCreatePage() {
                                                     type="button"
                                                     variant="outline"
                                                     className="w-full bg-card cursor-pointer"
-                                                    onClick={() => openVideoModal(videoUrl, selectedCatalog?.name ?? ex.name ?? "Vídeo")}
+                                                    onClick={() =>
+                                                      openVideoModal(videoUrl, selectedCatalog?.name ?? ex.name ?? "Vídeo")
+                                                    }
                                                   >
                                                     <PlayCircle className="mr-2 h-4 w-4" />
                                                     Vídeo
@@ -945,7 +993,9 @@ export default function TrainingCreatePage() {
                                                   <input
                                                     inputMode="numeric"
                                                     value={ex.sets}
-                                                    onChange={(e) => updateExercise(w.__key, ex.__key, { sets: e.target.value })}
+                                                    onChange={(e) =>
+                                                      updateExercise(w.__key, ex.__key, { sets: e.target.value })
+                                                    }
                                                     className={inputBase}
                                                     placeholder="0"
                                                   />
@@ -955,7 +1005,9 @@ export default function TrainingCreatePage() {
                                                   <input
                                                     inputMode="numeric"
                                                     value={ex.reps}
-                                                    onChange={(e) => updateExercise(w.__key, ex.__key, { reps: e.target.value })}
+                                                    onChange={(e) =>
+                                                      updateExercise(w.__key, ex.__key, { reps: e.target.value })
+                                                    }
                                                     className={inputBase}
                                                     placeholder="12"
                                                   />
@@ -965,7 +1017,9 @@ export default function TrainingCreatePage() {
                                                   <input
                                                     inputMode="decimal"
                                                     value={ex.weight}
-                                                    onChange={(e) => updateExercise(w.__key, ex.__key, { weight: e.target.value })}
+                                                    onChange={(e) =>
+                                                      updateExercise(w.__key, ex.__key, { weight: e.target.value })
+                                                    }
                                                     className={inputBase}
                                                     placeholder="40"
                                                   />
@@ -974,7 +1028,9 @@ export default function TrainingCreatePage() {
                                                 <Field label="Tipo (opcional)">
                                                   <input
                                                     value={ex.type}
-                                                    onChange={(e) => updateExercise(w.__key, ex.__key, { type: e.target.value })}
+                                                    onChange={(e) =>
+                                                      updateExercise(w.__key, ex.__key, { type: e.target.value })
+                                                    }
                                                     className={inputBase}
                                                     placeholder="Ex.: Força"
                                                   />
@@ -985,7 +1041,9 @@ export default function TrainingCreatePage() {
                                                 <Field label="Técnica (opcional)">
                                                   <input
                                                     value={ex.technique}
-                                                    onChange={(e) => updateExercise(w.__key, ex.__key, { technique: e.target.value })}
+                                                    onChange={(e) =>
+                                                      updateExercise(w.__key, ex.__key, { technique: e.target.value })
+                                                    }
                                                     className={inputBase}
                                                     placeholder="Ex.: cadência 3-1-3"
                                                   />
@@ -994,7 +1052,9 @@ export default function TrainingCreatePage() {
                                                 <Field label="Notas (opcional)">
                                                   <input
                                                     value={ex.notes}
-                                                    onChange={(e) => updateExercise(w.__key, ex.__key, { notes: e.target.value })}
+                                                    onChange={(e) =>
+                                                      updateExercise(w.__key, ex.__key, { notes: e.target.value })
+                                                    }
                                                     className={inputBase}
                                                     placeholder="Opcional"
                                                   />

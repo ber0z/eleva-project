@@ -69,13 +69,13 @@ type TrainingApiWorkout = {
   title: string;
   notes: string | null;
   dayOfWeek:
-    | "monday"
-    | "tuesday"
-    | "wednesday"
-    | "thursday"
-    | "friday"
-    | "saturday"
-    | "sunday";
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
   createdAt: string;
   updatedAt: string;
   exercises: TrainingApiExercise[];
@@ -627,11 +627,13 @@ export default function TrainingEditPage() {
       const fd = new FormData();
       fd.set("title", title);
       fd.set("notes", notes);
-      fd.set("deleteDocument", String(!!deleteDocument));
+      fd.set("deleteDocument", String(deleteDocument));
 
-      if (documentFile) {
+      // ✅ se marcou pra remover, não envia arquivo novo
+      if (!deleteDocument && documentFile) {
         fd.set("document", documentFile);
       }
+
 
       fd.set("workouts", JSON.stringify(workoutPayload));
 
@@ -707,7 +709,7 @@ export default function TrainingEditPage() {
               <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
                 <h2 className="text-sm font-semibold flex items-center gap-2">
                   <Dumbbell className="h-4 w-4 text-primary" />
-                 Editando ficha de treino
+                  Editando ficha de treino
                 </h2>
               </div>
 
@@ -758,9 +760,8 @@ export default function TrainingEditPage() {
                       </div>
 
                       <label
-                        className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm bg-background hover:bg-accent ${
-                          deleteDocument ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
+                        className={`inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm bg-background hover:bg-accent ${deleteDocument ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
                       >
                         <Plus className="h-4 w-4" />
                         <span>{documentFile ? "Trocar" : "Selecionar"}</span>
@@ -804,19 +805,38 @@ export default function TrainingEditPage() {
                           </Button>
                         ) : null}
 
-                        {data.documentUrl ? (
-                          <label className="flex items-center gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={deleteDocument}
-                              onChange={(e) => {
-                                setDeleteDocument(e.target.checked);
-                                if (e.target.checked) setDocumentFile(null);
-                              }}
-                            />
-                            Remover documento atual
-                          </label>
+                        {deleteDocument ? (
+                          <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300">
+                            O documento atual será removido quando você salvar.
+                          </div>
                         ) : null}
+
+                        {data.documentUrl ? (
+                          <Button
+                            type="button"
+                            variant={deleteDocument ? "secondary" : "outline"}
+                            className={`h-9 px-3 cursor-pointer ${deleteDocument
+                              ? "bg-destructive text-destructive-foreground hover:opacity-90"
+                              : "bg-card"
+                              }`}
+                            onClick={() => {
+                              setDeleteDocument((v) => {
+                                const next = !v;
+                                if (next) setDocumentFile(null); // ✅ ao marcar remoção, limpa arquivo novo
+                                return next;
+                              });
+                            }}
+                            title={deleteDocument ? "Cancelar remoção do documento" : "Remover documento atual"}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="ml-2 hidden sm:inline">
+                              {deleteDocument ? "Remoção marcada" : "Remover documento"}
+                            </span>
+                          </Button>
+                        ) : null}
+
+
+
                       </div>
                     </div>
                   </div>
@@ -1002,8 +1022,8 @@ export default function TrainingEditPage() {
                                         ex.exerciseId && selectedCatalog?.name
                                           ? selectedCatalog.name
                                           : ex.exerciseId
-                                          ? `Catálogo #${ex.exerciseId}`
-                                          : "Personalizado";
+                                            ? `Catálogo #${ex.exerciseId}`
+                                            : "Personalizado";
 
                                       return (
                                         <div key={ex.__key} className="relative overflow-hidden rounded-2xl bg-card shadow-sm">
@@ -1156,15 +1176,15 @@ export default function TrainingEditPage() {
                                                     />
                                                     {ex.restTime?.trim()
                                                       ? (() => {
-                                                          const secs = toIntOrUndef(ex.restTime);
-                                                          return secs === undefined ? (
-                                                            <p className="mt-1 text-[11px] text-destructive">Informe um inteiro (segundos).</p>
-                                                          ) : (
-                                                            <p className="mt-1 text-[11px] text-muted-foreground">
-                                                              Equivale a <b>{formatSecondsToMinSec(secs)}</b>
-                                                            </p>
-                                                          );
-                                                        })()
+                                                        const secs = toIntOrUndef(ex.restTime);
+                                                        return secs === undefined ? (
+                                                          <p className="mt-1 text-[11px] text-destructive">Informe um inteiro (segundos).</p>
+                                                        ) : (
+                                                          <p className="mt-1 text-[11px] text-muted-foreground">
+                                                            Equivale a <b>{formatSecondsToMinSec(secs)}</b>
+                                                          </p>
+                                                        );
+                                                      })()
                                                       : null}
                                                   </Field>
 

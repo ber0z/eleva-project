@@ -65,27 +65,29 @@ export class MealLogRepository {
   }
 
   async updateDayOwned(
-    idDay: number,
-    idUser: number,
-    data: Prisma.MealLogDayUpdateInput,
-    tx?: Prisma.TransactionClient
-  ) {
-    const db = tx ?? this.db;
-    const res = await db.mealLogDay.updateMany({
-      where: { id: idDay, idUser },
-      data,
-    });
-    if (res.count === 0) return null;
-    return db.mealLogDay.findUnique({
-      where: { id: idDay },
-      include: {
-        entries: { orderBy: { id: "asc" } },
-        diet: {
-          select: { id: true, title: true, date: true }
-        }
-      }
-    });
-  }
+  idDay: number,
+  idUser: number,
+  data: Prisma.MealLogDayUpdateInput,
+  tx?: Prisma.TransactionClient
+) {
+  const db = tx ?? this.db;
+
+  // você já validou ownership antes no service (findDayOwned), então pode dar update só pelo id
+  const updated = await db.mealLogDay.update({
+    where: { id: idDay },
+    data,
+  });
+
+  return db.mealLogDay.findUnique({
+    where: { id: updated.id },
+    include: {
+      entries: { orderBy: { id: "asc" } },
+      diet: { select: { id: true, title: true, date: true } },
+    },
+  });
+}
+
+
 
   async deleteDayOwned(idDay: number, idUser: number, tx?: Prisma.TransactionClient) {
     const db = tx ?? this.db;

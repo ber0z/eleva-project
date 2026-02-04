@@ -90,15 +90,20 @@ export class MealLogController {
       const body = mealLogDayUpdateSchema.parse(req.body);
 
       const updated = await this.service.updateDayOwned(id, idUser, body);
+
       if (!updated) return reply.code(404).send({ error: "Registro não encontrado ou Diet inválida" });
 
       return reply.code(200).send(updated);
+      
     } catch (err: unknown) {
+      console.error("[MealLogDay.update] erro:", err);
+
       if (err instanceof ZodError) {
         return reply.code(400).send({ error: "Dados inválidos", details: err.issues });
       }
       return reply.code(500).send({ error: "Erro ao atualizar MealLogDay" });
     }
+
   };
 
   delete = async (req: FastifyRequest, reply: FastifyReply) => {
