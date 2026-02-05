@@ -385,7 +385,7 @@ export default function MealLogDayDetailsPage() {
                   {data.dietId ? (
                     <div className="mt-3">
                       <Button asChild variant="outline" className="bg-card cursor-pointer">
-                        <Link href={`/app/diets/${data.dietId}`}>Abrir dieta vinculada</Link>
+                        <Link href={`/app/diets/meals/${data.dietId}`}>Abrir dieta vinculada</Link>
                       </Button>
                     </div>
                   ) : null}

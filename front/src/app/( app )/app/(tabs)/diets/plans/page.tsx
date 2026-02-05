@@ -185,7 +185,7 @@ useEffect(() => {
               Crie sua primeira dieta para organizar suas refeições.
               <div className="mt-4">
                 <Button asChild>
-                  <Link href="/app/diets/new">Criar dieta</Link>
+                  <Link href="/app/diets/plans/new">Criar dieta</Link>
                 </Button>
               </div>
             </CardContent>
