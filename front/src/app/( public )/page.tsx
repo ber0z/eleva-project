@@ -39,9 +39,9 @@ export default function LandingPage() {
 
         {/* Headline */}
         <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-5xl">
-  Sua{" "}
-  <span className="text-yellow-400">Evolução física</span>, do jeito certo.
-</h1>
+          Sua{" "}
+          <span className="text-yellow-400">evolução física</span> do jeito certo.
+        </h1>
 
 
         <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-muted-foreground sm:mt-4 sm:text-base">
