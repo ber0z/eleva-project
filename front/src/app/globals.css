@@ -7,171 +7,59 @@
 /* Habilita variantes `dark:` usando .dark em qualquer ancestral */
 @custom-variant dark (&:is(.dark *));
 
-/* =========================
-   TEMA PADRÃO (DARK) — :root
-   ========================= */
-:root {
-  color-scheme: dark;
-
-  /* FUNDO GERAL – quase preto */
-  --background: 16 16 18;              /* #060608 */
-
-  /* TEXTO PRINCIPAL */
-  --foreground: 243 244 246;        /* #f3f4f6 */
-
-  /* SUPERFÍCIES (cards / popovers) */
-  --card: 12 12 16;                 /* #0c0c10 */
-  --card-foreground: 243 244 246;
-  --popover: 12 12 16;
-  --popover-foreground: 243 244 246;
-
-  /* INPUTS – cinza mais claro que o card */
-  --input: 22 22 28;                /* #16161c */
-  --input-foreground: 243 244 246;
-
-  /* PRIMARY – deixa a cor em um âmbar/dourado (bom contraste) */
-  --primary: 234 179 8;             /* #eab308 (amber-400) */
-  --primary-foreground: 15 15 15;   /* #0f0f0f */
-
-  /* SECUNDÁRIO / ACCENT – cinzas neutros */
-  --secondary: 24 24 32;            /* #181820 */
-  --secondary-foreground: 229 231 235;
-
-  --accent: 39 39 42;               /* #27272a */
-  --accent-foreground: 250 250 250;
-
-  /* ÁREAS “APAGADAS” */
-  --muted: 24 24 32;                /* #181820 */
-  --muted-foreground: 161 161 170;  /* #a1a1aa */
-
-  --destructive: 239 68 68;         /* vermelho padrão */
-  --destructive-foreground: 255 255 255;
-
-  --success: 34 197 94;
-  --success-foreground: 15 23 42;
-  --warning: 245 158 11;
-  --warning-foreground: 15 23 42;
-  --info: 56 189 248;
-  --info-foreground: 15 23 42;
-
-  /* BORDA – cinza bem visível contra o fundo */
-  --border: 63 63 70;               /* #3f3f46 */
-  --ring: 234 179 8;                /* segue o primary */
-
-  /* LINKS – variação mais clara do primary */
-  --link: 250 204 21;               /* #facc15 */
-
-  --radius: 0.625rem;
-
-  /* CHARTS – paleta mista, mas com menos azul dominante */
-  --chart-1: 234 179 8;             /* âmbar */
-  --chart-2: 52 211 153;            /* emerald-400 */
-  --chart-3: 248 113 113;           /* rose-400 */
-  --chart-4: 96 165 250;            /* azul (em detalhe) */
-  --chart-5: 161 161 170;           /* cinza */
-
-  /* SIDEBAR – mesma vibe do fundo, com borda cinza */
-  --sidebar: 8 8 12;                /* #08080c */
-  --sidebar-foreground: 243 244 246;
-  --sidebar-primary: 234 179 8;
-  --sidebar-primary-foreground: 15 15 15;
-  --sidebar-accent: 22 22 28;
-  --sidebar-accent-foreground: 243 244 246;
-  --sidebar-border: 63 63 70;
-  --sidebar-ring: 234 179 8;
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
-
-  /* copia os mesmos valores pra manter consistente */
-  --background: 16 16 18;
-  --foreground: 243 244 246;
-
-  --card: 12 12 16;
-  --card-foreground: 243 244 246;
-  --popover: 12 12 16;
-  --popover-foreground: 243 244 246;
-
-  --input: 22 22 28;
-  --input-foreground: 243 244 246;
-
-  --primary: 234 179 8;
-  --primary-foreground: 15 15 15;
-
-  --secondary: 24 24 32;
-  --secondary-foreground: 229 231 235;
-
-  --accent: 39 39 42;
-  --accent-foreground: 250 250 250;
-
-  --muted: 24 24 32;
-  --muted-foreground: 161 161 170;
-
-  --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
-  --success: 34 197 94;
-  --success-foreground: 15 23 42;
-  --warning: 245 158 11;
-  --warning-foreground: 15 23 42;
-  --info: 56 189 248;
-  --info-foreground: 15 23 42;
-
-  --border: 63 63 70;
-  --ring: 234 179 8;
-  --link: 250 204 21;
-
-  --chart-1: 234 179 8;
-  --chart-2: 52 211 153;
-  --chart-3: 248 113 113;
-  --chart-4: 96 165 250;
-  --chart-5: 161 161 170;
-
-  --sidebar: 8 8 12;
-  --sidebar-foreground: 243 244 246;
-  --sidebar-primary: 234 179 8;
-  --sidebar-primary-foreground: 15 15 15;
-  --sidebar-accent: 22 22 28;
-  --sidebar-accent-foreground: 243 244 246;
-  --sidebar-border: 63 63 70;
-  --sidebar-ring: 234 179 8;
-}
-
-
 
 :root {
   color-scheme: dark;
+
+  font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  }
+
 
   /* FUNDO GERAL – azul bem escuro, mas não preto puro */
-  --background: 10 12 24;              /* #0a0c18 (azul petróleo bem escuro) */
+  --background: 10 12 24;
+  /* #0a0c18 (azul petróleo bem escuro) */
 
   /* TEXTO PRINCIPAL */
-  --foreground: 243 244 246;           /* #f3f4f6 */
+  --foreground: 243 244 246;
+  /* #f3f4f6 */
 
   /* SUPERFÍCIES (cards / popovers) – um pouco mais claras que o fundo */
-  --card: 15 19 35;                    /* #0f1323 */
+  --card: 15 19 35;
+  /* #0f1323 */
   --card-foreground: 243 244 246;
   --popover: 15 19 35;
   --popover-foreground: 243 244 246;
 
   /* INPUTS – um step acima do card, azulados */
-  --input: 21 26 46;                   /* #151a2e */
+  --input: 21 26 46;
+  /* #151a2e */
   --input-foreground: 243 244 246;
 
   /* PRIMARY – amarelo da identidade */
-  --primary: 234 179 8;                /* #eab308 (amber-400) */
-  --primary-foreground: 15 15 15;      /* #0f0f0f */
+  --primary: 234 179 8;
+  /* #eab308 (amber-400) */
+  --primary-foreground: 15 15 15;
+  /* #0f0f0f */
 
   /* SECUNDÁRIO / ACCENT – cinzas-azulados */
-  --secondary: 18 22 38;               /* #121626 */
+  --secondary: 18 22 38;
+  /* #121626 */
   --secondary-foreground: 229 231 235;
 
-  --accent: 26 34 56;                  /* #1a2238 – azul mais intenso p/ hovers, chips etc. */
+  --accent: 26 34 56;
+  /* #1a2238 – azul mais intenso p/ hovers, chips etc. */
   --accent-foreground: 248 250 252;
 
   /* ÁREAS “APAGADAS” */
-  --muted: 20 26 44;                   /* #141a2c */
-  --muted-foreground: 148 163 184;     /* #94a3b8 – cinza azulado (bom para placeholder) */
+  --muted: 20 26 44;
+  /* #141a2c */
+  --muted-foreground: 148 163 184;
+  /* #94a3b8 – cinza azulado (bom para placeholder) */
 
   --destructive: 239 68 68;
   --destructive-foreground: 255 255 255;
@@ -184,29 +72,40 @@
   --info-foreground: 15 23 42;
 
   /* BORDA – azul acinzentado bem visível contra o fundo */
-  --border: 48 63 96;                  /* #303f60 */
-  --ring: 234 179 8;                   /* segue o primary */
+  --border: 48 63 96;
+  /* #303f60 */
+  --ring: 234 179 8;
+  /* segue o primary */
 
   /* LINKS – amarelo mais claro (puxa pro destaque) */
-  --link: 250 204 21;                  /* #facc15 */
+  --link: 250 204 21;
+  /* #facc15 */
 
   --radius: 0.625rem;
 
   /* CHARTS – mistura amarelo + azul + neutros */
-  --chart-1: 234 179 8;                /* âmbar */
-  --chart-2: 52 211 153;               /* emerald-400 */
-  --chart-3: 248 113 113;              /* rose-400 */
-  --chart-4: 59 130 246;               /* azul forte */
-  --chart-5: 148 163 184;              /* cinza azulado */
+  --chart-1: 234 179 8;
+  /* âmbar */
+  --chart-2: 52 211 153;
+  /* emerald-400 */
+  --chart-3: 248 113 113;
+  /* rose-400 */
+  --chart-4: 59 130 246;
+  /* azul forte */
+  --chart-5: 148 163 184;
+  /* cinza azulado */
 
   /* SIDEBAR – fundo um pouco mais profundo, mas na mesma família */
-  --sidebar: 6 8 16;                   /* #060810 */
+  --sidebar: 6 8 16;
+  /* #060810 */
   --sidebar-foreground: 243 244 246;
   --sidebar-primary: 234 179 8;
   --sidebar-primary-foreground: 15 15 15;
-  --sidebar-accent: 18 24 42;          /* #12182a */
+  --sidebar-accent: 18 24 42;
+  /* #12182a */
   --sidebar-accent-foreground: 243 244 246;
-  --sidebar-border: 48 63 96;          /* mesmo do --border */
+  --sidebar-border: 48 63 96;
+  /* mesmo do --border */
   --sidebar-ring: 234 179 8;
 }
 
@@ -268,6 +167,81 @@
   --sidebar-ring: 234 179 8;
 }
 
+/* =========================
+   TEMA LIGHT (azulado / cool, sem branco estourado)
+   ========================= */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Fundo geral: azul-slate bem suave */
+  --background: 234 242 252;
+  /* #eaf2fc (azulado claro) */
+  --foreground: 15 23 42;
+  /* slate-900 */
+
+  /* Cards: quase branco, mas com “tinta” azul */
+  --card: 243 248 255;
+  /* #f3f8ff */
+  --card-foreground: 15 23 42;
+
+  --popover: 243 248 255;
+  --popover-foreground: 15 23 42;
+
+  /* Inputs: azul muito leve (não branco puro) */
+  --input: 238 245 255;
+  /* #eef5ff */
+  --input-foreground: 15 23 42;
+
+  /* Primary mantém sua identidade */
+  --primary: 234 179 8;
+  /* amber-400 */
+  --primary-foreground: 15 15 15;
+
+  /* Superfícies/hover: azul-slate leve */
+  --secondary: 227 237 250;
+  /* #e3edfa */
+  --secondary-foreground: 15 23 42;
+
+  --accent: 214 228 247;
+  /* #d6e4f7 */
+  --accent-foreground: 15 23 42;
+
+  /* Áreas muted: azul desaturado */
+  --muted: 225 236 250;
+  /* #e1ecfa */
+  --muted-foreground: 51 65 85;
+  /* slate-700 (bom contraste) */
+
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+
+  /* Bordas e ring */
+  --border: 176 196 222;
+  /* #b0c4de (azul acinzentado) */
+  --ring: 234 179 8;
+  --link: 180 83 9;
+  /* amber-700 */
+
+  /* Charts */
+  --chart-1: 234 179 8;
+  --chart-2: 16 185 129;
+  --chart-3: 244 63 94;
+  --chart-4: 59 130 246;
+  --chart-5: 71 85 105;
+
+  /* Sidebar (se usar tokens) */
+  --sidebar: 226 236 250;
+  /* #e2ecfa */
+  --sidebar-foreground: 15 23 42;
+  --sidebar-primary: 234 179 8;
+  --sidebar-primary-foreground: 15 15 15;
+  --sidebar-accent: 214 228 247;
+  --sidebar-accent-foreground: 15 23 42;
+  --sidebar-border: 176 196 222;
+  --sidebar-ring: 234 179 8;
+}
+
+
 
 
 /* =========================
@@ -308,7 +282,7 @@
   --color-info-foreground: rgb(var(--info-foreground));
 
   --color-border: rgb(var(--border));
-  --color-input: rgb(var(--input)); 
+  --color-input: rgb(var(--input));
   --color-ring: rgb(var(--ring));
 
   --color-link: rgb(var(--link));
@@ -365,6 +339,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

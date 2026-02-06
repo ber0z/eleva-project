@@ -34,7 +34,6 @@ export default function DietsPage() {
   const [items, setItems] = useState<Diet[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState<number | null>(null);
-  const [total, setTotal] = useState<number | null>(null);
 
   // ux
   const [initialLoading, setInitialLoading] = useState(true);
@@ -88,7 +87,6 @@ export default function DietsPage() {
     const tp = Math.max(1, Math.ceil((data.total ?? 0) / (data.pageSize ?? PAGE_SIZE)));
 
     setPage(data.page ?? targetPage);
-    setTotal(data.total ?? 0);
     setTotalPages(tp);
     setErr(null);
   } catch (error) {
@@ -138,9 +136,7 @@ useEffect(() => {
         <div className="mb-4 flex items-center justify-between gap-2">
           <div className="min-w-0">
             <h1 className="text-xl font-semibold">Dietas</h1>
-            {typeof total === "number" && (
-              <span className="text-sm text-muted-foreground">{total} no total</span>
-            )}
+            
           </div>
 
           

@@ -254,7 +254,12 @@ export default function EvolutionEditPage() {
   const newBackPreview = useObjectURL(imageBack);
 
   return (
-    <div className="min-h-svh bg-background text-foreground">
+<div
+  className="
+    min-h-svh bg-background text-foreground
+    [background:radial-gradient(70rem_40rem_at_50%_-10%,--theme(--color-primary/14),transparent_60%),radial-gradient(40rem_30rem_at_100%_10%,--theme(--color-ring/10),transparent_55%)]
+  "
+>
       <div className="mx-auto w-full max-w-3xl px-4 py-6">
         {/* Header */}
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -263,7 +268,7 @@ export default function EvolutionEditPage() {
               asChild
               variant="outline"
               size="sm"
-              className="bg-card shrink-0"
+className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
             >
               <Link href={`/app/evolutions/${id}`}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -276,18 +281,18 @@ export default function EvolutionEditPage() {
 
         {/* Erro / Sucesso */}
         {err && (
-          <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+<div className="mb-4 rounded-lg border border-destructive/40 bg-destructive/15 px-3 py-2 text-sm text-destructive">
             {err}
           </div>
         )}
         {okMsg && (
-          <div className="mb-4 rounded-lg border border-emerald-300/50 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
+<div className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
             {okMsg}
           </div>
         )}
 
         {/* Form */}
-        <Card className="bg-card">
+<Card className="border border-border/70 bg-card/95 shadow-sm">
           <CardHeader>
             <CardTitle className="text-card-foreground">
               Dados da evolução
@@ -375,13 +380,13 @@ export default function EvolutionEditPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="rightBiceps"
-                    label="Bíceps direito (cm)"
+                    label="Bíceps dir. (cm)"
                     value={rightBiceps}
                     setValue={setRightBiceps}
                   />
                   <NumberField
                     id="leftBiceps"
-                    label="Bíceps esquerdo (cm)"
+                    label="Bíceps esq. (cm)"
                     value={leftBiceps}
                     setValue={setLeftBiceps}
                   />
@@ -391,13 +396,13 @@ export default function EvolutionEditPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="rightThigh"
-                    label="Coxa direita (cm)"
+                    label="Coxa dir. (cm)"
                     value={rightThigh}
                     setValue={setRightThigh}
                   />
                   <NumberField
                     id="leftThigh"
-                    label="Coxa esquerda (cm)"
+                    label="Coxa esq. (cm)"
                     value={leftThigh}
                     setValue={setLeftThigh}
                   />
@@ -424,13 +429,13 @@ export default function EvolutionEditPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="rightCalf"
-                    label="Panturrilha direita (cm)"
+                    label="Panturrilha dir. (cm)"
                     value={rightCalf}
                     setValue={setRightCalf}
                   />
                   <NumberField
                     id="leftCalf"
-                    label="Panturrilha esquerda (cm)"
+                    label="Panturrilha esq. (cm)"
                     value={leftCalf}
                     setValue={setLeftCalf}
                   />
@@ -440,13 +445,13 @@ export default function EvolutionEditPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="rightForearm"
-                    label="Antebraço direito (cm)"
+                    label="Antebraço dir. (cm)"
                     value={rightForearm}
                     setValue={setRightForearm}
                   />
                   <NumberField
                     id="leftForearm"
-                    label="Antebraço esquerdo (cm)"
+                    label="Antebraço esq. (cm)"
                     value={leftForearm}
                     setValue={setLeftForearm}
                   />

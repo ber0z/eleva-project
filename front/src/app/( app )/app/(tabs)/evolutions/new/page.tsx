@@ -38,7 +38,6 @@ function isGoalPreset(v: string): v is GoalPreset {
   return (GOAL_OPTIONS as Array<{ value: string }>).some((o) => o.value === v);
 }
 
-
 export default function EvolutionNewPage() {
   const router = useRouter();
   const dateInputRef = useRef<HTMLInputElement | null>(null);
@@ -70,14 +69,13 @@ export default function EvolutionNewPage() {
 
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [loadingInitial, setLoadingInitial] = useState(true); // 👈 loading inicial da página
+  const [loadingInitial, setLoadingInitial] = useState(true);
 
-  // previews das novas imagens (sem setState no effect)
+  // previews das novas imagens
   const newFrontPreview = useObjectURL(imageFront);
   const newSidePreview = useObjectURL(imageSide);
   const newBackPreview = useObjectURL(imageBack);
 
-  // helper de append condicional
   function appendIf(fd: FormData, key: string, v: string) {
     if (v !== "" && v != null) fd.append(key, v);
   }
@@ -125,11 +123,7 @@ export default function EvolutionNewPage() {
       router.refresh();
     } catch (error) {
       if (isAxiosError(error)) {
-        setErr(
-          error.response?.data?.message ||
-          error.message ||
-          "Falha ao criar evolução"
-        );
+        setErr(error.response?.data?.message || error.message || "Falha ao criar evolução");
       } else {
         setErr("Falha ao criar evolução");
       }
@@ -138,7 +132,7 @@ export default function EvolutionNewPage() {
     }
   }
 
-  // carrega altura, meta e já seta a data de hoje
+  // carrega altura, meta e seta a data de hoje
   useEffect(() => {
     async function loadGoalAndHeight() {
       try {
@@ -165,9 +159,10 @@ export default function EvolutionNewPage() {
           return `${year}-${month}-${day}`;
         });
       } catch (error) {
+        // deixa silencioso, mas você pode mostrar um aviso se quiser
         console.error("Erro ao carregar altura e meta:", error);
       } finally {
-        setLoadingInitial(false); // 👈 libera o formulário / some skeleton
+        setLoadingInitial(false);
       }
     }
 
@@ -175,12 +170,22 @@ export default function EvolutionNewPage() {
   }, []);
 
   return (
-    <div className="min-h-svh bg-background text-foreground">
+    <div
+      className="
+        min-h-svh bg-background text-foreground
+        [background:radial-gradient(70rem_40rem_at_50%_-10%,--theme(--color-primary/14),transparent_60%),radial-gradient(40rem_30rem_at_100%_10%,--theme(--color-ring/10),transparent_55%)]
+      "
+    >
       <div className="mx-auto w-full max-w-3xl px-4 py-6">
-        {/* Header no mesmo padrão da edição */}
+        {/* Header */}
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="bg-card shrink-0">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
+            >
               <Link href="/app/evolutions">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Voltar
@@ -192,21 +197,19 @@ export default function EvolutionNewPage() {
 
         {/* Erro */}
         {err && (
-          <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <div className="mb-4 rounded-lg border border-destructive/40 bg-destructive/15 px-3 py-2 text-sm text-destructive">
             {err}
           </div>
         )}
 
         {/* Card */}
-        <Card className="bg-card">
-          <CardHeader>
-            <CardTitle className="text-card-foreground">
-              Dados da evolução
-            </CardTitle>
+        <Card className=" bg-card/95 shadow-sm">
+          <CardHeader >
+            <CardTitle className="text-card-foreground">Dados da evolução</CardTitle>
           </CardHeader>
+
           <CardContent>
             {loadingInitial ? (
-              // ⬇️ Skeleton enquanto altura/meta/data carregam
               <div className="grid gap-4">
                 {Array.from({ length: 11 }).map((_, i) => (
                   <Skeleton key={i} className="h-10 w-full rounded-xl" />
@@ -219,10 +222,11 @@ export default function EvolutionNewPage() {
                   <div className="relative">
                     <Label
                       htmlFor="date"
-                      className="after:ml-0.5 after:text-destructive after:content-['*']"
+                      className="text-foreground/90 after:ml-0.5 after:text-destructive after:content-['*']"
                     >
-                      Data{" "}
+                      Data
                     </Label>
+
                     <Input
                       id="date"
                       type="date"
@@ -230,12 +234,26 @@ export default function EvolutionNewPage() {
                       ref={dateInputRef}
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="mt-1 h-11 w-full rounded-xl pr-10 [&::-webkit-calendar-picker-indicator]:opacity-0"
+                      className="
+                        mt-1 h-11 w-full rounded-xl pr-10
+                        bg-background/90 text-foreground
+                        border border-border/70
+                        placeholder:text-foreground/40
+                        focus-visible:ring-2 focus-visible:ring-ring/50
+                        [&::-webkit-calendar-picker-indicator]:opacity-0
+                      "
                     />
+
                     <button
                       type="button"
+                      aria-label="Abrir seletor de data"
                       onClick={() => dateInputRef.current?.showPicker?.()}
-                      className="absolute right-3 top-[calc(59%+0.5rem)] -translate-y-1/2 z-10 flex h-5 w-5 items-center justify-center text-muted-foreground"
+                      className="
+                        absolute right-2 top-[calc(59%+0.5rem)] -translate-y-1/2 z-10
+                        flex h-8 w-8 items-center justify-center rounded-md
+                        text-foreground/70 hover:text-foreground
+                        hover:bg-accent/60
+                      "
                     >
                       <CalendarIcon className="h-4 w-4" />
                     </button>
@@ -244,10 +262,11 @@ export default function EvolutionNewPage() {
                   <div className="min-w-0">
                     <Label
                       htmlFor="weight"
-                      className="after:ml-0.5 after:text-destructive after:content-['*']"
+                      className="text-foreground/90 after:ml-0.5 after:text-destructive after:content-['*']"
                     >
-                      Peso (kg){" "}
+                      Peso (kg)
                     </Label>
+
                     <Input
                       id="weight"
                       type="number"
@@ -257,7 +276,13 @@ export default function EvolutionNewPage() {
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
                       placeholder="Ex.: 72,4"
-                      className="mt-1 h-11 w-full rounded-xl"
+                      className="
+                        mt-1 h-11 w-full rounded-xl
+                        bg-background/90 text-foreground
+                        border border-border/70
+                        placeholder:text-foreground/40
+                        focus-visible:ring-2 focus-visible:ring-ring/50
+                      "
                     />
                   </div>
                 </div>
@@ -266,7 +291,7 @@ export default function EvolutionNewPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="height"
-                    required={true}
+                    required
                     label={
                       <>
                         <span>Altura (cm)</span>
@@ -276,27 +301,21 @@ export default function EvolutionNewPage() {
                     value={height}
                     setValue={setHeight}
                     placeholder="Ex.: 170"
-
                   />
-                  <NumberField
-                    id="chest"
-                    label="Peitoral (cm)"
-                    value={chest}
-                    setValue={setChest}
-                  />
+                  <NumberField id="chest" label="Peitoral (cm)" value={chest} setValue={setChest} />
                 </div>
 
                 {/* Bíceps D/E */}
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="rightBiceps"
-                    label="Bíceps direito (cm)"
+                    label="Bíceps dir. (cm)"
                     value={rightBiceps}
                     setValue={setRightBiceps}
                   />
                   <NumberField
                     id="leftBiceps"
-                    label="Bíceps esquerdo (cm)"
+                    label="Bíceps esq. (cm)"
                     value={leftBiceps}
                     setValue={setLeftBiceps}
                   />
@@ -304,49 +323,27 @@ export default function EvolutionNewPage() {
 
                 {/* Coxa D/E */}
                 <div className="grid grid-cols-2 gap-4">
-                  <NumberField
-                    id="rightThigh"
-                    label="Coxa direita (cm)"
-                    value={rightThigh}
-                    setValue={setRightThigh}
-                  />
-                  <NumberField
-                    id="leftThigh"
-                    label="Coxa esquerda (cm)"
-                    value={leftThigh}
-                    setValue={setLeftThigh}
-                  />
+                  <NumberField id="rightThigh" label="Coxa dir. (cm)" value={rightThigh} setValue={setRightThigh} />
+                  <NumberField id="leftThigh" label="Coxa esq. (cm)" value={leftThigh} setValue={setLeftThigh} />
                 </div>
 
                 {/* Cintura / Quadril */}
                 <div className="grid grid-cols-2 gap-4">
-                  <NumberField
-                    id="waist"
-                    label="Cintura (cm)"
-                    value={waist}
-                    setValue={setWaist}
-                  />
-                  <NumberField
-                    id="hips"
-                    label="Quadril (cm)"
-                    value={hips}
-                    setValue={setHips}
-                  />
+                  <NumberField id="waist" label="Cintura (cm)" value={waist} setValue={setWaist} />
+                  <NumberField id="hips" label="Quadril (cm)" value={hips} setValue={setHips} />
                 </div>
-
-
 
                 {/* Panturrilha D/E */}
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="rightCalf"
-                    label="Panturrilha direita (cm)"
+                    label="Panturrilha dir. (cm)"
                     value={rightCalf}
                     setValue={setRightCalf}
                   />
                   <NumberField
                     id="leftCalf"
-                    label="Panturrilha esquerda (cm)"
+                    label="Panturrilha esq. (cm)"
                     value={leftCalf}
                     setValue={setLeftCalf}
                   />
@@ -356,50 +353,62 @@ export default function EvolutionNewPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <NumberField
                     id="rightForearm"
-                    label="Antebraço direito (cm)"
+                    label="Antebraço dir. (cm)"
                     value={rightForearm}
                     setValue={setRightForearm}
                   />
                   <NumberField
                     id="leftForearm"
-                    label="Antebraço esquerdo (cm)"
+                    label="Antebraço esq. (cm)"
                     value={leftForearm}
                     setValue={setLeftForearm}
                   />
                 </div>
+
                 {/* Ombro */}
                 <div className="grid grid-cols-2 gap-4">
-                  <NumberField
-                    id="shoulder"
-                    label="Ombro (cm)"
-                    value={shoulder}
-                    setValue={setShoulder}
-                  />
+                  <NumberField id="shoulder" label="Ombro (cm)" value={shoulder} setValue={setShoulder} />
                 </div>
 
                 {/* Mensagem + Meta */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <Label htmlFor="message">Mensagem / Observações</Label>
+                    <Label htmlFor="message" className="text-foreground/90">
+                      Mensagem / Observações
+                    </Label>
                     <Textarea
                       id="message"
                       rows={3}
                       value={message}
                       onChange={(e) => setMessage(String(e.target.value))}
                       placeholder="Anotações opcionais..."
-                      className="mt-1 rounded-xl"
+                      className="
+                        mt-1 rounded-xl
+                        bg-background/90 text-foreground
+                        border border-border/70
+                        placeholder:text-foreground/40
+                        focus-visible:ring-2 focus-visible:ring-ring/50
+                      "
                       maxLength={500}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="goal">Meta atual</Label>
+                    <Label htmlFor="goal" className="text-foreground/90">
+                      Meta atual
+                    </Label>
 
                     <select
                       id="goal"
                       value={goal}
                       onChange={(e) => setGoal(e.target.value as GoalPreset | "")}
-                      className="mt-1 h-12 w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring"
+                      className="
+                        mt-1 h-12 w-full rounded-xl
+                        border border-border/70
+                        bg-background/90 text-foreground
+                        px-4 py-3 outline-none
+                        focus-visible:ring-2 focus-visible:ring-ring/50
+                      "
                     >
                       <option value="">Selecione...</option>
                       {GOAL_OPTIONS.map((opt) => (
@@ -413,7 +422,8 @@ export default function EvolutionNewPage() {
 
                 {/* Imagens */}
                 <div className="grid gap-4">
-                  <h3 className="text-sm font-semibold">Fotos</h3>
+                  <h3 className="text-sm font-semibold text-foreground/90">Fotos</h3>
+
                   <ImageRow
                     label="Frente"
                     currentUrl={null}
@@ -436,14 +446,11 @@ export default function EvolutionNewPage() {
 
                 {/* Ações */}
                 <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-                  <Button asChild variant="outline" className="w-full sm:w-auto">
+                  <Button asChild variant="outline" className="w-full sm:w-auto border-border/70 bg-card/90 hover:bg-accent shadow-sm">
                     <Link href="/app/evolutions">Cancelar</Link>
                   </Button>
-                  <Button
-                    type="submit"
-                    disabled={saving}
-                    className="w-full sm:w-auto cursor-pointer"
-                  >
+
+                  <Button type="submit" disabled={saving} className="w-full sm:w-auto cursor-pointer shadow-sm">
                     {saving ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -465,12 +472,8 @@ export default function EvolutionNewPage() {
 
 /* ---------- hooks/helpers ---------- */
 
-// versão sem setState no effect (evita warning)
 function useObjectURL(file: File | null) {
-  const url = useMemo(
-    () => (file ? URL.createObjectURL(file) : null),
-    [file]
-  );
+  const url = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
   useEffect(() => {
     return () => {
       if (url) URL.revokeObjectURL(url);
@@ -500,7 +503,9 @@ function NumberField({
 }) {
   return (
     <div>
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} className="text-foreground/90">
+        {label}
+      </Label>
       <Input
         id={id}
         type="number"
@@ -508,9 +513,15 @@ function NumberField({
         min="0"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="mt-1 h-11 rounded-xl"
         required={required}
         placeholder={placeholder}
+        className="
+          mt-1 h-11 rounded-xl
+          bg-background/90 text-foreground
+          border border-border/70
+          placeholder:text-foreground/40
+          focus-visible:ring-2 focus-visible:ring-ring/50
+        "
       />
     </div>
   );
@@ -523,22 +534,17 @@ type ImageRowProps = {
   onFile: (f: File | null) => void;
 };
 
-export function ImageRow({
-  label,
-  currentUrl,
-  newPreview,
-  onFile,
-}: ImageRowProps) {
+export function ImageRow({ label, currentUrl, newPreview, onFile }: ImageRowProps) {
   const src = newPreview ?? currentUrl ?? "";
   const isPreview = src.startsWith("blob:") || src.startsWith("data:");
   const hasImage = !!(newPreview || currentUrl);
   const buttonText = hasImage ? "Trocar" : "Adicionar";
 
   return (
-    <div className="w-full max-w-full overflow-hidden rounded-xl border bg-card/40 p-3">
+    <div className="w-full max-w-full overflow-hidden rounded-xl border border-border/70 bg-card/95 p-3 shadow-sm">
       <div className="flex flex-wrap items-center gap-4">
         {/* THUMB */}
-        <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-lg border bg-muted/30">
+        <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-lg border border-border/70 bg-muted/20">
           {src ? (
             <Image
               src={src}
@@ -552,29 +558,31 @@ export function ImageRow({
               }}
             />
           ) : (
-            <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">
+            <div className="grid h-full w-full place-items-center text-xs text-foreground/70">
               Sem foto
             </div>
           )}
-          <span className="pointer-events-none absolute left-1 top-1 rounded-md bg-background/70 px-1.5 py-0.5 text-[10px] font-medium">
+
+          <span className="pointer-events-none absolute left-1 top-1 rounded-md bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-foreground border border-border/60">
             {label}
           </span>
+
           <div className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-border/60" />
         </div>
 
         {/* INFO (escondido no mobile) */}
         <div className="hidden min-w-0 flex-1 sm:block">
-          <div className="truncate text-sm font-medium">
-            {newPreview ? "" : currentUrl ? "Imagem atual" : "Sem imagem"}
+          <div className="truncate text-sm font-medium text-foreground">
+            {newPreview ? "Nova imagem selecionada" : currentUrl ? "Imagem atual" : "Sem imagem"}
           </div>
-          <div className="mt-0.5 text-xs text-muted-foreground">
-            {newPreview ? "" : "Formatos: JPG / PNG / WEBP"}
-          </div>
+          {!newPreview && (
+            <div className="mt-0.5 text-xs text-foreground/70">Formatos: JPG / PNG / WEBP</div>
+          )}
         </div>
 
         {/* AÇÕES */}
         <div className="ml-auto flex shrink-0 items-center gap-2 self-center">
-          <label className="inline-flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border border-input bg-background px-3 text-sm hover:bg-accent">
+          <label className="inline-flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border border-border/70 bg-card/90 px-3 text-sm text-foreground hover:bg-accent shadow-sm">
             <ImagePlus className="h-4 w-4" />
             <span>{buttonText}</span>
             <input
@@ -590,7 +598,7 @@ export function ImageRow({
               type="button"
               variant="ghost"
               onClick={() => onFile(null)}
-              className="h-10 px-2"
+              className="h-10 px-2 hover:bg-accent/60"
               title="Remover pré-visualização"
             >
               <X className="h-4 w-4" />

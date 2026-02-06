@@ -19,11 +19,11 @@ export default function ActivitiesLayout({ children }: { children: React.ReactNo
     const tabInactive = "text-muted-foreground hover:text-foreground";
 
     return (
-        <div className="min-h-svh bg-background text-foreground">
+        <div className="min-h-svh bg-background  text-foreground">
             <div >
                 {showTabs ? (
-                    <div className="mb-4">
-                        <div className="inline-flex w-full sm:w-auto items-center gap-1 rounded-full border border-border bg-muted/40 p-1">
+                    <div className="mb-4 px-4">
+                        <div className="inline-flex w-full  sm:w-auto items-center gap-1 rounded-full border border-border p-1">
                             <Link
                                 href="/app/activities/physical"
                                 className={`${tabBase} ${isPhysicalRoot ? tabActive : tabInactive}`}

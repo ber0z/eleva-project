@@ -501,9 +501,9 @@ export default function ProfilePage() {
           ...(usernameNormalized ? { username: usernameNormalized } : {}),
           ...(usernameNormalized
             ? {
-                isProfilePublic,
-                isProfileImagesPublic,
-              }
+              isProfilePublic,
+              isProfileImagesPublic,
+            }
             : {}),
         };
 
@@ -904,12 +904,24 @@ export default function ProfilePage() {
               type="button"
               onClick={onShareProfile}
               disabled={!canShareProfile || sharing}
-              className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm disabled:opacity-60 cursor-pointer"
+              className="
+              inline-flex items-center justify-center gap-2
+              rounded-md bg-primary text-primary-foreground
+              px-2 py-2 text-sm
+              whitespace-nowrap
+              w-full sm:w-auto
+              disabled:opacity-60 cursor-pointer
+            "
               title={editing ? "Salve/cancele a edição para compartilhar" : "Gerar link"}
             >
-              {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-              Gerar link
+              {sharing ? (
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+              ) : (
+                <Share2 className="h-4 w-4 shrink-0" />
+              )}
+              <span className="whitespace-nowrap">Gerar link</span>
             </button>
+
           ) : null}
         </div>
 
@@ -1090,7 +1102,7 @@ export default function ProfilePage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className={`text-xs px-2 py-0.5 rounded-full border ${badge.cls}`}>{badge.label}</span>
 
-                        
+
 
                         <span className="text-xs text-muted-foreground">
                           Visualizações: <span className="font-medium text-foreground/90">{s.viewsCount ?? 0}</span>

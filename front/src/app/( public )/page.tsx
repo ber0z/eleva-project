@@ -33,24 +33,25 @@ export default function LandingPage() {
 
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3 py-1 text-[11px] text-muted-foreground backdrop-blur">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            Privado • Rápido • Simples
+            Privado • Completo • Tudo em um só lugar
           </div>
         </div>
 
         {/* Headline */}
         <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-5xl">
-          Evolução física,{" "}
-          <span className="bg-linear-to-r from-primary to-foreground bg-clip-text text-transparent">
-            do jeito certo
-          </span>
-          .
-        </h1>
+  Sua{" "}
+  <span className="text-yellow-400">Evolução física</span>, do jeito certo.
+</h1>
 
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Acompanhe suas <strong className="text-foreground">medidas</strong>,{" "}
-          <strong className="text-foreground">fotos de evolução</strong> e sua{" "}
-          <strong className="text-foreground">meta atual</strong> em um só lugar
-          com foco total no que importa. E o melhor de tudo <strong className="text-foreground">100% grátis</strong>  e sem anúncios.
+
+        <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-muted-foreground sm:mt-4 sm:text-base">
+          Centralize seu acompanhamento com{" "}
+          <strong className="text-foreground">dietas</strong>,{" "}
+          <strong className="text-foreground">treinos</strong>,{" "}
+          <strong className="text-foreground">sono</strong> e{" "}
+          <strong className="text-foreground">evolução física</strong>.
+          Tenha tudo organizado, veja seu progresso e{" "}
+          <strong className="text-foreground">compartilhe</strong> quando quiser.
         </p>
 
         {/* CTAs */}
@@ -91,23 +92,23 @@ export default function LandingPage() {
         {/* Benefits */}
         <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-border bg-card/60 p-4 text-left backdrop-blur">
-            <div className="text-sm font-semibold">Medidas</div>
+            <div className="text-sm font-semibold">Dieta & Treino</div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Registre peso, cintura, coxa, bíceps e acompanhe seu progresso.
+              Registre suas refeições, acompanhe dietas, treinos e atividades no mesmo lugar.
             </p>
           </div>
 
           <div className="rounded-2xl border border-border bg-card/60 p-4 text-left backdrop-blur">
-            <div className="text-sm font-semibold">Fotos</div>
+            <div className="text-sm font-semibold">Sono & Rotina</div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Compare visualmente sua evolução com organização por posição.
+              Monitore seu sono e entenda como seus hábitos impactam o seu resultado.
             </p>
           </div>
 
           <div className="rounded-2xl border border-border bg-card/60 p-4 text-left backdrop-blur">
-            <div className="text-sm font-semibold">Privacidade</div>
+            <div className="text-sm font-semibold">Evolução & Compartilhar</div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Compartilhamento só quando você quiser, público ou por link temporário.
+              Acompanhe medidas e fotos, compare evoluções e compartilhe.
             </p>
           </div>
         </div>

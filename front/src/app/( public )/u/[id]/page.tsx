@@ -129,6 +129,34 @@ function formatVal(v: number | null | undefined) {
   return Number.isFinite(v) ? String(v) : "—";
 }
 
+const GOAL_LABEL: Record<string, string> = {
+  gain_muscle: "Ganhar massa muscular",
+  lose_fat: "Perder gordura",
+  recomposition: "Recomposição corporal",
+  maintain: "Manutenção",
+  increase_strength: "Aumentar força",
+  improve_endurance: "Melhorar resistência",
+  improve_health: "Melhorar saúde geral",
+};
+
+function formatGoal(goal?: string | null) {
+  if (!goal) return "";
+
+  const raw = String(goal).trim();
+  const key = raw.toLowerCase();
+
+  // normaliza variações tipo "gain-muscle" / "gain muscle"
+  const normalized = key.replace(/[\s-]+/g, "_");
+
+  // ✅ se já vier em PT-BR, mantém como está
+  // (ex: "Ganhar massa" ou "Perder gordura")
+  const looksLikeSentence = /[À-ÿ]/.test(raw) || raw.includes(" ");
+  if (looksLikeSentence && !raw.includes("_")) return raw;
+
+  return GOAL_LABEL[normalized] ?? GOAL_LABEL[key] ?? raw;
+}
+
+
 // function useCountdown(target?: string) {
 //   const [now, setNow] = useState(() => Date.now());
 //   useEffect(() => {
@@ -161,17 +189,23 @@ function MetricIcon({ icon, className }: { icon: IconDef; className?: string }) 
     const Ico = icon.Icon;
     return <Ico className={className} strokeWidth={2} aria-hidden />;
   }
+
+  // ✅ Inverte no LIGHT e volta ao normal no DARK
+  // (bom para ícones P&B em PNG com fundo transparente)
+  const imgClass = `${className ?? ""} invert dark:invert-0 contrast-125`;
+
   return (
     <NextImage
       src={icon.src}
       alt={icon.alt ?? ""}
       width={20}
       height={20}
-      className={className}
+      className={imgClass}
       priority={false}
     />
   );
 }
+
 
 /* ===================== Página ===================== */
 export default function SharedProfilePage({
@@ -330,9 +364,11 @@ export default function SharedProfilePage({
     <div className="min-h-dvh bg-background ">
       {/* HERO (ajustado para deixar tudo mais alto na tela) */}
       <div
-        className="relative w-full  overflow-hidden rounded-b-3xl border-b border-border bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-36 sm:h-44"
+        className="relative isolate w-full overflow-hidden rounded-b-3xl border-b border-border
+             bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-36 sm:h-44"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
-      >        {/* Brand bar (logo + CTAs) */}
+      >
+        {/* Brand bar (logo + CTAs) */}
         <div className="absolute inset-x-0 top-0 z-10 ">
           <div className="mx-auto w-full max-w-3xl px-3 sm:px-4 py-2 flex   items-center justify-end ">
             {/* LOGO placeholder */}
@@ -357,14 +393,14 @@ export default function SharedProfilePage({
         </div>
 
         {/* ornamento de fundo */}
-        <div className="pointer-events-none absolute inset-0 opacity-[0.07] [background:radial-gradient(40rem_40rem_at_20%_-10%,--theme(--color-primary/60),transparent_60%),radial-gradient(32rem_32rem_at_120%_20%,--theme(--color-primary/40),transparent_60%)]" />
+        <div className="pointer-events-none absolute inset-0 z-0 opacity-[0.07] [background:radial-gradient(...)]" />
 
 
       </div>
 
       {/* CARTÃO CENTRAL */}
-      <section className="mx-auto -mt-16 sm:-mt-24 lg:-mt-28 w-full max-w-3xl px-3 sm:px-4 pb-8">
-        <div className="rounded-2xl border border-border bg-card/90 backdrop-blur p-4 sm:p-6 shadow-md">
+      <section className="relative z-20 mx-auto -mt-16 sm:-mt-24 lg:-mt-28 w-full max-w-3xl px-3 sm:px-4 pb-8">
+        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-lg">
           {/* header do cartão */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
             <div className="shrink-0 relative size-28 sm:size-32 -mt-12 sm:-mt-16 rounded-full ring-4 ring-background">
@@ -404,7 +440,12 @@ export default function SharedProfilePage({
               {evo && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   Última evolução: <span className="font-medium">{dateStr || "—"}</span>
-                  {evo.goal ? <> • Objetivo: <span className="font-medium">{evo.goal}</span></> : null}
+                  {evo.goal ? (
+                    <>
+                      {" "}
+                      • Objetivo: <span className="font-medium">{formatGoal(evo.goal)}</span>
+                    </>
+                  ) : null}
                 </p>
               )}
             </div>
@@ -415,11 +456,11 @@ export default function SharedProfilePage({
             {primary.map(({ key, label, unit, icon, value }) => (
               <div
                 key={String(key)}
-                className="rounded-xl border border-border bg-linear-to-br from-primary/10 to-transparent p-3 shadow-sm"
+                className="rounded-xl border border-border bg-muted/50 dark:bg-muted/20 p-3 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <MetricIcon icon={icon} className="h-5 w-5 text-foreground/80" />
-                  <span className="text-[11px] sm:text-xs text-muted-foreground">{label}</span>
+                  <span className="text-[11px] sm:text-xs text-foreground/70 dark:text-muted-foreground">{label}</span>
                 </div>
                 <div className="mt-2 text-xl sm:text-2xl font-semibold">
                   {formatVal(value)} <span className="text-xs sm:text-sm text-muted-foreground">{unit}</span>
@@ -433,7 +474,7 @@ export default function SharedProfilePage({
             <h2 className="text-xs sm:text-sm font-medium text-muted-foreground">Medidas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
               {secondary.map(({ key, label, unit, icon, value }) => (
-                <div key={String(key)} className="rounded-xl border border-border bg-card p-3">
+                <div key={String(key)} className="rounded-xl border border-border bg-muted/40 dark:bg-card p-3">
                   <div className="flex items-start justify-between">
                     <MetricIcon icon={icon} className="h-5 w-5 text-foreground/80" />
                     <span className="text-[11px] sm:text-xs text-muted-foreground">{label}</span>

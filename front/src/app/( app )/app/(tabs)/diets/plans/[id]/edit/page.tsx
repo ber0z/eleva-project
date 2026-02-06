@@ -664,7 +664,7 @@ export default function DietEditPage() {
 
                             {!m.id && !m.title.trim() && !m.meal.trim() ? (
                               <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-300">
-                                Esta refeição nova precisa ter <b>título</b> ou <b>refeição</b> para ser enviada.
+                                Esta refeição nova precisa ter <b>título</b> ou <b>refeição</b> para ser salva.
                               </div>
                             ) : null}
                           </div>
