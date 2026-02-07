@@ -8,6 +8,8 @@ export default function TopBar() {
         sticky top-0 z-40
         bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60
         border-b border-border
+            px-6 sm:px-6
+
       "
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
@@ -15,7 +17,6 @@ export default function TopBar() {
       <div
         className="
           mx-auto max-w-5xl
-          px-3 sm:px-4           
           h-16 flex items-center justify-between
           relative -top-1.5 sm:top-0
         "

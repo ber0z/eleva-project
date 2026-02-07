@@ -511,7 +511,7 @@ export default function EvolutionDetailPage() {
 
               <CardContent className="pt-0">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  <div className="rounded-xl border border-border/70 bg-muted/30 p-3 shadow-sm">
+                  <div className="rounded-xl border border-border/70 bg-background p-3 shadow-sm">
                     <div className="flex items-center gap-1 text-xs font-medium text-foreground/70">
                       <Scale className="h-4 w-4" /> Peso
                     </div>
@@ -520,7 +520,7 @@ export default function EvolutionDetailPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-border/70 bg-muted/30 p-3 shadow-sm">
+                  <div className="rounded-xl border border-border/70 bg-background p-3 shadow-sm">
                     <div className="flex items-center gap-1 text-xs font-medium text-foreground/70">
                       <Ruler className="h-4 w-4" /> Altura
                     </div>
@@ -529,7 +529,7 @@ export default function EvolutionDetailPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-border/70 bg-muted/30 p-3 shadow-sm">
+                  <div className="rounded-xl border border-border/70 bg-background p-3 shadow-sm">
                     <div className="text-xs font-medium text-foreground/70">Objetivo</div>
                     <div className="mt-1 text-sm font-semibold">
                       {goalToLabel(data.goal)}
@@ -538,7 +538,7 @@ export default function EvolutionDetailPage() {
                 </div>
 
                 {data.message && (
-                  <div className="mt-4 rounded-xl border border-border/70 bg-muted/20 p-3 shadow-sm">
+                  <div className="mt-4 rounded-xl border border-border/70 bg-background p-3 shadow-sm">
                     <div className="text-xs font-medium text-foreground/70">Mensagem</div>
                     <p className="mt-1 text-sm text-foreground/90">{data.message}</p>
                   </div>
@@ -901,7 +901,7 @@ function Metric({
     : `${Number(value).toLocaleString("pt-BR")}${suffix ? ` ${suffix}` : ""}`;
 
   return (
-    <div className="rounded-xl border border-border/70 bg-muted/25 p-3 shadow-sm">
+    <div className="rounded-xl border border-border/70 bg-background p-3 shadow-sm">
       <div className="text-xs font-medium text-foreground/70">{label}</div>
       <div className="mt-1 text-base font-semibold tracking-tight text-foreground">{display}</div>
     </div>

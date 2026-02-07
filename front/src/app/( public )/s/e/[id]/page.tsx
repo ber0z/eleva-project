@@ -15,8 +15,7 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 
-import NextImage, { type StaticImageData } from "next/image";
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 // ===== Imagens estáticas (icones)
 import thigh1 from "../../../../../../public/icones/thigh1.png";
@@ -67,6 +66,31 @@ type ShareEvolutionResponse = {
 /* ===================== Branding ===================== */
 const BRAND_NAME = process.env.NEXT_PUBLIC_BRAND_NAME ?? "Eleva";
 
+/* ===================== Tradução goal ===================== */
+const GOAL_LABEL: Record<string, string> = {
+  gain_muscle: "Ganhar massa muscular",
+  lose_fat: "Perder gordura",
+  recomposition: "Recomposição corporal",
+  maintain: "Manutenção",
+  increase_strength: "Aumentar força",
+  improve_endurance: "Melhorar resistência",
+  improve_health: "Melhorar saúde geral",
+};
+
+function normalizeGoalKey(v: string) {
+  return v
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/-+/g, "_");
+}
+
+function translateGoal(goal?: string | null) {
+  if (!goal || !goal.trim()) return null;
+  const key = normalizeGoalKey(goal);
+  return GOAL_LABEL[key] ?? goal; // fallback: mostra como veio da API
+}
+
 /* ===================== Métricas ===================== */
 const METRIC_KEYS = [
   "height",
@@ -114,13 +138,17 @@ const METRICS: MetricCfg = {
 const PRIMARY_KEYS: readonly MetricKey[] = ["weight"];
 
 /* ===================== Utils ===================== */
-function formatVal(v: number | null | undefined) {
-  if (v === null || v === undefined) return "—";
+function formatVal(v: number) {
   return Number.isFinite(v) ? String(v) : "—";
+}
+
+function hasNumber(v: unknown): v is number {
+  return typeof v === "number" && Number.isFinite(v);
 }
 
 function useCountdown(target?: string) {
   const [now, setNow] = useState(() => Date.now());
+
   useEffect(() => {
     if (!target) return;
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -155,7 +183,7 @@ function MetricIcon({ icon, className }: { icon: IconDef; className?: string }) 
 
   const cls = `${className ?? ""} invert dark:invert-0`;
   return (
-    <NextImage
+    <Image
       src={icon.src}
       alt={icon.alt ?? ""}
       width={20}
@@ -211,6 +239,17 @@ export default function SharedEvolutionPage({
 
   const evo = data?.evolution ?? null;
 
+  const imagesSorted = useMemo(
+    () => (evo?.images ? [...evo.images].sort((a, b) => a.position - b.position) : []),
+    [evo]
+  );
+
+  useEffect(() => {
+    setActiveIdx(0);
+  }, [imagesSorted.length]);
+
+  const hasAnyPhoto = imagesSorted.length > 0;
+
   const dateStr = useMemo(() => {
     if (!evo?.date) return "";
     try {
@@ -223,28 +262,31 @@ export default function SharedEvolutionPage({
     }
   }, [evo?.date]);
 
-  const primary = PRIMARY_KEYS.map((k) => ({
-    key: k,
-    ...METRICS[k],
-    value: evo ? (evo[k] as number | null) : null,
-  }));
+  const goalLabel = useMemo(() => translateGoal(evo?.goal ?? null), [evo?.goal]);
 
-  const secondary = (METRIC_KEYS as readonly MetricKey[])
-    .filter((k) => !PRIMARY_KEYS.includes(k))
-    .map((k) => ({
+  // ✅ só mantém métricas que tenham valor numérico
+  const primary = useMemo(() => {
+    if (!evo) return [];
+    return PRIMARY_KEYS.map((k) => ({
       key: k,
       ...METRICS[k],
-      value: evo ? (evo[k] as number | null) : null,
-    }));
+      value: evo[k] as number | null,
+    })).filter((m) => hasNumber(m.value));
+  }, [evo]);
 
-  const imagesSorted = useMemo(
-    () => (evo?.images ? [...evo.images].sort((a, b) => a.position - b.position) : []),
-    [evo]
-  );
+  const secondary = useMemo(() => {
+    if (!evo) return [];
+    return (METRIC_KEYS as readonly MetricKey[])
+      .filter((k) => !PRIMARY_KEYS.includes(k))
+      .map((k) => ({
+        key: k,
+        ...METRICS[k],
+        value: evo[k] as number | null,
+      }))
+      .filter((m) => hasNumber(m.value));
+  }, [evo]);
 
-  useEffect(() => {
-    setActiveIdx(0);
-  }, [imagesSorted.length]);
+  const hasAnyMetric = primary.length + secondary.length > 0;
 
   const { expired } = useCountdown(data?.expiresAt);
   const isExpired = Boolean(expired);
@@ -368,30 +410,30 @@ export default function SharedEvolutionPage({
       {/* GRID */}
       <section className="mx-auto -mt-10 sm:-mt-14 w-full max-w-6xl px-3 sm:px-4 pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-          {/* Coluna esquerda: Galeria */}
-          <div className="lg:col-span-7">
-            <div className="rounded-2xl border border-border/70 bg-muted/35 dark:bg-card/90 backdrop-blur p-3 sm:p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-2 gap-2">
-                <div className="text-sm text-foreground/70">
-                  Evolução de{" "}
-                  <span className="font-medium text-foreground">{data.user.name}</span>
-                  {data.user.username ? (
-                    <span className="text-foreground/60"> • @{data.user.username}</span>
+          {/* ✅ Coluna esquerda: Galeria (só se tiver fotos) */}
+          {hasAnyPhoto ? (
+            <div className="lg:col-span-7">
+              <div className="rounded-2xl border border-border/70 bg-muted/35 dark:bg-card/90 backdrop-blur p-3 sm:p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-2 gap-2">
+                  <div className="text-sm text-foreground/70">
+                    Evolução de{" "}
+                    <span className="font-medium text-foreground">{data.user.name}</span>
+                    {data.user.username ? (
+                      <span className="text-foreground/60"> • @{data.user.username}</span>
+                    ) : null}
+                  </div>
+
+                  {dateStr ? (
+                    <div className="text-xs px-2 py-1 rounded-md border border-border/70 bg-muted/20 text-foreground/80">
+                      {dateStr}
+                    </div>
                   ) : null}
                 </div>
 
-                {dateStr ? (
-                  <div className="text-xs px-2 py-1 rounded-md border border-border/70 bg-muted/20 text-foreground/80">
-                    {dateStr}
-                  </div>
-                ) : null}
-              </div>
-
-              {/* Preview principal */}
-              <div className="relative w-full overflow-hidden rounded-xl border border-border/70 bg-muted/15">
-                <div className="relative w-full aspect-3/4">
-                  {imagesSorted.length ? (
-                    <NextImage
+                {/* Preview principal */}
+                <div className="relative w-full overflow-hidden rounded-xl border border-border/70 bg-muted/15">
+                  <div className="relative w-full aspect-3/4">
+                    <Image
                       key={imagesSorted[activeIdx]?.url}
                       src={imagesSorted[activeIdx].url}
                       alt={`Foto ${imagesSorted[activeIdx].position}`}
@@ -403,125 +445,125 @@ export default function SharedEvolutionPage({
                       draggable={false}
                       onClick={() => openLightbox(activeIdx)}
                     />
-                  ) : (
-                    <div className="absolute inset-0 grid place-items-center text-sm text-foreground/70">
-                      Sem fotos nesta evolução.
-                    </div>
-                  )}
+                  </div>
+
+                  {/* Controles no preview */}
+                  {imagesSorted.length > 1 ? (
+                    <>
+                      <button
+                        onClick={() => setActiveIdx((i) => Math.max(0, i - 1))}
+                        aria-label="Anterior"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/45 hover:bg-black/60 text-white p-2 shadow-sm"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => setActiveIdx((i) => Math.min(imagesSorted.length - 1, i + 1))}
+                        aria-label="Próxima"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/45 hover:bg-black/60 text-white p-2 shadow-sm"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </>
+                  ) : null}
                 </div>
 
-                {/* Controles no preview */}
+                {/* Miniaturas */}
                 {imagesSorted.length > 1 ? (
-                  <>
-                    <button
-                      onClick={() => setActiveIdx((i) => Math.max(0, i - 1))}
-                      aria-label="Anterior"
-                      className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/45 hover:bg-black/60 text-white p-2 shadow-sm"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => setActiveIdx((i) => Math.min(imagesSorted.length - 1, i + 1))}
-                      aria-label="Próxima"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/45 hover:bg-black/60 text-white p-2 shadow-sm"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                  </>
+                  <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar">
+                    {imagesSorted.map((img, i) => (
+                      <button
+                        key={img.position}
+                        type="button"
+                        onClick={() => setActiveIdx(i)}
+                        className={`relative shrink-0 rounded-lg border overflow-hidden
+                          ${i === activeIdx
+                            ? "border-primary ring-2 ring-primary/40"
+                            : "border-border/70 hover:border-border"
+                          }`}
+                        title={`Foto ${img.position}`}
+                        style={{ width: 72, height: 96 }}
+                      >
+                        <Image
+                          src={img.url}
+                          alt={`Thumb ${img.position}`}
+                          width={72}
+                          height={96}
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </button>
+                    ))}
+                  </div>
                 ) : null}
               </div>
-
-              {/* Miniaturas */}
-              {imagesSorted.length > 1 ? (
-                <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar">
-                  {imagesSorted.map((img, i) => (
-                    <button
-                      key={img.position}
-                      type="button"
-                      onClick={() => setActiveIdx(i)}
-                      className={`relative shrink-0 rounded-lg border overflow-hidden
-                        ${i === activeIdx
-                          ? "border-primary ring-2 ring-primary/40"
-                          : "border-border/70 hover:border-border"
-                        }`}
-                      title={`Foto ${img.position}`}
-                      style={{ width: 72, height: 96 }}
-                    >
-                      <NextImage
-                        src={img.url}
-                        alt={`Thumb ${img.position}`}
-                        width={72}
-                        height={96}
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </button>
-                  ))}
-                </div>
-              ) : null}
             </div>
-          </div>
+          ) : null}
 
           {/* Coluna direita: Info e métricas */}
-          <div className="lg:col-span-5">
+          <div className={hasAnyPhoto ? "lg:col-span-5" : "lg:col-span-12"}>
             <div className="lg:sticky lg:top-6 space-y-4">
               <div className="rounded-2xl border border-border/70 bg-muted/35 dark:bg-card/90 backdrop-blur p-4 sm:p-5 shadow-sm">
                 <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
                   Resumo da evolução
                 </h1>
 
-                {evo?.goal ? (
+                {/* ✅ GOAL traduzido */}
+                {goalLabel ? (
                   <p className="mt-1 text-sm text-foreground/70">
-                    Objetivo: <span className="font-medium text-foreground">{evo.goal}</span>
+                    Objetivo: <span className="font-medium text-foreground">{goalLabel}</span>
                   </p>
                 ) : null}
 
-                {/* Destaques */}
-                <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-                  {primary.map(({ key, label, unit, icon, value }) => (
-                    <div
-                      key={String(key)}
-                      className="
-  rounded-xl border border-border/70
-  bg-muted/25 dark:bg-card/90
-  bg-linear-to-br from-primary/18 to-transparent
-  p-3 shadow-sm
-"
-
-                    >
-                      <div className="flex items-center justify-between">
-                        <MetricIcon icon={icon} className="h-5 w-5 text-foreground/90" />
-                        <span className="text-[11px] sm:text-xs text-foreground/70">{label}</span>
-                      </div>
-                      <div className="mt-2 text-xl font-semibold text-foreground">
-                        {formatVal(value)}{" "}
-                        <span className="text-xs text-foreground/70">{unit}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Outras medidas */}
-                <div className="mt-5 space-y-2">
-                  <h2 className="text-xs sm:text-sm font-medium text-foreground/70">Medidas</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-                    {secondary.map(({ key, label, unit, icon, value }) => (
+                {/* ✅ Destaques (só se tiver valor) */}
+                {primary.length ? (
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                    {primary.map(({ key, label, unit, icon, value }) => (
                       <div
                         key={String(key)}
-                        className="rounded-xl border border-border/70 bg-muted/25 dark:bg-card/90 p-3"
+                        className="
+                          rounded-xl border border-border/70
+                          bg-muted/25 dark:bg-card/90
+                          bg-linear-to-br from-primary/18 to-transparent
+                          p-3 shadow-sm
+                        "
                       >
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-center justify-between">
                           <MetricIcon icon={icon} className="h-5 w-5 text-foreground/90" />
                           <span className="text-[11px] sm:text-xs text-foreground/70">{label}</span>
                         </div>
-                        <div className="mt-2 text-base font-semibold text-foreground">
-                          {formatVal(value)}{" "}
+                        <div className="mt-2 text-xl font-semibold text-foreground">
+                          {formatVal(Number(value))}{" "}
                           <span className="text-xs text-foreground/70">{unit}</span>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
+                ) : null}
+
+                {/* ✅ Outras medidas (só se tiver valor) */}
+                {secondary.length ? (
+                  <div className="mt-5 space-y-2">
+                    <h2 className="text-xs sm:text-sm font-medium text-foreground/70">Medidas</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                      {secondary.map(({ key, label, unit, icon, value }) => (
+                        <div
+                          key={String(key)}
+                          className="rounded-xl border border-border/70 bg-muted/25 dark:bg-card/90 p-3"
+                        >
+                          <div className="flex items-start justify-between">
+                            <MetricIcon icon={icon} className="h-5 w-5 text-foreground/90" />
+                            <span className="text-[11px] sm:text-xs text-foreground/70">{label}</span>
+                          </div>
+                          <div className="mt-2 text-base font-semibold text-foreground">
+                            {formatVal(Number(value))}{" "}
+                            <span className="text-xs text-foreground/70">{unit}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
                 {/* Mensagem */}
                 {evo?.message ? (
@@ -531,6 +573,13 @@ export default function SharedEvolutionPage({
                       {evo.message}
                     </p>
                   </div>
+                ) : null}
+
+                {/* (Opcional) fallback sem cards */}
+                {!hasAnyMetric && !evo?.message && !goalLabel ? (
+                  <p className="mt-3 text-sm text-foreground/70">
+                    Sem informações adicionais nesta evolução.
+                  </p>
                 ) : null}
               </div>
             </div>
@@ -544,7 +593,13 @@ export default function SharedEvolutionPage({
 
       {/* LIGHTBOX */}
       {lbIndex !== null && imagesSorted[lbIndex] && (
-        <Lightbox images={imagesSorted} index={lbIndex} onClose={closeLightbox} onPrev={goPrev} onNext={goNext} />
+        <Lightbox
+          images={imagesSorted}
+          index={lbIndex}
+          onClose={closeLightbox}
+          onPrev={goPrev}
+          onNext={goNext}
+        />
       )}
     </div>
   );
@@ -628,7 +683,7 @@ function Lightbox({ images, index, onClose, onPrev, onNext }: LightboxProps) {
                 className={`absolute inset-0 transition-opacity duration-150 ${visible ? "opacity-100" : "opacity-0 pointer-events-none"
                   }`}
               >
-                <NextImage
+                <Image
                   src={img.url}
                   alt={`Foto ${img.position}`}
                   fill

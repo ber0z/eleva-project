@@ -103,6 +103,32 @@ const GENDER_LABEL: Record<string, string> = {
   other: "Outro",
 };
 
+// Aceita vários formatos (snake_case, kebab-case, etc.)
+const GOAL_LABEL: Record<string, string> = {
+  gain_muscle: "Ganhar massa muscular",
+  lose_fat: "Perder gordura",
+  recomposition: "Recomposição corporal",
+  maintain: "Manutenção",
+  increase_strength: "Aumentar força",
+  improve_endurance: "Melhorar resistência",
+  improve_health: "Melhorar saúde geral",
+};
+
+function normalizeGoalKey(v?: string | null) {
+  return String(v ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_")
+    .replace(/-/g, "_");
+}
+
+function translateGoal(goal?: string | null) {
+  const key = normalizeGoalKey(goal);
+  if (!key) return null;
+  return GOAL_LABEL[key] ?? goal; // fallback: mostra como veio do backend
+}
+
+
 const USERNAME_REGEX = /^[a-z0-9_]{3,32}$/i;
 
 const TTL_OPTIONS = [
@@ -419,7 +445,7 @@ export default function ProfilePage() {
       ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(new Date(user.birthDate))
       : "—";
 
-  const goal = preset?.currentGoal || null;
+  const goal = translateGoal(preset?.currentGoal ?? null);
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { LogOut, Loader2, Sun, Moon } from "lucide-react";
 import { api } from "@/lib/api";
 
-const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "dev";
+const APP_VERSION = "1.0.0";
 const LOGOUT_URL = "/auth/logout";
 const REDIRECT_AFTER_LOGOUT = "/login";
 
