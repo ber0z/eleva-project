@@ -63,21 +63,30 @@ Valores de referência (por unidade/100g):
 
 Use essas referências para ancoragem. Seja conservador — não superestime.
 Some os macros de cada item e retorne o total.
-Responda APENAS com JSON válido: {"kcal": number, "protein": number, "carbs": number, "fat": number}
-Todos os valores devem ser números inteiros positivos. Sem explicações.`,
+Responda APENAS com JSON válido usando EXATAMENTE estas chaves em inglês: kcal, protein, carbs, fat.
+Todos os valores devem ser números inteiros positivos. Sem explicações.
+
+Exemplo de resposta para "2 ovos + 1 fatia de pão":
+{"kcal": 220, "protein": 14, "carbs": 13, "fat": 11}`,
                     },
                     { role: "user", content: description },
                 ],
             });
 
             const raw = completion.choices[0]?.message?.content ?? "{}";
+            console.log("[ai/macros] raw response:", raw);
             const parsed = JSON.parse(raw);
 
+            const kcal = parsed.kcal ?? parsed.calorias ?? parsed.calories ?? 0;
+            const protein = parsed.protein ?? parsed.proteina ?? parsed.proteína ?? 0;
+            const carbs = parsed.carbs ?? parsed.carboidratos ?? parsed.carbo ?? parsed.carboidrato ?? 0;
+            const fat = parsed.fat ?? parsed.gordura ?? parsed.gorduras ?? 0;
+
             return reply.code(200).send({
-                kcal: Math.round(parsed.kcal ?? 0),
-                protein: Math.round(parsed.protein ?? 0),
-                carbs: Math.round(parsed.carbs ?? 0),
-                fat: Math.round(parsed.fat ?? 0),
+                kcal: Math.round(kcal),
+                protein: Math.round(protein),
+                carbs: Math.round(carbs),
+                fat: Math.round(fat),
             });
         } catch (error: unknown) {
             const err = error instanceof Error ? error : new Error(String(error));

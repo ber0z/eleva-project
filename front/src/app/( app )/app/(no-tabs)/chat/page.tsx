@@ -85,7 +85,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-svh bg-background text-foreground">
+    <div className="fixed inset-0 z-10 flex flex-col bg-background text-foreground">
       {/* Header fixo */}
       <header className="shrink-0 flex items-center gap-3 px-4 py-3 border-b border-border/30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Button asChild variant="outline" size="sm" className="shrink-0 bg-card/90 hover:bg-accent border-border/30 shadow-sm">
@@ -100,7 +100,7 @@ export default function ChatPage() {
           </div>
           <div>
             <p className="text-sm font-semibold leading-none">Assistente IA</p>
-            <p className="text-xs text-muted-foreground">Fitness personalizado</p>
+            <p className="text-xs text-muted-foreground">Fitness Eleva</p>
           </div>
         </div>
       </header>
