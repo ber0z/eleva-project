@@ -1,5 +1,5 @@
 const CACHE = "app-cache-v1";
-const OFFLINE_URL = "/offline";
+const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
