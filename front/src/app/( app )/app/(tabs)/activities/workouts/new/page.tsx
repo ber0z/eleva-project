@@ -127,7 +127,7 @@ function uid(prefix = "k") {
 }
 
 const inputBase =
-  "w-full max-w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
+  "w-full max-w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
 
 
 function Field({ label, children }: { label: ReactNode; children: ReactNode }) {
@@ -551,6 +551,7 @@ export default function TrainingCreatePage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (saving) return;
     setSaving(true);
     setSaveErr(null);
 
@@ -618,7 +619,7 @@ export default function TrainingCreatePage() {
         <form id="training-create-form" onSubmit={onSubmit} className="grid gap-3">
           {/* Dados principais */}
           <Card className="overflow-hidden">
-            <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+            <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
               <h2 className="text-sm font-semibold flex items-center gap-2">
                 <Dumbbell className="h-4 w-4 text-primary" />
                 Novo treino
@@ -661,7 +662,7 @@ export default function TrainingCreatePage() {
                   </div>
 
                   <label
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm hover:bg-muted transition"
+                    className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border/30 bg-background px-3 py-2 text-sm hover:bg-muted transition"
                     title={documentFile ? "Trocar arquivo" : "Selecionar arquivo"}
                   >
                     <Plus className="h-4 w-4" />
@@ -1135,7 +1136,7 @@ export default function TrainingCreatePage() {
           <div className="grid gap-2">
             <button
               type="button"
-              className="w-full rounded-xl border border-border px-3 py-2 text-left text-sm hover:bg-muted/50"
+              className="w-full rounded-xl border border-border/30 px-3 py-2 text-left text-sm hover:bg-muted/50"
               onClick={() => {
                 if (!catalogModalTarget) return;
                 selectCatalogExercise(catalogModalTarget.workoutKey, catalogModalTarget.exKey, null);
@@ -1148,7 +1149,7 @@ export default function TrainingCreatePage() {
             <div className="h-px bg-border" />
 
             {filteredCatalogModal.length === 0 ? (
-              <div className="rounded-xl border border-border p-3 text-sm text-muted-foreground">Nenhum exercício encontrado.</div>
+              <div className="rounded-xl border border-border/30 p-3 text-sm text-muted-foreground">Nenhum exercício encontrado.</div>
             ) : (
               filteredCatalogModal.map((it) => {
                 const active = selectedExerciseIdInModal === it.id;
@@ -1159,7 +1160,7 @@ export default function TrainingCreatePage() {
                     type="button"
                     className={`
                       w-full rounded-xl border px-3 py-2 text-left hover:bg-muted/50 transition
-                      ${active ? "border-primary/40 bg-primary/10" : "border-border"}
+                      ${active ? "border-primary/40 bg-primary/10" : "border-border/30"}
                     `}
                     onClick={() => {
                       if (!catalogModalTarget) return;

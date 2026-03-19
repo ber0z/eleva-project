@@ -7,7 +7,7 @@ export default function TopBar() {
       className="
         sticky top-0 z-40
         bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60
-        border-b border-border
+        border-b border-border/30
             px-6 sm:px-6
 
       "
@@ -26,7 +26,7 @@ export default function TopBar() {
         </Link>
 
         <div className="flex items-center gap-3">
-          <Link
+<Link
             href="/app/profile"
             className="
               group flex items-center gap-2

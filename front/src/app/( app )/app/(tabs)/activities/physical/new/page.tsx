@@ -51,8 +51,8 @@ function todayYMD() {
 }
 
 function combineDateTime(dateYmd: string, timeHm?: string) {
-  if (!timeHm?.trim()) return dateYmd;
-  return `${dateYmd}T${timeHm}:00.000Z`;
+  const time = timeHm?.trim() ? timeHm : "00:00";
+  return `${dateYmd}T${time}:00-03:00`;
 }
 
 /** Converte "HH:mm" em minutos */
@@ -119,7 +119,7 @@ export default function NewPhysicalActivityPage() {
   }, [name, date, durationMinutes, time, calories]);
 
   async function onSubmit() {
-    if (!canSave || durationMinutes == null) return;
+    if (!canSave || durationMinutes == null || saving) return;
 
     setSaving(true);
     setErr(null);
@@ -180,7 +180,7 @@ export default function NewPhysicalActivityPage() {
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   placeholder="Ex.: corrida na esteira"
                   disabled={saving}
                 />
@@ -192,7 +192,7 @@ export default function NewPhysicalActivityPage() {
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as ActivityType)}
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     disabled={saving}
                   >
                     {ACTIVITY_TYPES.map((opt) => (
@@ -210,7 +210,7 @@ export default function NewPhysicalActivityPage() {
                     onChange={(e) => setDurationTime(e.target.value)}
                     type="time"
                     step={60} // 1 minuto (alguns browsers respeitam)
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     disabled={saving}
                   />
                   <p className="text-xs text-muted-foreground">
@@ -231,7 +231,7 @@ export default function NewPhysicalActivityPage() {
                     onChange={(e) => setCalories(e.target.value)}
                     type="number"
                     min={0}
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     placeholder="Opcional"
                     disabled={saving}
                   />
@@ -245,7 +245,7 @@ export default function NewPhysicalActivityPage() {
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     type="date"
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     disabled={saving}
                   />
                 </div>
@@ -256,7 +256,7 @@ export default function NewPhysicalActivityPage() {
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
                     type="time"
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     disabled={saving}
                   />
                 </div>
@@ -267,7 +267,7 @@ export default function NewPhysicalActivityPage() {
                     value={observations}
                     onChange={(e) => setObservations(e.target.value)}
                     rows={3}
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     placeholder="Opcional"
                     disabled={saving}
                   />

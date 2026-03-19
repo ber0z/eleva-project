@@ -157,8 +157,6 @@ export default function RegisterPage() {
     <div className="min-h-svh grid grid-cols-1 lg:grid-cols-2 bg-background text-foreground">
       {/* Lado ilustrativo / branding (desktop) */}
       <div className="relative hidden lg:block">
-        <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-primary/5 to-transparent" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(0,0,0,0.06),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(0,0,0,0.04),transparent_35%)]" />
         <div className="flex h-full flex-col justify-between p-10">
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold" aria-label="Ir para a página inicial">
             <Image src={eleva} alt="Eleva" width={96} height={96} priority className="mb-6 rounded-lg" />
@@ -188,7 +186,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Card */}
-          <div className="rounded-2xl border border-border bg-card shadow-sm">
+          <div className="rounded-2xl border border-border/30 bg-card shadow-sm">
             <div className="p-6">
               <div className="mb-6">
                 <h1 className="text-xl font-semibold">Criar conta</h1>
@@ -423,7 +421,7 @@ export default function RegisterPage() {
               </form>
             </div>
 
-            <div className="border-t border-border px-6 py-4 text-center text-sm text-muted-foreground">
+            <div className="border-t border-border/30 px-6 py-4 text-center text-sm text-muted-foreground">
               Já tem conta?{" "}
               <Link href="/login" className="font-medium text-primary hover:underline">
                 Entrar

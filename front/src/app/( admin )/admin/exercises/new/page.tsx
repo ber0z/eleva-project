@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 
 const inputBase =
-  "w-full max-w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
+  "w-full max-w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -144,7 +144,7 @@ export default function ExerciseCreatePage() {
         <form id="exercise-create-form" onSubmit={onSubmit} className="grid gap-3">
           {/* Card principal */}
           <Card className="overflow-hidden">
-            <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+            <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
               <h2 className="text-sm font-semibold">Dados principais</h2>
               <p className="text-xs text-muted-foreground">O nome é obrigatório.</p>
             </div>

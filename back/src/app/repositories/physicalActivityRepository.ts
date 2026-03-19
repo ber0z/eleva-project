@@ -1,6 +1,15 @@
 import { Prisma, PhysicalActivity } from "@prisma/client";
 import { prisma } from "../lib/prismaClient";
 
+export type ExerciseLogInput = {
+  trainingExerciseId?: number | null;
+  name: string;
+  setNumber: number;
+  reps?: number | null;
+  weight?: number | null;
+  completed: boolean;
+};
+
 export type CreatePhysicalActivityInput = {
   idUser: number;
   name: string;
@@ -10,11 +19,12 @@ export type CreatePhysicalActivityInput = {
   observations?: string | null;
   date: Date; // já convertido
   trainingWorkoutId?: number | null;
+  exerciseLogs?: ExerciseLogInput[];
 };
 
-export type UpdatePhysicalActivityInput = Partial<Omit<CreatePhysicalActivityInput, "idUser" | "date">> & {
-  date?: Date;
-};
+export type UpdatePhysicalActivityInput = Partial<
+  Omit<CreatePhysicalActivityInput, "idUser" | "date" | "exerciseLogs">
+> & { date?: Date };
 
 const APP_TZ = "America/Recife";
 
@@ -57,8 +67,30 @@ type DistinctDayRow = { day: string };
 export class PhysicalActivityRepository {
   async create(data: CreatePhysicalActivityInput, tx?: Prisma.TransactionClient): Promise<PhysicalActivity> {
     const db = tx ?? prisma;
-    return db.physicalActivity.create({ data });
-  } 
+    const { exerciseLogs, ...activityData } = data;
+
+    return db.physicalActivity.create({
+      data: {
+        ...activityData,
+        ...(exerciseLogs && exerciseLogs.length > 0
+          ? {
+              exerciseLogs: {
+                createMany: {
+                  data: exerciseLogs.map((log) => ({
+                    trainingExerciseId: log.trainingExerciseId ?? null,
+                    name: log.name,
+                    setNumber: log.setNumber,
+                    reps: log.reps ?? null,
+                    weight: log.weight ?? null,
+                    completed: log.completed,
+                  })),
+                },
+              },
+            }
+          : {}),
+      },
+    });
+  }
 
   async updateOwned(
     id: number,
@@ -81,9 +113,12 @@ export class PhysicalActivityRepository {
     return res.count > 0;
   }
 
-  async findByIdOwned(id: number, idUser: number, tx?: Prisma.TransactionClient): Promise<PhysicalActivity | null> {
+  async findByIdOwned(id: number, idUser: number, tx?: Prisma.TransactionClient) {
     const db = tx ?? prisma;
-    return db.physicalActivity.findFirst({ where: { id, idUser } });
+    return db.physicalActivity.findFirst({
+      where: { id, idUser },
+      include: { exerciseLogs: { orderBy: [{ name: "asc" }, { setNumber: "asc" }] } },
+    });
   }
 
   async listByUser(

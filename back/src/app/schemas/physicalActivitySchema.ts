@@ -10,6 +10,15 @@ const typeEnum = z.enum([
   'other'
 ]);
 
+const exerciseLogSchema = z.object({
+  trainingExerciseId: z.coerce.number().int().positive().nullable().optional(),
+  name: z.string().min(1).max(255),
+  setNumber: z.coerce.number().int().min(1),
+  reps: z.coerce.number().int().min(0).nullable().optional(),
+  weight: z.coerce.number().min(0).nullable().optional(),
+  completed: z.boolean().default(false),
+});
+
 export const createPhysicalActivitySchema = z.object({
   name: z.string().min(1).max(255),
   type: typeEnum, //optional
@@ -18,6 +27,7 @@ export const createPhysicalActivitySchema = z.object({
   observations: z.string().max(1024).nullable().optional(),
   date: z.string(),
   trainingWorkoutId: z.coerce.number().int().positive().nullable().optional(),
+  exerciseLogs: z.array(exerciseLogSchema).optional(),
 });
 
 export const updatePhysicalActivitySchema = z.object({

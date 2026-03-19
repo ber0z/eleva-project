@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Eleva",
     short_name: "Eleva",
     description: "Acompanhe suas evoluções.",
-    start_url: "/app/metrics",
+    start_url: "/app/home",
     scope: "/",
     display: "standalone",
     background_color: "#0b0b0c",

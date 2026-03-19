@@ -82,15 +82,16 @@ export default function EvolutionNewPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setErr(null);
+    if (saving) return;
 
     if (!date || !weight) {
       setErr("Os campos data e peso são obrigatórios.");
       return;
     }
 
+    setSaving(true);
+    setErr(null);
     try {
-      setSaving(true);
       const fd = new FormData();
       fd.append("date", date);
       fd.append("weight", weight);
@@ -184,7 +185,7 @@ export default function EvolutionNewPage() {
               asChild
               variant="outline"
               size="sm"
-              className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
+              className="shrink-0 bg-card/90 hover:bg-accent border-border/30 shadow-sm"
             >
               <Link href="/app/evolutions">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -237,7 +238,7 @@ export default function EvolutionNewPage() {
                       className="
                         mt-1 h-11 w-full rounded-xl pr-10
                         bg-background/90 text-foreground
-                        border border-border/70
+                        border border-border/30
                         placeholder:text-foreground/40
                         focus-visible:ring-2 focus-visible:ring-ring/50
                         [&::-webkit-calendar-picker-indicator]:opacity-0
@@ -279,7 +280,7 @@ export default function EvolutionNewPage() {
                       className="
                         mt-1 h-11 w-full rounded-xl
                         bg-background/90 text-foreground
-                        border border-border/70
+                        border border-border/30
                         placeholder:text-foreground/40
                         focus-visible:ring-2 focus-visible:ring-ring/50
                       "
@@ -385,7 +386,7 @@ export default function EvolutionNewPage() {
                       className="
                         mt-1 rounded-xl
                         bg-background/90 text-foreground
-                        border border-border/70
+                        border border-border/30
                         placeholder:text-foreground/40
                         focus-visible:ring-2 focus-visible:ring-ring/50
                       "
@@ -404,7 +405,7 @@ export default function EvolutionNewPage() {
                       onChange={(e) => setGoal(e.target.value as GoalPreset | "")}
                       className="
                         mt-1 h-12 w-full rounded-xl
-                        border border-border/70
+                        border border-border/30
                         bg-background/90 text-foreground
                         px-4 py-3 outline-none
                         focus-visible:ring-2 focus-visible:ring-ring/50
@@ -446,7 +447,7 @@ export default function EvolutionNewPage() {
 
                 {/* Ações */}
                 <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
-                  <Button asChild variant="outline" className="w-full sm:w-auto border-border/70 bg-card/90 hover:bg-accent shadow-sm">
+                  <Button asChild variant="outline" className="w-full sm:w-auto border-border/30 bg-card/90 hover:bg-accent shadow-sm">
                     <Link href="/app/evolutions">Cancelar</Link>
                   </Button>
 
@@ -518,7 +519,7 @@ function NumberField({
         className="
           mt-1 h-11 rounded-xl
           bg-background/90 text-foreground
-          border border-border/70
+          border border-border/30
           placeholder:text-foreground/40
           focus-visible:ring-2 focus-visible:ring-ring/50
         "
@@ -541,10 +542,10 @@ export function ImageRow({ label, currentUrl, newPreview, onFile }: ImageRowProp
   const buttonText = hasImage ? "Trocar" : "Adicionar";
 
   return (
-    <div className="w-full max-w-full overflow-hidden rounded-xl border border-border/70 bg-card/95 p-3 shadow-sm">
+    <div className="w-full max-w-full overflow-hidden rounded-xl border border-border/60 bg-card p-3 shadow-sm">
       <div className="flex flex-wrap items-center gap-4">
         {/* THUMB */}
-        <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-lg border border-border/70 bg-muted/20">
+        <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted/50">
           {src ? (
             <Image
               src={src}
@@ -558,16 +559,16 @@ export function ImageRow({ label, currentUrl, newPreview, onFile }: ImageRowProp
               }}
             />
           ) : (
-            <div className="grid h-full w-full place-items-center text-xs text-foreground/70">
+            <div className="grid h-full w-full place-items-center text-xs text-foreground/60">
               Sem foto
             </div>
           )}
 
-          <span className="pointer-events-none absolute left-1 top-1 rounded-md bg-background/90 px-1.5 py-0.5 text-[10px] font-semibold text-foreground border border-border/60">
+          <span className="pointer-events-none absolute left-1 top-1 rounded-md bg-background px-1.5 py-0.5 text-[10px] font-semibold text-foreground border border-border/50">
             {label}
           </span>
 
-          <div className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-border/60" />
+          <div className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-border/80" />
         </div>
 
         {/* INFO (escondido no mobile) */}
@@ -576,13 +577,13 @@ export function ImageRow({ label, currentUrl, newPreview, onFile }: ImageRowProp
             {newPreview ? "Nova imagem selecionada" : currentUrl ? "Imagem atual" : "Sem imagem"}
           </div>
           {!newPreview && (
-            <div className="mt-0.5 text-xs text-foreground/70">Formatos: JPG / PNG / WEBP</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">Formatos: JPG / PNG / WEBP</div>
           )}
         </div>
 
         {/* AÇÕES */}
         <div className="ml-auto flex shrink-0 items-center gap-2 self-center">
-          <label className="inline-flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border border-border/70 bg-card/90 px-3 text-sm text-foreground hover:bg-accent shadow-sm">
+          <label className="inline-flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border border-border/60 bg-card px-3 text-sm text-foreground hover:bg-accent shadow-sm">
             <ImagePlus className="h-4 w-4" />
             <span>{buttonText}</span>
             <input

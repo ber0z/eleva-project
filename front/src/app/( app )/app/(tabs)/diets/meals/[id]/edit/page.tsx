@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState, type ReactNode, type FormEvent } from "re
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { isAxiosError } from "axios";
-import { ArrowLeft, Save, Droplets, Utensils, Plus, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Save, Droplets, Utensils, Plus, Trash2, Pencil, Sparkles, Loader2 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -97,7 +97,7 @@ type MealLogDayEditPayload = {
 };
 
 const inputBase =
-  "w-full max-w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
+  "w-full max-w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -195,6 +195,8 @@ export default function DiaryEditMFPPage() {
   const [entryModalOpen, setEntryModalOpen] = useState(false);
   const [draft, setDraft] = useState<EntryUi | null>(null);
   const [draftErr, setDraftErr] = useState<string | null>(null);
+
+  const [macroLoading, setMacroLoading] = useState(false);
 
   // submit
   const [saving, setSaving] = useState(false);
@@ -386,8 +388,33 @@ export default function DiaryEditMFPPage() {
   }
 
 
+  async function calcMacros() {
+    if (!draft?.description?.trim()) return;
+    setMacroLoading(true);
+    try {
+      const { data } = await api.post<{ kcal: number; protein: number; carbs: number; fat: number }>(
+        "/ai/macros",
+        { description: draft.description }
+      );
+      setDraft((p) =>
+        p ? {
+          ...p,
+          kcal: String(data.kcal),
+          protein: String(data.protein),
+          carbs: String(data.carbs),
+          fat: String(data.fat),
+        } : p
+      );
+    } catch {
+      // silently fail — usuário pode preencher manualmente
+    } finally {
+      setMacroLoading(false);
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (saving) return;
     setSaveErr(null);
 
     const msg = validateBeforeSave();
@@ -489,7 +516,7 @@ export default function DiaryEditMFPPage() {
           <form id="diary-edit-form" onSubmit={onSubmit} className="grid gap-3">
             {/* Header do dia */}
             <Card className="overflow-hidden">
-              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h1 className="text-sm font-semibold">Diário Alimentar</h1>
@@ -552,7 +579,7 @@ export default function DiaryEditMFPPage() {
                 </div>
 
                 {/* ✅ Dieta (sempre aparece) + aderência */}
-                <div className="rounded-2xl bg-background/70 p-3 sm:p-4 border border-border/60">
+                <div className="rounded-2xl bg-background/70 p-3 sm:p-4 border border-border/30">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold">Dieta do dia (opcional)</p>
                   </div>
@@ -610,7 +637,7 @@ export default function DiaryEditMFPPage() {
                   </div>
 
                   {hasDietSelected ? (
-                    <div className="mt-3 rounded-xl border border-border/60 bg-card p-3 text-sm text-muted-foreground">
+                    <div className="mt-3 rounded-xl border border-border/30 bg-card p-3 text-sm text-muted-foreground">
                       Vamos salvar apenas a dieta.
                       <br />
                       Para registrar refeições manuais, selecione <b>“Sem dieta”</b>.
@@ -643,7 +670,7 @@ export default function DiaryEditMFPPage() {
 
                   return (
                     <Card key={g.key} className="overflow-hidden">
-                      <div className="bg-card px-4 sm:px-6 py-4 border-b border-border/60 flex items-center justify-between gap-2">
+                      <div className="bg-card px-4 sm:px-6 py-4 border-b border-border/30 flex items-center justify-between gap-2">
                         <div className="min-w-0">
                           <p className="text-sm font-semibold flex items-center gap-2">
                             <Utensils className="h-4 w-4 text-primary" />
@@ -662,7 +689,7 @@ export default function DiaryEditMFPPage() {
                         {list.length === 0 ? (
                           <div className="p-4 text-sm text-muted-foreground">Nenhum item ainda.</div>
                         ) : (
-                          <ul className="divide-y divide-border">
+                          <ul className="divide-y divide-border/30">
                             {list.map((it) => {
                               const meta = compactLine([
                                 it.time.trim() ? it.time.trim() : null,
@@ -783,7 +810,20 @@ export default function DiaryEditMFPPage() {
               </Field>
 
               <div className="rounded-xl bg-muted/40 p-3">
-                <div className="text-sm font-medium mb-2">Macros/kcal (opcional)</div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium">Macros/kcal (opcional)</div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs bg-yellow-500/5 border-yellow-500/15 text-yellow-500/40 hover:bg-yellow-500/10 hover:text-yellow-500/60 cursor-pointer"
+                    onClick={calcMacros}
+                    disabled={macroLoading || !draft?.description?.trim()}
+                  >
+                    {macroLoading ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Sparkles className="mr-1 h-3 w-3" />}
+                    Calcular macros
+                  </Button>
+                </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <Field label="kcal">
                     <input

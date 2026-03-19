@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
-  ChartNoAxesColumnIncreasing,
+  Home,
   ChartNoAxesCombined,
   Dumbbell,
   Apple
@@ -50,7 +50,7 @@ export default function ResponsiveNav() {
   const current = getAppSegment(pathname);
 
   const items: NavItem[] = [
-    { href: "/app/metrics", seg: "metrics", label: "Medidas", Icon: ChartNoAxesColumnIncreasing },
+    { href: "/app/home", seg: "home", label: "Home", Icon: Home },
     { href: "/app/evolutions", seg: "evolutions", label: "Evolução", Icon: ChartNoAxesCombined },
     { href: "/app/diets/meals", seg: "diets", label: "Dieta", Icon: Apple },
     { href: "/app/activities/physical", seg: "activities", label: "Atividade", Icon: Dumbbell },
@@ -62,13 +62,18 @@ export default function ResponsiveNav() {
       {/* ===== Sidebar fixa (desktop), abaixo do header ===== */}
       <aside
         className="
-          hidden md:flex fixed inset-y-0 left-0 w-24
-          border-r border-border bg-background z-30
+          hidden md:flex flex-col justify-center fixed inset-y-0 left-0 w-24
+          z-30
         "
         aria-label="Navegação lateral"
       >
-        <nav className="h-full overflow-y-auto p-2 pt-22 w-24">
-          <ul className="flex min-h-full flex-col gap-2">
+        <nav className="
+          mx-2 p-2
+          bg-card/95 backdrop-blur supports-backdrop-filter:bg-card/80
+          border border-border/40 rounded-2xl
+          w-20
+        ">
+          <ul className="flex flex-col gap-2">
             {items.map(({ href, seg, label, Icon }) => {
               const active = current === seg;
               return (
@@ -80,10 +85,9 @@ export default function ResponsiveNav() {
                       aspect-square w-full
                       flex flex-col items-center justify-center
                       rounded-xl transition
-                      border ${active ? "border-primary/35" : "border-transparent"}
                       ${active
-                        ? "text-primary bg-primary/15"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted hover:border-border"
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
                       }
                     `}
                   >
@@ -101,11 +105,9 @@ export default function ResponsiveNav() {
       <nav
         className="
           md:hidden fixed bottom-0 inset-x-0 z-40
-          border-t border-border
-          px-2 pt-1
-          pb-[max(0.5rem,env(safe-area-inset-bottom))]
-          backdrop-blur
-          bg-background/80 
+          mx-3 mb-3 px-2 py-2
+          bg-card/95 backdrop-blur supports-backdrop-filter:bg-card/80
+          border border-border/40 rounded-2xl
         "
         aria-label="Navegação por abas"
       >
@@ -120,8 +122,7 @@ export default function ResponsiveNav() {
                   className={`
                     flex flex-col items-center justify-center rounded-xl py-2
                     text-xs font-medium transition
-                    border ${active ? "border-primary/35" : "border-transparent"}
-                    ${active ? "text-primary bg-primary/15" : "text-muted-foreground hover:text-foreground hover:bg-muted"}
+                    ${active ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"}
                   `}
                 >
                   <Icon className="size-5" strokeWidth={active ? 2.2 : 1.7} aria-hidden />

@@ -158,7 +158,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 const inputBase =
-  "w-full max-w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
+  "w-full max-w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
 
 function compactLine(parts: Array<string | null | undefined>) {
   return parts.filter((p) => (p ?? "").toString().trim().length > 0).join(" • ");
@@ -616,7 +616,7 @@ export default function TrainingEditPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!data?.id) return;
+    if (!data?.id || saving) return;
 
     setSaving(true);
     setSaveErr(null);
@@ -706,7 +706,7 @@ export default function TrainingEditPage() {
           <form id="training-edit-form" onSubmit={onSubmit} className="grid gap-3">
             {/* Dados principais */}
             <Card className="overflow-hidden">
-              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
                 <h2 className="text-sm font-semibold flex items-center gap-2">
                   <Dumbbell className="h-4 w-4 text-primary" />
                   Editando ficha de treino
@@ -1303,7 +1303,7 @@ export default function TrainingEditPage() {
           <div className="grid gap-2">
             <button
               type="button"
-              className="w-full rounded-xl border border-border px-3 py-2 text-left text-sm hover:bg-muted/50"
+              className="w-full rounded-xl border border-border/30 px-3 py-2 text-left text-sm hover:bg-muted/50"
               onClick={() => {
                 if (!catalogModalTarget) return;
                 selectCatalogExercise(catalogModalTarget.workoutKey, catalogModalTarget.exKey, null);
@@ -1316,7 +1316,7 @@ export default function TrainingEditPage() {
             <div className="h-px bg-border" />
 
             {filteredCatalogModal.length === 0 ? (
-              <div className="rounded-xl border border-border p-3 text-sm text-muted-foreground">
+              <div className="rounded-xl border border-border/30 p-3 text-sm text-muted-foreground">
                 Nenhum exercício encontrado.
               </div>
             ) : (
@@ -1328,7 +1328,7 @@ export default function TrainingEditPage() {
                     type="button"
                     className={`
                       w-full rounded-xl border px-3 py-2 text-left hover:bg-muted/50 transition
-                      ${active ? "border-primary/40 bg-primary/10" : "border-border"}
+                      ${active ? "border-primary/40 bg-primary/10" : "border-border/30"}
                     `}
                     onClick={() => {
                       if (!catalogModalTarget) return;

@@ -24,7 +24,7 @@ export default function OfflinePage() {
   return (
     <main className="min-h-svh bg-background text-foreground">
       <div className="mx-auto grid min-h-svh max-w-2xl place-items-center px-4 py-8">
-        <section className="w-full rounded-2xl border border-border bg-card/80 p-5 shadow-sm backdrop-blur">
+        <section className="w-full rounded-2xl border border-border/30 bg-card/80 p-5 shadow-sm backdrop-blur">
           {/* topo */}
           <div className="flex items-start gap-3">
             <div className="grid h-11 w-11 place-items-center rounded-xl bg-muted/50 text-xl">
@@ -41,7 +41,7 @@ export default function OfflinePage() {
                   : "Sem internet no momento. Verifique o Wi-Fi ou o 4G/5G e tente novamente."}
               </p>
 
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-muted/30 px-3 py-1 text-xs text-muted-foreground">
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border/30 bg-muted/30 px-3 py-1 text-xs text-muted-foreground">
                 <span
                   className={`h-2 w-2 rounded-full ${
                     isOnline ? "bg-emerald-500" : "bg-rose-500"
@@ -57,7 +57,7 @@ export default function OfflinePage() {
             <button
               type="button"
               onClick={() => window.history.back()}
-              className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm font-medium hover:bg-accent sm:w-auto"
+              className="h-11 w-full rounded-xl border border-border/30 bg-background px-4 text-sm font-medium hover:bg-accent sm:w-auto"
             >
               Voltar
             </button>
@@ -72,7 +72,7 @@ export default function OfflinePage() {
           </div>
 
           {/* dica */}
-          <div className="mt-4 rounded-xl border border-dashed border-border bg-muted/20 p-4">
+          <div className="mt-4 rounded-xl border border-dashed border-border/30 bg-muted/20 p-4">
             <p className="text-sm font-medium">Dica</p>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
               <li>No celular, adicione o app à Tela Inicial para abrir mais rápido.</li>

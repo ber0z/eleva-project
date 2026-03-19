@@ -15,6 +15,6 @@ export function computeDurationHours(startTime: string, endTime: string): number
 }
 
 export function toDateOnly(d: string): Date {
-  // interpreta "YYYY-MM-DD" como data local
-  return new Date(d);
+  // interpreta "YYYY-MM-DD" como data local de Recife (UTC-3)
+  return new Date(`${d}T00:00:00-03:00`);
 }

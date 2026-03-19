@@ -62,7 +62,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-svh bg-background text-foreground">
       {/* Topbar (mobile) */}
-      <header className="flex items-center justify-between gap-2 border-b border-border px-4 py-3 md:hidden">
+      <header className="flex items-center justify-between gap-2 border-b border-border/30 px-4 py-3 md:hidden">
         <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label="Abrir menu">
           <Menu className="h-5 w-5" />
         </Button>
@@ -77,7 +77,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="relative flex">
         {/* Sidebar (desktop) */}
         <aside
-          className="sticky top-0 hidden h-dvh shrink-0 border-r border-border md:block"
+          className="sticky top-0 hidden h-dvh shrink-0 border-r border-border/30 md:block"
           style={{ width: SIDEBAR_WIDTH }}
         >
           <SidebarContent nav={nav} onLogout={handleLogout} loggingOut={loggingOut} />
@@ -94,7 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {/* ✅ Drawer em coluna: header fixo, miolo rolável, footer fixo */}
             <div
-              className="fixed inset-y-0 left-0 z-50 w-[82%] max-w-[320px] border-r border-border bg-background shadow-xl md:hidden flex flex-col"
+              className="fixed inset-y-0 left-0 z-50 w-[82%] max-w-[320px] border-r border-border/30 bg-background shadow-xl md:hidden flex flex-col"
               role="dialog"
               aria-modal="true"
               style={{
@@ -103,7 +103,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               }}
             >
               {/* Header fixo */}
-              <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3 shrink-0">
+              <div className="flex items-center justify-between gap-2 border-b border-border/30 px-4 py-3 shrink-0">
                 <Link
                   href="/admin/dashboard"
                   className="inline-flex items-center gap-2"
@@ -139,7 +139,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
 
               {/* Footer fixo */}
-              <div className="shrink-0 border-t border-border p-2 space-y-2">
+              <div className="shrink-0 border-t border-border/30 p-2 space-y-2">
                 <button
                   type="button"
                   onClick={async () => {

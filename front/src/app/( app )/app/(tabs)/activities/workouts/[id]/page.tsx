@@ -407,7 +407,7 @@ export default function TrainingDetailsPage() {
           <div className="grid gap-3">
             {/* Header */}
             <Card className="overflow-hidden">
-              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
                 <h2 className="text-sm font-semibold flex items-center gap-2">
                   <Dumbbell className="h-4 w-4 text-primary" />
                   {data.title}
@@ -482,15 +482,30 @@ export default function TrainingDetailsPage() {
                           <p className="text-xs text-muted-foreground truncate">{headerMeta}</p>
                         </div>
 
-                        <Button
-                          type="button"
-                          variant={open ? "secondary" : "outline"}
-                          className="cursor-pointer px-3"
-                          onClick={() => toggleWorkout(w.id)}
-                        >
-                          {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                          <span className="ml-2 hidden sm:inline">{open ? "Fechar" : "Exibir"}</span>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            asChild
+                            variant="default"
+                            size="sm"
+                            className="cursor-pointer gap-1.5"
+                            title="Iniciar treino"
+                          >
+                            <Link href={`/app/activities/workouts/execute/${w.id}`}>
+                              <PlayCircle className="h-4 w-4" />
+                              <span className="hidden sm:inline">Iniciar</span>
+                            </Link>
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant={open ? "secondary" : "outline"}
+                            className="cursor-pointer px-3"
+                            onClick={() => toggleWorkout(w.id)}
+                          >
+                            {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                            <span className="ml-2 hidden sm:inline">{open ? "Fechar" : "Exibir"}</span>
+                          </Button>
+                        </div>
                       </div>
 
                       {open ? (

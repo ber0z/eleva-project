@@ -12,7 +12,7 @@ import eleva from "../../../../public/imgs/eleva.png";
 type SubjectType = "user" | "professional" | "admin";
 
 const HOME_BY_SUBJECT: Record<SubjectType, string> = {
-  user: "/app/metrics",
+  user: "/app/home",
   professional: "/pro",
   admin: "/admin",
 };
@@ -78,8 +78,6 @@ export default function LoginClient() {
     <div className="min-h-svh grid grid-cols-1 lg:grid-cols-2 bg-background text-foreground">
       {/* Lado ilustrativo / branding (desktop) */}
       <div className="relative hidden lg:block">
-        <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-primary/5 to-transparent" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(0,0,0,0.06),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(0,0,0,0.04),transparent_35%)]" />
         <div className="flex h-full flex-col justify-between p-10">
           <Link
             href="/"
@@ -131,10 +129,10 @@ export default function LoginClient() {
           </div>
 
           {/* Card */}
-          <div className="rounded-2xl border border-border bg-card shadow-sm">
+          <div className="rounded-2xl border border-border/30 bg-card shadow-sm">
             <div className="p-6">
               <div className="mb-6">
-                <h1 className="text-xl font-semibold">Entrar</h1>
+                <h1 className="text-xl font-semibold cursor-pointer">Entrar</h1>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Acesse sua conta para continuar
                 </p>
@@ -232,7 +230,7 @@ export default function LoginClient() {
                 <button
                   type="submit"
                   disabled={disabled}
-                  className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-1 cursor-pointer   inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {loading ? (
                     <>
@@ -253,7 +251,7 @@ export default function LoginClient() {
 
             </div>
 
-            <div className="border-t border-border px-6 py-4 text-center text-sm text-muted-foreground">
+            <div className="border-t border-border/30 px-6 py-4 text-center text-sm text-muted-foreground">
               Não tem conta?{" "}
               <Link href="/register" className="font-medium text-primary hover:underline">
                 Criar conta

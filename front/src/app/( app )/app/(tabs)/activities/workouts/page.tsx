@@ -249,7 +249,7 @@ export default function TrainingsPage() {
       </div>
 
       {/* FAB */}
-      <Button asChild size="icon" className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg">
+      <Button asChild size="icon" className="fixed bottom-28 md:bottom-6 right-6 h-14 w-14 rounded-full shadow-lg">
         <Link href="/app/activities/workouts/new" aria-label="Criar novo treino">
           <Plus className="h-6 w-6" />
         </Link>

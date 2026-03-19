@@ -314,6 +314,10 @@ export class TrainingService {
         return { items: rows, total, page: p.page, pageSize: p.pageSize };
     }
 
+    async getWorkoutById(workoutId: number, idUser: number) {
+        return this.repo.findWorkoutById(workoutId, idUser);
+    }
+
     async deleteOwned(id: number, idUser: number) {
         // pegue a key antes
         const current = await this.repo.findTrainingOwned(id, idUser);

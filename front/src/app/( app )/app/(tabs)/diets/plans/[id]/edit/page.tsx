@@ -63,7 +63,7 @@ type UiMeal = {
 };
 
 const inputBase =
-  "w-full max-w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
+  "w-full max-w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -269,6 +269,7 @@ export default function DietEditPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (saving) return;
     setSaveErr(null);
 
     const msg = validate();
@@ -395,7 +396,7 @@ export default function DietEditPage() {
           <form id="diet-edit-form" onSubmit={onSubmit} className="grid gap-3">
             {/* Dados principais */}
             <Card className="overflow-hidden">
-              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
                 <h2 className="text-sm font-semibold flex items-center gap-2">
                   <FileText className="h-4 w-4 text-primary" />
                   Editar dieta
@@ -456,7 +457,7 @@ export default function DietEditPage() {
                       <label
                         className="
                           inline-flex cursor-pointer items-center gap-2
-                          rounded-xl border border-border bg-background
+                          rounded-xl border border-border/30 bg-background
                           px-3 py-2 text-sm
                           hover:bg-muted transition
                         "

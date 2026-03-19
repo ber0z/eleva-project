@@ -97,6 +97,16 @@ export class TrainingRepository {
 
   
   
+  async findWorkoutById(workoutId: number, userId: number) {
+    return this.db.trainingWorkout.findFirst({
+      where: { id: workoutId, training: { idUser: userId } },
+      include: {
+        exercises: { orderBy: { id: "asc" } },
+        training: { select: { id: true, title: true } },
+      },
+    });
+  }
+
   async updateWorkout(id: number, data: { title?: string; notes?: string | null; dayOfWeek?: DayOfWeek }, tx: Prisma.TransactionClient) {
     return tx.trainingWorkout.update({ where: { id }, data });
   }

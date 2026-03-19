@@ -279,7 +279,7 @@ export default function DietDetailsPage() {
           <>
             {/* Resumo */}
             <Card className="overflow-hidden">
-              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+              <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
                 <h1 className="text-base sm:text-lg font-semibold truncate">{data.title}</h1>
                 <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
@@ -295,14 +295,14 @@ export default function DietDetailsPage() {
 
               <CardContent className="grid gap-4 pt-5 px-4 sm:px-6">
                 {data.notes ? (
-                  <div className="rounded-xl border border-border/60 bg-card p-3 text-sm">
+                  <div className="rounded-xl border border-border/30 bg-card p-3 text-sm">
                     <div className="text-xs text-muted-foreground mb-1">Observações</div>
                     <div className="whitespace-pre-wrap">{data.notes}</div>
                   </div>
                 ) : null}
 
                 {/* Macros */}
-                <div className="rounded-2xl bg-background/70 p-3 sm:p-4 border border-border/60">
+                <div className="rounded-2xl bg-background/70 p-3 sm:p-4 border border-border/30">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold">Macros</p>
                     {totals.fromMeals ? (
@@ -317,21 +317,21 @@ export default function DietDetailsPage() {
                   </div>
 
                   <div className="mt-3 grid grid-cols-3 gap-2">
-                    <div className="rounded-xl border border-border/60 bg-card p-3">
+                    <div className="rounded-xl border border-border/30 bg-card p-3">
                       <div className="text-[11px] text-muted-foreground">Proteína</div>
                       <div className="text-sm font-semibold">
                         {totals.p ?? "—"}
                         {totals.p != null ? " g" : ""}
                       </div>
                     </div>
-                    <div className="rounded-xl border border-border/60 bg-card p-3">
+                    <div className="rounded-xl border border-border/30 bg-card p-3">
                       <div className="text-[11px] text-muted-foreground">Carbo</div>
                       <div className="text-sm font-semibold">
                         {totals.c ?? "—"}
                         {totals.c != null ? " g" : ""}
                       </div>
                     </div>
-                    <div className="rounded-xl border border-border/60 bg-card p-3">
+                    <div className="rounded-xl border border-border/30 bg-card p-3">
                       <div className="text-[11px] text-muted-foreground">Gordura</div>
                       <div className="text-sm font-semibold">
                         {totals.f ?? "—"}
@@ -421,13 +421,13 @@ export default function DietDetailsPage() {
                           </CardHeader>
 
                           <CardContent className="pt-0 pb-4 px-4 sm:px-6">
-                            <div className="rounded-xl border border-border/60 bg-card p-3 text-sm">
+                            <div className="rounded-xl border border-border/30 bg-card p-3 text-sm">
                               <div className="text-xs text-muted-foreground mb-1">Refeição</div>
                               <div className="whitespace-pre-wrap">{m.meal}</div>
                             </div>
 
                             {m.notes ? (
-                              <div className="mt-3 rounded-xl border border-border/60 bg-card p-3 text-sm">
+                              <div className="mt-3 rounded-xl border border-border/30 bg-card p-3 text-sm">
                                 <div className="text-xs text-muted-foreground mb-1">Notas</div>
                                 <div className="whitespace-pre-wrap">{m.notes}</div>
                               </div>

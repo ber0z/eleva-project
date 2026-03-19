@@ -80,7 +80,7 @@ export default function NewSleepPage() {
   }, [date, startTime, endTime]);
 
   async function onSubmit() {
-    if (!canSave) return;
+    if (!canSave || saving) return;
 
     setSaving(true);
     setErr(null);
@@ -141,7 +141,7 @@ export default function NewSleepPage() {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   disabled={saving}
                 />
               </div>
@@ -151,7 +151,7 @@ export default function NewSleepPage() {
                 <select
                   value={sleepQuality}
                   onChange={(e) => setSleepQuality(e.target.value as SleepQuality)}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   disabled={saving}
                 >
                   <option value="excellent">Excelente</option>
@@ -170,7 +170,7 @@ export default function NewSleepPage() {
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   disabled={saving}
                 />
               </div>
@@ -181,13 +181,13 @@ export default function NewSleepPage() {
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   disabled={saving}
                 />
               </div>
             </div>
 
-            <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+            <div className="rounded-lg border border-border/30 bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
               Duração estimada: <span className="font-medium text-foreground">{durationLabel}</span>
               
             </div>
@@ -199,7 +199,7 @@ export default function NewSleepPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
                 maxLength={1020}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                 placeholder="Ex.: Acordei 1x à noite"
                 disabled={saving}
               />

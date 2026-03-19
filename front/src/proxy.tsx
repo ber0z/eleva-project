@@ -25,6 +25,28 @@ function redirect(req: NextRequest, to: string) {
   return NextResponse.redirect(url);
 }
 
+function tryDecodeAt(req: NextRequest): SubjectResp | null {
+  const raw = req.cookies.get("at")?.value;
+  if (!raw) return null;
+  try {
+    const parts = raw.split(".");
+    if (parts.length !== 3) return null;
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(base64)) as Record<string, unknown>;
+    const exp = typeof payload.exp === "number" ? payload.exp : 0;
+    if (exp - Math.floor(Date.now() / 1000) < 5) return null;
+    if (typeof payload.subjectType !== "string") return null;
+    return {
+      authId: Number(payload.sub),
+      subjectType: payload.subjectType as SubjectType,
+      subjectId: typeof payload.subjectId === "number" ? payload.subjectId : 0,
+      roles: Array.isArray(payload.roles) ? (payload.roles as string[]) : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function fetchSubject(req: NextRequest): Promise<SubjectResp | null> {
   try {
     const res = await fetch(`${API_BASE}/api/auth/validate-subject-type`, {
@@ -34,6 +56,7 @@ async function fetchSubject(req: NextRequest): Promise<SubjectResp | null> {
         accept: "application/json",
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(3000),
     });
 
     const data = await res.json();
@@ -63,7 +86,7 @@ const isUser = (s: SubjectResp | null) => !!s && s.subjectType === "user";
 function subjectHome(s: SubjectResp): string {
   if (isAdmin(s)) return "/admin";
   if (isPro(s)) return "/pro";
-  if (isUser(s)) return "/app/metrics"; // ou "/app", se preferir
+  if (isUser(s)) return "/app/home"; // ou "/app", se preferir
   return "/";
 }
 
@@ -80,7 +103,18 @@ export async function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const me = await fetchSubject(req);
+  // fast path: decodifica JWT local (sem rede)
+  let me: SubjectResp | null = tryDecodeAt(req);
+
+  // slow path: at ausente ou expirado → chama backend
+  if (!me) {
+    me = await fetchSubject(req);
+  }
+
+  // fallback: backend falhou mas rt existe → usuário autenticado, rede ruim
+  if (!me && req.cookies.get("rt")?.value) {
+    return NextResponse.next();
+  }
 
   // 🔹 Regra: se já estiver logado e abrir /login, manda pra home dele
   if (pathname === "/login") {

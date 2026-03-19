@@ -16,7 +16,7 @@ export default function ActivitiesLayout({ children }: { children: React.ReactNo
         "flex-1 text-center text-sm px-3 py-2 rounded-full border border-transparent transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
 
     const tabActive =
-        "bg-yellow-500/15 border border-yellow-500/30 text-yellow-800 dark:text-yellow-300 shadow-sm";
+        "bg-primary/10 border-primary/30 text-primary shadow-sm";
 
     const tabInactive =
         "text-foreground/60 hover:text-foreground/85 dark:text-muted-foreground dark:hover:text-foreground";
@@ -27,7 +27,7 @@ export default function ActivitiesLayout({ children }: { children: React.ReactNo
             <div >
                 {showTabs ? (
                     <div className="mb-4 px-4">
-                        <div className="inline-flex w-full sm:w-auto items-center gap-1 rounded-full border border-border p-1">
+                        <div className="inline-flex w-full sm:w-auto items-center gap-1 rounded-full border border-border/30 p-1">
                             <Link
                                 href="/app/diets/meals"
                                 className={`${tabBase} ${isMealRoot ? tabActive : tabInactive}`}

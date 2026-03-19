@@ -177,7 +177,7 @@ export class EvolutionRepository {
       orderBy: { createdAt: "desc" },
       take: limit,
       include: {
-        EvolutionImages: true, // se não quiser imagens, basta remover
+        EvolutionImages: true,
       },
     });
   }

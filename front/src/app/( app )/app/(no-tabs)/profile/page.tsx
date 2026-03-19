@@ -4,7 +4,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../../../../../lib/api";
-import AvatarCircle from "../../_components/avatarCircle";
+import AvatarCircle, { invalidateAvatar } from "../../_components/avatarCircle";
 import {
   Camera,
   Save,
@@ -201,7 +201,7 @@ function getStatusBadge(status?: string) {
   if (s === "active") return { label: "Ativo", cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
   if (s === "expired") return { label: "Expirado", cls: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
   if (s === "revoked") return { label: "Revogado", cls: "bg-rose-500/10 text-rose-600 border-rose-500/20" };
-  return { label: status ?? "—", cls: "bg-muted text-foreground/80 border-border" };
+  return { label: status ?? "—", cls: "bg-muted text-foreground/80 border-border/30" };
 }
 
 function extractSharesArray(data: unknown): ShareItem[] {
@@ -480,7 +480,7 @@ export default function ProfilePage() {
       isProfileImagesPublic !== Boolean(user?.isProfileImagesPublic));
 
   async function onSave() {
-    if (!user) return;
+    if (!user || saving) return;
 
     if (usernameNormalized) {
       if (!USERNAME_REGEX.test(usernameNormalized)) {
@@ -518,6 +518,7 @@ export default function ProfilePage() {
           withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
         });
+        invalidateAvatar();
       } else {
         const iso = inputDateToIso(birthDate);
         const body: UpdateUserPayload = {
@@ -650,7 +651,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-card px-3 py-2 text-sm hover:bg-accent cursor-pointer"
             >
               <Pencil className="h-4 w-4" />
               Editar
@@ -712,8 +713,8 @@ export default function ProfilePage() {
       </div>
 
       {/* ======= DADOS PESSOAIS ======= */}
-      <div className="rounded-xl border border-border bg-card">
-        <div className="px-3 sm:px-4 py-3 border-b border-border">
+      <div className="rounded-xl border border-border/30 bg-card">
+        <div className="px-3 sm:px-4 py-3 border-b border-border/30">
           <h2 className="text-sm font-medium text-muted-foreground">Dados pessoais</h2>
         </div>
 
@@ -784,7 +785,7 @@ export default function ProfilePage() {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                className="rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                 placeholder="Seu nome"
               />
             </div>
@@ -795,7 +796,7 @@ export default function ProfilePage() {
                 type="date"
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                className="rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
               />
             </div>
 
@@ -804,7 +805,7 @@ export default function ProfilePage() {
               <select
                 value={gender}
                 onChange={(e) => setGender(coerceGender(e.target.value))}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                className="rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
               >
                 <option value="male">Masculino</option>
                 <option value="female">Feminino</option>
@@ -819,7 +820,7 @@ export default function ProfilePage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onBlur={() => setUsername(normalizeUsername(username))}
-                className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                className="rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                 placeholder="seu_username"
                 autoCapitalize="none"
                 autoCorrect="off"
@@ -856,7 +857,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3">
                 <label
                   htmlFor="photo2"
-                  className="inline-flex items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-sm cursor-pointer hover:bg-accent"
+                  className="inline-flex items-center gap-2 rounded-md border border-dashed border-border/30 px-3 py-2 text-sm cursor-pointer hover:bg-accent"
                 >
                   <Camera className="h-4 w-4" />
                   {photoFile ? "Trocar arquivo…" : "Selecionar arquivo…"}
@@ -895,7 +896,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={onCancel}
-                className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-card px-3 py-2 text-sm hover:bg-accent cursor-pointer"
               >
                 <X className="h-4 w-4" />
                 Cancelar
@@ -915,8 +916,8 @@ export default function ProfilePage() {
       </div>
 
       {/* ======= COMPARTILHAR PERFIL ======= */}
-      <div className="rounded-xl border border-border bg-card">
-        <div className="px-3 sm:px-4 py-3 border-b border-border flex items-center justify-between gap-3">
+      <div className="rounded-xl border border-border/30 bg-card">
+        <div className="px-3 sm:px-4 py-3 border-b border-border/30 flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-medium text-muted-foreground">Compartilhar perfil</h2>
             <p className="text-xs text-muted-foreground">
@@ -955,7 +956,7 @@ export default function ProfilePage() {
           {/* ✅ MODO PÚBLICO: só mostra link permanente */}
           {isPublicProfileNow ? (
             publicProfileUrl ? (
-              <div className="rounded-md border border-border bg-background p-3">
+              <div className="rounded-md border border-border/30 bg-background p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-xs text-muted-foreground flex items-center gap-2">
@@ -976,7 +977,7 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={() => copyShareUrl(publicProfileUrl)}
-                    className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent"
+                    className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-card px-3 py-2 text-sm hover:bg-accent"
                     title="Copiar link"
                   >
                     <Copy className="h-4 w-4" />
@@ -998,7 +999,7 @@ export default function ProfilePage() {
                   <select
                     value={String(shareTtlMinutes)}
                     onChange={(e) => setShareTtlMinutes(Number(e.target.value))}
-                    className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     disabled={!canShareProfile || sharing}
                   >
                     {TTL_OPTIONS.map((opt) => (
@@ -1030,7 +1031,7 @@ export default function ProfilePage() {
               ) : null}
 
               {sharedUrl ? (
-                <div className="rounded-md border border-border bg-background p-3">
+                <div className="rounded-md border border-border/30 bg-background p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="text-xs text-muted-foreground flex items-center gap-2">
@@ -1051,7 +1052,7 @@ export default function ProfilePage() {
                     <button
                       type="button"
                       onClick={() => copyShareUrl()}
-                      className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent"
+                      className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-card px-3 py-2 text-sm hover:bg-accent"
                       title="Copiar link"
                     >
                       <Copy className="h-4 w-4" />
@@ -1070,8 +1071,8 @@ export default function ProfilePage() {
       </div>
 
       {/* ======= COMPARTILHAMENTOS (TODOS) ======= */}
-      <div className="rounded-xl border border-border bg-card">
-        <div className="px-3 sm:px-4 py-3 border-b border-border flex items-center justify-between gap-3">
+      <div className="rounded-xl border border-border/30 bg-card">
+        <div className="px-3 sm:px-4 py-3 border-b border-border/30 flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-medium text-muted-foreground">Compartilhamentos</h2>
             <p className="text-xs text-muted-foreground">Todos os links gerados (perfil, evolução, comparação...).</p>
@@ -1081,7 +1082,7 @@ export default function ProfilePage() {
             type="button"
             onClick={loadProfileShares}
             disabled={sharesLoading}
-            className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent disabled:opacity-60 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-card px-3 py-2 text-sm hover:bg-accent disabled:opacity-60 cursor-pointer"
             title="Atualizar"
           >
             {sharesLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
@@ -1122,7 +1123,7 @@ export default function ProfilePage() {
                 return (
                   <div
                     key={s.id}
-                    className="rounded-md border border-border bg-background p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="rounded-md border border-border/30 bg-background p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="min-w-0 space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -1175,7 +1176,7 @@ export default function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => copyShareUrl(rowUrl)}
-                          className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent cursor-pointer"
+                          className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-card px-3 py-2 text-sm hover:bg-accent cursor-pointer"
                           title="Copiar link"
                         >
                           <Copy className="h-4 w-4" />
@@ -1187,7 +1188,7 @@ export default function ProfilePage() {
                         type="button"
                         onClick={() => deleteShare(s.id)}
                         disabled={deletingShareId === s.id}
-                        className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent disabled:opacity-60 cursor-pointer"
+                        className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-card px-3 py-2 text-sm hover:bg-accent disabled:opacity-60 cursor-pointer"
                         title="Remover"
                       >
                         {deletingShareId === s.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}

@@ -13,6 +13,9 @@ import {
     trainingIdParamSchema,
     trainingListQuerySchema
 } from "../schemas/trainingSchema";
+import { z } from "zod";
+
+const workoutIdParamSchema = z.object({ workoutId: z.coerce.number().int().positive() });
 
 // tipo local para usar filepath com saveRequestFiles()
 interface SavedFile extends MultipartFile { filepath: string; }
@@ -207,6 +210,18 @@ export class TrainingController {
             }
             return reply.code(500).send({ error: "Erro ao atualizar treino" });
         }
+    };
+
+    getWorkout = async (req: FastifyRequest, reply: FastifyReply) => {
+        if (!req.auth?.subjectType || req.auth.subjectType !== "user") {
+            return reply.code(403).send({ error: "Apenas usuário pode ver treino" });
+        }
+        const userId = req.auth.subjectId;
+        const { workoutId } = workoutIdParamSchema.parse(req.params);
+
+        const item = await this.service.getWorkoutById(workoutId, userId);
+        if (!item) return reply.code(404).send({ error: "Treino não encontrado" });
+        return reply.code(200).send(item);
     };
 
     delete = async (req: FastifyRequest, reply: FastifyReply) => {

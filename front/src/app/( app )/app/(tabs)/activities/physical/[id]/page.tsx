@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { isAxiosError } from "axios";
-import { ArrowLeft, Dumbbell, Pencil, Save, Trash2, Loader2, X } from "lucide-react";
+import { ArrowLeft, Check, Dumbbell, Pencil, Save, Trash2, Loader2, X } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,31 @@ function typeLabel(t: ActivityType | string) {
   return found ? found.label : String(t);
 }
 
+type ExerciseLogEntry = {
+  id: number;
+  trainingExerciseId: number | null;
+  name: string;
+  setNumber: number;
+  reps: number | null;
+  weight: number | null;
+  completed: boolean;
+};
+
+type ExerciseGroup = {
+  name: string;
+  sets: ExerciseLogEntry[];
+};
+
+function groupExerciseLogs(logs: ExerciseLogEntry[]): ExerciseGroup[] {
+  const map = new Map<string, ExerciseLogEntry[]>();
+  for (const log of logs) {
+    const list = map.get(log.name) ?? [];
+    list.push(log);
+    map.set(log.name, list);
+  }
+  return Array.from(map.entries()).map(([name, sets]) => ({ name, sets }));
+}
+
 type PhysicalActivity = {
   id: number;
   idUser: number;
@@ -56,6 +81,7 @@ type PhysicalActivity = {
   date: string; // ISO (pode ter hora)
   createdAt: string;
   updatedAt: string;
+  exerciseLogs?: ExerciseLogEntry[];
 };
 
 type ActivityBody = {
@@ -369,36 +395,78 @@ export default function PhysicalActivityDetailPage() {
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Tipo</div>
                       <div className="text-sm font-medium">{typeLabel(item.type)}</div>
                     </div>
 
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Data</div>
                       <div className="text-sm font-medium">{fmtDateShort(item.date)}</div>
                     </div>
 
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Hora</div>
                       <div className="text-sm font-medium">{fmtTimeShort(item.date)}</div>
                     </div>
 
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Duração</div>
                       <div className="text-sm font-medium">{fmtDuration(item.duration)}</div>
                     </div>
 
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Calorias</div>
                       <div className="text-sm font-medium">{typeof item.calories === "number" ? `${item.calories} kcal` : "—"}</div>
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                  <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                     <div className="text-xs text-muted-foreground">Observações</div>
                     <div className="text-sm">{item.observations ? item.observations : "—"}</div>
                   </div>
+
+                  {(item.exerciseLogs ?? []).length > 0 && (
+                    <div>
+                      <p className="mb-2 text-sm font-semibold">Exercícios executados</p>
+                      <div className="grid gap-2">
+                        {groupExerciseLogs(item.exerciseLogs!).map((group) => (
+                          <div key={group.name} className="rounded-xl bg-black/25 border border-border/70 p-3">
+                            <p className="mb-2 text-sm font-medium">{group.name}</p>
+                            <div className="space-y-1">
+                              {group.sets.map((s) => (
+                                <div
+                                  key={s.id}
+                                  className={`flex items-center gap-3 rounded-lg px-2 py-1 text-xs ${
+                                    s.completed
+                                      ? "bg-primary/10 text-primary"
+                                      : "text-muted-foreground"
+                                  }`}
+                                >
+                                  <span className="w-14 shrink-0">Série {s.setNumber}</span>
+                                  <span className="w-14 shrink-0">
+                                    {s.weight != null ? `${s.weight}kg` : "—"}
+                                  </span>
+                                  <span className="w-16 shrink-0">
+                                    {s.reps != null ? `${s.reps} reps` : "—"}
+                                  </span>
+                                  <span className="ml-auto flex items-center gap-1">
+                                    {s.completed ? (
+                                      <>
+                                        <Check className="h-3 w-3" /> Concluída
+                                      </>
+                                    ) : (
+                                      "Pulada"
+                                    )}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="grid grid-cols-1 gap-3">
@@ -407,7 +475,7 @@ export default function PhysicalActivityDetailPage() {
                     <input
                       value={form.name}
                       onChange={(e) => setForm((p) => (p ? { ...p, name: e.target.value } : p))}
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                      className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                       disabled={saving}
                     />
                   </div>
@@ -418,7 +486,7 @@ export default function PhysicalActivityDetailPage() {
                       <select
                         value={form.type}
                         onChange={(e) => setForm((p) => (p ? { ...p, type: e.target.value as ActivityType } : p))}
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       >
                         {ACTIVITY_TYPES.map((opt) => (
@@ -435,7 +503,7 @@ export default function PhysicalActivityDetailPage() {
                         type="date"
                         value={form.date}
                         onChange={(e) => setForm((p) => (p ? { ...p, date: e.target.value } : p))}
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       />
                     </div>
@@ -446,7 +514,7 @@ export default function PhysicalActivityDetailPage() {
                         type="time"
                         value={form.time ?? ""}
                         onChange={(e) => setForm((p) => (p ? { ...p, time: e.target.value } : p))}
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       />
                     </div>
@@ -460,7 +528,7 @@ export default function PhysicalActivityDetailPage() {
                         min={1}
                         value={String(form.duration)}
                         onChange={(e) => setForm((p) => (p ? { ...p, duration: Number(e.target.value) } : p))}
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       />
                     </div>
@@ -474,7 +542,7 @@ export default function PhysicalActivityDetailPage() {
                         onChange={(e) =>
                           setForm((p) => (p ? { ...p, calories: e.target.value === "" ? null : Number(e.target.value) } : p))
                         }
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       />
                     </div>
@@ -486,7 +554,7 @@ export default function PhysicalActivityDetailPage() {
                       value={form.observations ?? ""}
                       onChange={(e) => setForm((p) => (p ? { ...p, observations: e.target.value } : p))}
                       rows={4}
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                      className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                       disabled={saving}
                     />
                   </div>

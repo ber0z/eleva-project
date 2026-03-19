@@ -190,16 +190,17 @@ export default function EvolutionEditPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setErr(null);
-    setOkMsg(null);
+    if (saving) return;
 
     if (!date || !weight) {
       setErr("Os campos data e peso são obrigatórios.");
       return;
     }
 
+    setSaving(true);
+    setErr(null);
+    setOkMsg(null);
     try {
-      setSaving(true);
       const fd = new FormData();
       fd.append("date", date);
       fd.append("weight", weight);
@@ -268,7 +269,7 @@ export default function EvolutionEditPage() {
               asChild
               variant="outline"
               size="sm"
-className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
+className="shrink-0 bg-card/90 hover:bg-accent border-border/30 shadow-sm"
             >
               <Link href={`/app/evolutions/${id}`}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -292,7 +293,7 @@ className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
         )}
 
         {/* Form */}
-<Card className="border border-border/70 bg-card/95 shadow-sm">
+<Card className="bg-card/95 shadow-sm">
           <CardHeader>
             <CardTitle className="text-card-foreground">
               Dados da evolução
@@ -322,8 +323,7 @@ className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
                       required
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="mt-1 h-11 w-full rounded-xl pr-10
-               [&::-webkit-calendar-picker-indicator]:opacity-0"
+                      className="mt-1 h-11 w-full rounded-xl pr-10 bg-background/90 text-foreground border border-border/30 placeholder:text-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/50 [&::-webkit-calendar-picker-indicator]:opacity-0"
                     />
 
                     <CalendarIcon
@@ -348,7 +348,7 @@ className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
                       placeholder="Ex.: 72,4"
-                      className="mt-1 h-11 w-full rounded-xl"
+                      className="mt-1 h-11 w-full rounded-xl bg-background/90 text-foreground border border-border/30 placeholder:text-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/50"
                     />
                   </div>
                 </div>
@@ -479,7 +479,7 @@ className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Anotações opcionais..."
-                      className="mt-1 rounded-xl"
+                      className="mt-1 rounded-xl bg-background/90 text-foreground border border-border/30 placeholder:text-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/50"
                       maxLength={500}
                     />
                   </div>
@@ -492,7 +492,7 @@ className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
                       id="goal"
                       value={goal}
                       onChange={(e) => setGoal(e.target.value as GoalPreset | "")}
-                      className="mt-1 h-12 w-full rounded-xl border border-input bg-background px-4 py-3 text-foreground outline-none ring-offset-background transition focus-visible:ring-2 focus-visible:ring-ring"
+                      className="mt-1 h-12 w-full rounded-xl border border-border/30 bg-background/90 text-foreground px-4 py-3 outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                     >
                       <option value="">Selecione...</option>
                       {GOAL_OPTIONS.map((opt) => (
@@ -559,14 +559,14 @@ className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto border-border/30 bg-card/90 hover:bg-accent shadow-sm"
                   >
                     <Link href={`/app/evolutions/${id}`}>Cancelar</Link>
                   </Button>
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="w-full sm:w-auto cursor-pointer"
+                    className="w-full sm:w-auto cursor-pointer shadow-sm"
                   >
                     {saving ? (
                       <>
@@ -631,7 +631,7 @@ function NumberField({
         min="0"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="mt-1 h-11 rounded-xl"
+        className="mt-1 h-11 rounded-xl bg-background/90 text-foreground border border-border/30 placeholder:text-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/50"
         required={required}
         placeholder={placeholder}
       />
@@ -666,10 +666,10 @@ export function ImageRow({
   const buttonText = hasAnyImage && !removeFlag ? "Trocar" : "Adicionar";
 
   return (
-    <div className="w-full max-w-full overflow-hidden rounded-xl border bg-card/40 p-3">
+    <div className="w-full max-w-full overflow-hidden rounded-xl border border-border/60 bg-card p-3 shadow-sm">
       <div className="flex flex-wrap items-center gap-4">
         {/* THUMB */}
-        <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-lg border bg-muted/30">
+        <div className="relative h-28 w-20 shrink-0 overflow-hidden rounded-lg border border-border/60 bg-muted/50">
           {src && !removeFlag ? (
             <Image
               src={src}
@@ -687,10 +687,10 @@ export function ImageRow({
               {removeFlag ? "Remover" : "Sem foto"}
             </div>
           )}
-          <span className="pointer-events-none absolute left-1 top-1 rounded-md bg-background/70 px-1.5 py-0.5 text-[10px] font-medium">
+          <span className="pointer-events-none absolute left-1 top-1 rounded-md bg-background px-1.5 py-0.5 text-[10px] font-semibold text-foreground border border-border/50">
             {label}
           </span>
-          <div className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-border/60" />
+          <div className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-border/80" />
         </div>
 
         {/* INFO (escondido no mobile) */}
@@ -714,7 +714,7 @@ export function ImageRow({
         {/* AÇÕES */}
         <div className="ml-auto flex shrink-0 items-center gap-2 self-center">
           {/* Adicionar / Trocar */}
-          <label className="inline-flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border border-input bg-background px-3 text-sm hover:bg-accent">
+          <label className="inline-flex h-10 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl border border-border/60 bg-card px-3 text-sm text-foreground hover:bg-accent shadow-sm">
             <ImagePlus className="h-4 w-4" />
             <span>{buttonText}</span>
             <input

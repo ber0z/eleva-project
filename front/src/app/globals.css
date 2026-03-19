@@ -20,93 +20,93 @@
   }
 
 
-  /* FUNDO GERAL – azul bem escuro, mas não preto puro */
-  --background: 10 12 24;
-  /* #0a0c18 (azul petróleo bem escuro) */
+  /* FUNDO GERAL – preto quente, sem azul */
+  --background: rgb(20 18 16);
+  /* #141210 (quase preto, tom quente) */
 
   /* TEXTO PRINCIPAL */
-  --foreground: 243 244 246;
+  --foreground: rgb(243 244 246);
   /* #f3f4f6 */
 
-  /* SUPERFÍCIES (cards / popovers) – um pouco mais claras que o fundo */
-  --card: 15 19 35;
-  /* #0f1323 */
-  --card-foreground: 243 244 246;
-  --popover: 15 19 35;
-  --popover-foreground: 243 244 246;
+  /* SUPERFÍCIES (cards / popovers) – marrom escuro quente */
+  --card: rgb(30 27 24);
+  /* #1e1b18 */
+  --card-foreground: rgb(243 244 246);
+  --popover: rgb(30 27 24);
+  --popover-foreground: rgb(243 244 246);
 
-  /* INPUTS – um step acima do card, azulados */
-  --input: 21 26 46;
-  /* #151a2e */
-  --input-foreground: 243 244 246;
+  /* INPUTS – um step acima do card, neutro-quente */
+  --input: rgb(38 34 30);
+  /* #26221e */
+  --input-foreground: rgb(243 244 246);
 
   /* PRIMARY – amarelo da identidade */
-  --primary: 234 179 8;
+  --primary: rgb(234 179 8);
   /* #eab308 (amber-400) */
-  --primary-foreground: 15 15 15;
+  --primary-foreground: rgb(15 15 15);
   /* #0f0f0f */
 
-  /* SECUNDÁRIO / ACCENT – cinzas-azulados */
-  --secondary: 18 22 38;
-  /* #121626 */
-  --secondary-foreground: 229 231 235;
+  /* SECUNDÁRIO / ACCENT – marrons-acinzentados quentes */
+  --secondary: rgb(28 25 22);
+  /* #1c1916 */
+  --secondary-foreground: rgb(229 231 235);
 
-  --accent: 26 34 56;
-  /* #1a2238 – azul mais intenso p/ hovers, chips etc. */
-  --accent-foreground: 248 250 252;
+  --accent: rgb(46 41 36);
+  /* #2e2924 – tom quente p/ hovers, chips etc. */
+  --accent-foreground: rgb(248 250 252);
 
-  /* ÁREAS “APAGADAS” */
-  --muted: 20 26 44;
-  /* #141a2c */
-  --muted-foreground: 148 163 184;
-  /* #94a3b8 – cinza azulado (bom para placeholder) */
+  /* ÁREAS "APAGADAS" */
+  --muted: rgb(28 25 22);
+  /* #1c1916 */
+  --muted-foreground: rgb(160 152 144);
+  /* #a09890 – cinza quente (bom para placeholder) */
 
-  --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
+  --destructive: rgb(239 68 68);
+  --destructive-foreground: rgb(255 255 255);
 
-  --success: 34 197 94;
-  --success-foreground: 15 23 42;
-  --warning: 245 158 11;
-  --warning-foreground: 15 23 42;
-  --info: 56 189 248;
-  --info-foreground: 15 23 42;
+  --success: rgb(34 197 94);
+  --success-foreground: rgb(15 23 42);
+  --warning: rgb(245 158 11);
+  --warning-foreground: rgb(15 23 42);
+  --info: rgb(56 189 248);
+  --info-foreground: rgb(15 23 42);
 
-  /* BORDA – azul acinzentado bem visível contra o fundo */
-  --border: 48 63 96;
-  /* #303f60 */
-  --ring: 234 179 8;
+  /* BORDA – cinza quente sutil */
+  --border: rgb(52 46 40);
+  /* #342e28 */
+  --ring: rgb(234 179 8);
   /* segue o primary */
 
   /* LINKS – amarelo mais claro (puxa pro destaque) */
-  --link: 250 204 21;
+  --link: rgb(250 204 21);
   /* #facc15 */
 
   --radius: 0.625rem;
 
-  /* CHARTS – mistura amarelo + azul + neutros */
-  --chart-1: 234 179 8;
+  /* CHARTS – mistura amarelo + verde + neutros */
+  --chart-1: rgb(234 179 8);
   /* âmbar */
-  --chart-2: 52 211 153;
+  --chart-2: rgb(52 211 153);
   /* emerald-400 */
-  --chart-3: 248 113 113;
+  --chart-3: rgb(248 113 113);
   /* rose-400 */
-  --chart-4: 59 130 246;
+  --chart-4: rgb(59 130 246);
   /* azul forte */
-  --chart-5: 148 163 184;
-  /* cinza azulado */
+  --chart-5: rgb(148 163 184);
+  /* cinza */
 
-  /* SIDEBAR – fundo um pouco mais profundo, mas na mesma família */
-  --sidebar: 6 8 16;
-  /* #060810 */
-  --sidebar-foreground: 243 244 246;
-  --sidebar-primary: 234 179 8;
-  --sidebar-primary-foreground: 15 15 15;
-  --sidebar-accent: 18 24 42;
-  /* #12182a */
-  --sidebar-accent-foreground: 243 244 246;
-  --sidebar-border: 48 63 96;
+  /* SIDEBAR – preto quente um pouco mais profundo */
+  --sidebar: rgb(12 10 9);
+  /* #0c0a09 */
+  --sidebar-foreground: rgb(243 244 246);
+  --sidebar-primary: rgb(234 179 8);
+  --sidebar-primary-foreground: rgb(15 15 15);
+  --sidebar-accent: rgb(30 27 24);
+  /* #1e1b18 */
+  --sidebar-accent-foreground: rgb(243 244 246);
+  --sidebar-border: rgb(52 46 40);
   /* mesmo do --border */
-  --sidebar-ring: 234 179 8;
+  --sidebar-ring: rgb(234 179 8);
 }
 
 /* =========================
@@ -115,56 +115,56 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --background: 10 12 24;
-  --foreground: 243 244 246;
+  --background: rgb(20 18 16);
+  --foreground: rgb(243 244 246);
 
-  --card: 15 19 35;
-  --card-foreground: 243 244 246;
-  --popover: 15 19 35;
-  --popover-foreground: 243 244 246;
+  --card: rgb(30 27 24);
+  --card-foreground: rgb(243 244 246);
+  --popover: rgb(30 27 24);
+  --popover-foreground: rgb(243 244 246);
 
-  --input: 21 26 46;
-  --input-foreground: 243 244 246;
+  --input: rgb(38 34 30);
+  --input-foreground: rgb(243 244 246);
 
-  --primary: 234 179 8;
-  --primary-foreground: 15 15 15;
+  --primary: rgb(234 179 8);
+  --primary-foreground: rgb(15 15 15);
 
-  --secondary: 18 22 38;
-  --secondary-foreground: 229 231 235;
+  --secondary: rgb(28 25 22);
+  --secondary-foreground: rgb(229 231 235);
 
-  --accent: 26 34 56;
-  --accent-foreground: 248 250 252;
+  --accent: rgb(46 41 36);
+  --accent-foreground: rgb(248 250 252);
 
-  --muted: 20 26 44;
-  --muted-foreground: 148 163 184;
+  --muted: rgb(28 25 22);
+  --muted-foreground: rgb(160 152 144);
 
-  --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
-  --success: 34 197 94;
-  --success-foreground: 15 23 42;
-  --warning: 245 158 11;
-  --warning-foreground: 15 23 42;
-  --info: 56 189 248;
-  --info-foreground: 15 23 42;
+  --destructive: rgb(239 68 68);
+  --destructive-foreground: rgb(255 255 255);
+  --success: rgb(34 197 94);
+  --success-foreground: rgb(15 23 42);
+  --warning: rgb(245 158 11);
+  --warning-foreground: rgb(15 23 42);
+  --info: rgb(56 189 248);
+  --info-foreground: rgb(15 23 42);
 
-  --border: 48 63 96;
-  --ring: 234 179 8;
-  --link: 250 204 21;
+  --border: rgb(52 46 40);
+  --ring: rgb(234 179 8);
+  --link: rgb(250 204 21);
 
-  --chart-1: 234 179 8;
-  --chart-2: 52 211 153;
-  --chart-3: 248 113 113;
-  --chart-4: 59 130 246;
-  --chart-5: 148 163 184;
+  --chart-1: rgb(234 179 8);
+  --chart-2: rgb(52 211 153);
+  --chart-3: rgb(248 113 113);
+  --chart-4: rgb(59 130 246);
+  --chart-5: rgb(148 163 184);
 
-  --sidebar: 6 8 16;
-  --sidebar-foreground: 243 244 246;
-  --sidebar-primary: 234 179 8;
-  --sidebar-primary-foreground: 15 15 15;
-  --sidebar-accent: 18 24 42;
-  --sidebar-accent-foreground: 243 244 246;
-  --sidebar-border: 48 63 96;
-  --sidebar-ring: 234 179 8;
+  --sidebar: rgb(12 10 9);
+  --sidebar-foreground: rgb(243 244 246);
+  --sidebar-primary: rgb(234 179 8);
+  --sidebar-primary-foreground: rgb(15 15 15);
+  --sidebar-accent: rgb(30 27 24);
+  --sidebar-accent-foreground: rgb(243 244 246);
+  --sidebar-border: rgb(52 46 40);
+  --sidebar-ring: rgb(234 179 8);
 }
 
 /* =========================
@@ -173,72 +173,79 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  /* Fundo geral: azul-slate bem suave */
-  --background: 234 242 252;
-  /* #eaf2fc (azulado claro) */
-  --foreground: 15 23 42;
-  /* slate-900 */
+  /* Fundo geral: off-white quente, sem azul */
+  --background: rgb(247 245 242);
+  /* #f7f5f2 (off-white quente) */
+  --foreground: rgb(28 23 18);
+  /* marrom-escuro quase preto */
 
-  /* Cards: quase branco, mas com “tinta” azul */
-  --card: 243 248 255;
-  /* #f3f8ff */
-  --card-foreground: 15 23 42;
+  /* Cards: branco limpo */
+  --card: rgb(255 255 255);
+  /* #ffffff */
+  --card-foreground: rgb(28 23 18);
 
-  --popover: 243 248 255;
-  --popover-foreground: 15 23 42;
+  --popover: rgb(255 255 255);
+  --popover-foreground: rgb(28 23 18);
 
-  /* Inputs: azul muito leve (não branco puro) */
-  --input: 238 245 255;
-  /* #eef5ff */
-  --input-foreground: 15 23 42;
+  /* Inputs: cinza quente muito leve */
+  --input: rgb(238 234 229);
+  /* #eeeae5 */
+  --input-foreground: rgb(28 23 18);
 
   /* Primary mantém sua identidade */
-  --primary: 234 179 8;
+  --primary: rgb(234 179 8);
   /* amber-400 */
-  --primary-foreground: 15 15 15;
+  --primary-foreground: rgb(15 15 15);
 
-  /* Superfícies/hover: azul-slate leve */
-  --secondary: 227 237 250;
-  /* #e3edfa */
-  --secondary-foreground: 15 23 42;
+  /* Superfícies/hover: cinza quente leve */
+  --secondary: rgb(235 231 225);
+  /* #ebe7e1 */
+  --secondary-foreground: rgb(28 23 18);
 
-  --accent: 214 228 247;
-  /* #d6e4f7 */
-  --accent-foreground: 15 23 42;
+  --accent: rgb(226 221 214);
+  /* #e2ddd6 */
+  --accent-foreground: rgb(28 23 18);
 
-  /* Áreas muted: azul desaturado */
-  --muted: 225 236 250;
-  /* #e1ecfa */
-  --muted-foreground: 51 65 85;
-  /* slate-700 (bom contraste) */
+  /* Áreas muted: cinza quente desaturado */
+  --muted: rgb(232 228 222);
+  /* #e8e4de */
+  --muted-foreground: rgb(100 93 86);
+  /* marrom-médio (bom contraste) */
 
-  --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
+  --destructive: rgb(239 68 68);
+  --destructive-foreground: rgb(255 255 255);
 
   /* Bordas e ring */
-  --border: 176 196 222;
-  /* #b0c4de (azul acinzentado) */
-  --ring: 234 179 8;
-  --link: 180 83 9;
+  --border: rgb(210 204 196);
+  /* #d2ccc4 (cinza quente) */
+  --ring: rgb(234 179 8);
+  --link: rgb(180 83 9);
   /* amber-700 */
 
-  /* Charts */
-  --chart-1: 234 179 8;
-  --chart-2: 16 185 129;
-  --chart-3: 244 63 94;
-  --chart-4: 59 130 246;
-  --chart-5: 71 85 105;
+  --success: rgb(34 197 94);
+  --success-foreground: rgb(15 23 42);
+  --warning: rgb(245 158 11);
+  --warning-foreground: rgb(15 23 42);
+  --info: rgb(56 189 248);
+  --info-foreground: rgb(15 23 42);
 
-  /* Sidebar (se usar tokens) */
-  --sidebar: 226 236 250;
-  /* #e2ecfa */
-  --sidebar-foreground: 15 23 42;
-  --sidebar-primary: 234 179 8;
-  --sidebar-primary-foreground: 15 15 15;
-  --sidebar-accent: 214 228 247;
-  --sidebar-accent-foreground: 15 23 42;
-  --sidebar-border: 176 196 222;
-  --sidebar-ring: 234 179 8;
+  /* Charts */
+  --chart-1: rgb(234 179 8);
+  --chart-2: rgb(16 185 129);
+  --chart-3: rgb(244 63 94);
+  --chart-4: rgb(59 130 246);
+  --chart-5: rgb(71 85 105);
+
+  /* Sidebar */
+  --sidebar: rgb(238 235 230);
+  /* #eeebd6 (cinza quente claro) */
+  --sidebar-foreground: rgb(28 23 18);
+  --sidebar-primary: rgb(234 179 8);
+  --sidebar-primary-foreground: rgb(15 15 15);
+  --sidebar-accent: rgb(226 221 214);
+  --sidebar-accent-foreground: rgb(28 23 18);
+  --sidebar-border: rgb(210 204 196);
+  --sidebar-ring: rgb(234 179 8);
 }
 
 
@@ -247,45 +254,45 @@
 /* =========================
    Tokens do Tailwind v4
    ========================= */
-@theme inline {
-  --color-background: rgb(var(--background));
-  --color-foreground: rgb(var(--foreground));
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 
-  --color-card: rgb(var(--card));
-  --color-card-foreground: rgb(var(--card-foreground));
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
 
-  --color-popover: rgb(var(--popover));
-  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
 
-  --color-primary: rgb(var(--primary));
-  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
 
-  --color-secondary: rgb(var(--secondary));
-  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
 
-  --color-accent: rgb(var(--accent));
-  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 
-  --color-muted: rgb(var(--muted));
-  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
 
-  --color-destructive: rgb(var(--destructive));
-  --color-destructive-foreground: rgb(var(--destructive-foreground));
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
 
-  --color-success: rgb(var(--success));
-  --color-success-foreground: rgb(var(--success-foreground));
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
 
-  --color-warning: rgb(var(--warning));
-  --color-warning-foreground: rgb(var(--warning-foreground));
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 
-  --color-info: rgb(var(--info));
-  --color-info-foreground: rgb(var(--info-foreground));
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
 
-  --color-border: rgb(var(--border));
-  --color-input: rgb(var(--input));
-  --color-ring: rgb(var(--ring));
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
-  --color-link: rgb(var(--link));
+  --color-link: var(--link);
 
   --color-primary-50: var(--primary-50);
   --color-primary-100: var(--primary-100);
@@ -311,20 +318,20 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  --color-sidebar: rgb(var(--sidebar));
-  --color-sidebar-foreground: rgb(var(--sidebar-foreground));
-  --color-sidebar-primary: rgb(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: rgb(var(--sidebar-primary-foreground));
-  --color-sidebar-accent: rgb(var(--sidebar-accent));
-  --color-sidebar-accent-foreground: rgb(var(--sidebar-accent-foreground));
-  --color-sidebar-border: rgb(var(--sidebar-border));
-  --color-sidebar-ring: rgb(var(--sidebar-ring));
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
-  --color-chart-1: rgb(var(--chart-1));
-  --color-chart-2: rgb(var(--chart-2));
-  --color-chart-3: rgb(var(--chart-3));
-  --color-chart-4: rgb(var(--chart-4));
-  --color-chart-5: rgb(var(--chart-5));
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -337,7 +344,7 @@
    ========================= */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border/50 outline-ring/40;
   }
 
   body {

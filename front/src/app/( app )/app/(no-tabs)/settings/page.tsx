@@ -79,15 +79,15 @@ export default function SettingsPage() {
       </header>
 
       {/* Aparência */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <div className="px-3 sm:px-4 py-3 border-b border-border">
+      <div className="rounded-xl border border-border/30 bg-card overflow-hidden">
+        <div className="px-3 sm:px-4 py-3 border-b border-border/30">
           <h2 className="text-sm font-medium text-muted-foreground">Aparência</h2>
         </div>
 
         <div className="p-2">
           <div className="w-full rounded-lg px-3 py-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 grid place-items-center rounded-lg border border-border bg-background">
+              <div className="h-9 w-9 grid place-items-center rounded-lg border border-border/30 bg-background">
                 {theme === "dark" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               </div>
               <div className="flex flex-col">
@@ -96,7 +96,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 rounded-lg border border-border bg-background p-1">
+            <div className="flex items-center gap-1 rounded-lg border border-border/30 bg-background p-1">
               <button
                 type="button"
                 onClick={() => setThemeMode("light")}
@@ -132,8 +132,8 @@ export default function SettingsPage() {
       </div>
 
       {/* Conta */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <div className="px-3 sm:px-4 py-3 border-b border-border">
+      <div className="rounded-xl border border-border/30 bg-card overflow-hidden">
+        <div className="px-3 sm:px-4 py-3 border-b border-border/30">
           <h2 className="text-sm font-medium text-muted-foreground">Conta</h2>
         </div>
 
@@ -218,9 +218,9 @@ function ConfirmModal({ open, title, description, pending = false, onCancel, onC
           aria-modal="true"
           aria-labelledby="confirm-title"
           aria-describedby="confirm-desc"
-          className="w-full max-w-sm rounded-xl border border-border bg-card shadow-lg"
+          className="w-full max-w-sm rounded-xl border border-border/30 bg-card shadow-lg"
         >
-          <div className="p-4 border-b border-border">
+          <div className="p-4 border-b border-border/30">
             <h3 id="confirm-title" className="text-base font-semibold">
               {title}
             </h3>
@@ -234,12 +234,12 @@ function ConfirmModal({ open, title, description, pending = false, onCancel, onC
             ) : null}
           </div>
 
-          <div className="p-4 flex justify-end gap-2 border-t border-border">
+          <div className="p-4 flex justify-end gap-2 border-t border-border/30">
             <button
               type="button"
               onClick={onCancel}
               disabled={pending}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-accent disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-card px-3 py-2 text-sm hover:bg-accent disabled:opacity-60"
             >
               Cancelar
             </button>

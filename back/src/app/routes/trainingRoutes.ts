@@ -8,8 +8,9 @@ export async function trainingRoutes(app: FastifyInstance) {
 
   app.addHook("preHandler", authMiddleware);
 
-  app.post("/",            { preHandler: [requireSubject("user")] }, controller.create);
-  app.get("/:id",         { preHandler: [requireSubject("user")] }, controller.getOne);
+  app.post("/",                        { preHandler: [requireSubject("user")] }, controller.create);
+  app.get("/workout/:workoutId",       { preHandler: [requireSubject("user")] }, controller.getWorkout);
+  app.get("/:id",                      { preHandler: [requireSubject("user")] }, controller.getOne);
   app.get("/",             { preHandler: [requireSubject("user")] }, controller.list);
   app.put("/:id",         { preHandler: [requireSubject("user")] }, controller.update);
   app.delete("/:id",      { preHandler: [requireSubject("user")] }, controller.delete);

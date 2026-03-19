@@ -5,6 +5,7 @@ import {
     PhysicalActivityRepository,
     CreatePhysicalActivityInput,
     UpdatePhysicalActivityInput,
+    ExerciseLogInput,
     GroupBy
 } from "../repositories/physicalActivityRepository";
 

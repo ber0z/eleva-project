@@ -194,7 +194,7 @@ export default function RecoverPasswordClient() {
           </div>
 
           {/* Card */}
-          <div className="rounded-2xl border border-border bg-card shadow-sm">
+          <div className="rounded-2xl border border-border/30 bg-card shadow-sm">
             <div className="p-6">
               <div className="mb-6">
                 <h1 className="text-xl font-semibold">Recuperar senha</h1>
@@ -425,7 +425,7 @@ export default function RecoverPasswordClient() {
               )}
             </div>
 
-            <div className="border-t border-border px-6 py-4 text-center text-sm text-muted-foreground">
+            <div className="border-t border-border/30 px-6 py-4 text-center text-sm text-muted-foreground">
               Lembrou a senha?{" "}
               <Link href="/login" className="font-medium text-primary hover:underline">
                 Fazer login

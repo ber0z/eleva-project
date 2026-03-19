@@ -316,7 +316,7 @@ export default function SharedEvolutionPage({
           [background:radial-gradient(70rem_40rem_at_50%_-10%,--theme(--color-primary/14),transparent_60%),radial-gradient(40rem_30rem_at_100%_10%,--theme(--color-ring/10),transparent_55%)]
         "
       >
-        <div className="flex flex-col items-center gap-3 text-center rounded-2xl border border-border/70 bg-card/95 px-6 py-5 shadow-sm">
+        <div className="flex flex-col items-center gap-3 text-center rounded-2xl border border-border/30 bg-card/95 px-6 py-5 shadow-sm">
           <Loader2 className="h-7 w-7 animate-spin text-foreground/80" />
           <div className="text-sm text-foreground/70">
             Carregando a evolução… aguarde um instante.
@@ -343,7 +343,7 @@ export default function SharedEvolutionPage({
           [background:radial-gradient(70rem_40rem_at_50%_-10%,--theme(--color-primary/14),transparent_60%),radial-gradient(40rem_30rem_at_100%_10%,--theme(--color-ring/10),transparent_55%)]
         "
       >
-        <div className="w-full max-w-md rounded-2xl border border-border/70 bg-card/95 p-5 shadow-sm text-center">
+        <div className="w-full max-w-md rounded-2xl border border-border/30 bg-card/95 p-5 shadow-sm text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/12 text-rose-700 dark:text-rose-300 border border-rose-500/20">
             <AlertTriangle className="h-5 w-5" />
           </div>
@@ -380,7 +380,7 @@ export default function SharedEvolutionPage({
       <div
         className="
           relative w-full overflow-hidden rounded-b-3xl
-          border-b border-border/70
+          border-b border-border/30
           bg-linear-to-br from-primary/25 via-primary/12 to-transparent
           h-32 sm:h-40
         "
@@ -413,7 +413,7 @@ export default function SharedEvolutionPage({
           {/* ✅ Coluna esquerda: Galeria (só se tiver fotos) */}
           {hasAnyPhoto ? (
             <div className="lg:col-span-7">
-              <div className="rounded-2xl border border-border/70 bg-muted/35 dark:bg-card/90 backdrop-blur p-3 sm:p-4 shadow-sm">
+              <div className="rounded-2xl border border-border/30 bg-muted/35 dark:bg-card/90 backdrop-blur p-3 sm:p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-2 gap-2">
                   <div className="text-sm text-foreground/70">
                     Evolução de{" "}
@@ -424,14 +424,14 @@ export default function SharedEvolutionPage({
                   </div>
 
                   {dateStr ? (
-                    <div className="text-xs px-2 py-1 rounded-md border border-border/70 bg-muted/20 text-foreground/80">
+                    <div className="text-xs px-2 py-1 rounded-md border border-border/30 bg-muted/20 text-foreground/80">
                       {dateStr}
                     </div>
                   ) : null}
                 </div>
 
                 {/* Preview principal */}
-                <div className="relative w-full overflow-hidden rounded-xl border border-border/70 bg-muted/15">
+                <div className="relative w-full overflow-hidden rounded-xl border border-border/30 bg-muted/15">
                   <div className="relative w-full aspect-3/4">
                     <Image
                       key={imagesSorted[activeIdx]?.url}
@@ -479,7 +479,7 @@ export default function SharedEvolutionPage({
                         className={`relative shrink-0 rounded-lg border overflow-hidden
                           ${i === activeIdx
                             ? "border-primary ring-2 ring-primary/40"
-                            : "border-border/70 hover:border-border"
+                            : "border-border/30 hover:border-border/30"
                           }`}
                         title={`Foto ${img.position}`}
                         style={{ width: 72, height: 96 }}
@@ -503,7 +503,7 @@ export default function SharedEvolutionPage({
           {/* Coluna direita: Info e métricas */}
           <div className={hasAnyPhoto ? "lg:col-span-5" : "lg:col-span-12"}>
             <div className="lg:sticky lg:top-6 space-y-4">
-              <div className="rounded-2xl border border-border/70 bg-muted/35 dark:bg-card/90 backdrop-blur p-4 sm:p-5 shadow-sm">
+              <div className="rounded-2xl border border-border/30 bg-muted/35 dark:bg-card/90 backdrop-blur p-4 sm:p-5 shadow-sm">
                 <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
                   Resumo da evolução
                 </h1>
@@ -522,7 +522,7 @@ export default function SharedEvolutionPage({
                       <div
                         key={String(key)}
                         className="
-                          rounded-xl border border-border/70
+                          rounded-xl border border-border/30
                           bg-muted/25 dark:bg-card/90
                           bg-linear-to-br from-primary/18 to-transparent
                           p-3 shadow-sm
@@ -549,7 +549,7 @@ export default function SharedEvolutionPage({
                       {secondary.map(({ key, label, unit, icon, value }) => (
                         <div
                           key={String(key)}
-                          className="rounded-xl border border-border/70 bg-muted/25 dark:bg-card/90 p-3"
+                          className="rounded-xl border border-border/30 bg-muted/25 dark:bg-card/90 p-3"
                         >
                           <div className="flex items-start justify-between">
                             <MetricIcon icon={icon} className="h-5 w-5 text-foreground/90" />
@@ -567,7 +567,7 @@ export default function SharedEvolutionPage({
 
                 {/* Mensagem */}
                 {evo?.message ? (
-                  <div className="mt-5 rounded-xl border border-border/70 bg-muted/20 p-3">
+                  <div className="mt-5 rounded-xl border border-border/30 bg-muted/20 p-3">
                     <p className="text-sm text-foreground">
                       <span className="mr-1">📝</span>
                       {evo.message}

@@ -314,7 +314,7 @@ export default function SharedProfilePage({
 
     return (
       <div className="min-h-dvh grid place-items-center bg-background px-3">
-        <div className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-sm text-center">
+        <div className="w-full max-w-md rounded-xl border border-border/30 bg-card p-5 shadow-sm text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-300">
             <AlertTriangle className="h-5 w-5" />
           </div>
@@ -364,7 +364,7 @@ export default function SharedProfilePage({
     <div className="min-h-dvh bg-background ">
       {/* HERO (ajustado para deixar tudo mais alto na tela) */}
       <div
-        className="relative isolate w-full overflow-hidden rounded-b-3xl border-b border-border
+        className="relative isolate w-full overflow-hidden rounded-b-3xl border-b border-border/30
              bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-36 sm:h-44"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
@@ -400,12 +400,12 @@ export default function SharedProfilePage({
 
       {/* CARTÃO CENTRAL */}
       <section className="relative z-20 mx-auto -mt-16 sm:-mt-24 lg:-mt-28 w-full max-w-3xl px-3 sm:px-4 pb-8">
-        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-lg">
+        <div className="rounded-2xl border border-border/30 bg-card p-4 sm:p-6 shadow-lg">
           {/* header do cartão */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
             <div className="shrink-0 relative size-28 sm:size-32 -mt-12 sm:-mt-16 rounded-full ring-4 ring-background">
               {/* ⬇️ torne este wrapper relative para o fill funcionar */}
-              <div className="relative size-full rounded-full overflow-hidden border border-border bg-muted">
+              <div className="relative size-full rounded-full overflow-hidden border border-border/30 bg-muted">
                 {data.user.avatarUrl ? (
                   <NextImage
                     src={data.user.avatarUrl}
@@ -456,7 +456,7 @@ export default function SharedProfilePage({
             {primary.map(({ key, label, unit, icon, value }) => (
               <div
                 key={String(key)}
-                className="rounded-xl border border-border bg-muted/50 dark:bg-muted/20 p-3 shadow-sm"
+                className="rounded-xl border border-border/30 bg-muted/50 dark:bg-muted/20 p-3 shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <MetricIcon icon={icon} className="h-5 w-5 text-foreground/80" />
@@ -474,7 +474,7 @@ export default function SharedProfilePage({
             <h2 className="text-xs sm:text-sm font-medium text-muted-foreground">Medidas</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
               {secondary.map(({ key, label, unit, icon, value }) => (
-                <div key={String(key)} className="rounded-xl border border-border bg-muted/40 dark:bg-card p-3">
+                <div key={String(key)} className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card p-3">
                   <div className="flex items-start justify-between">
                     <MetricIcon icon={icon} className="h-5 w-5 text-foreground/80" />
                     <span className="text-[11px] sm:text-xs text-muted-foreground">{label}</span>
@@ -489,7 +489,7 @@ export default function SharedProfilePage({
 
           {/* mensagem */}
           {evo?.message ? (
-            <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
+            <div className="mt-6 rounded-xl border border-border/30 bg-muted/30 p-4">
               <p className="text-sm">
                 <span className="mr-1">📝</span>
                 {evo.message}
@@ -508,7 +508,7 @@ export default function SharedProfilePage({
                     type="button"
                     onClick={() => openLightbox(i)}
                     // ⬇️ precisa ser relative para o fill funcionar
-                    className="relative snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                    className="relative snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/30 bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                     title={`Ver posição ${img.position} em tela cheia`}
                   >
                     <NextImage

@@ -13,7 +13,7 @@ class MetricsService {
         inc: { signups?: number; logins?: number; activeUsers?: number },
         tx?: Prisma.TransactionClient
     ) {
-        const client = (tx ?? prisma) as typeof prisma;
+        const client = (tx ?? prisma) as typeof prisma; 
         await client.dailyMetric.upsert({
             where: { date },
             create: {

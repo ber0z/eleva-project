@@ -8,31 +8,49 @@ export default function TopBarProfileSettings() {
   const pathname = usePathname();
   const isProfile = pathname.startsWith("/app/profile");
   const isSettings = pathname.startsWith("/app/settings");
+  const isMeasures = pathname.startsWith("/app/measures");
 
   // Só renderiza nas páginas alvo
-  if (!isProfile && !isSettings) return null;
+  if (!isProfile && !isSettings && !isMeasures) return null;
 
   return (
     <header
       className="
         sticky top-0 z-40
         bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60
-        border-b border-border
+        border-b border-border/30
       "
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="mx-auto max-w-screen-lg h-14 px-4 flex items-center justify-between">
         {/* Lado esquerdo */}
         <div className="flex items-center gap-2">
-          {isProfile && (
+          {isMeasures && (
             <Link
-              href="/app/metrics"
+              href="/app/home"
               aria-label="Voltar para início"
               className="
                 inline-flex items-center gap-2 h-9 px-2 rounded-md
                 text-sm text-muted-foreground
                 hover:text-foreground hover:bg-muted
-                border border-transparent hover:border-border
+                border border-transparent hover:border-border/30
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40
+              "
+            >
+              <ArrowLeft className="size-4" />
+              <span className="hidden sm:inline">Início</span>
+            </Link>
+          )}
+
+          {isProfile && (
+            <Link
+              href="/app/home"
+              aria-label="Voltar para início"
+              className="
+                inline-flex items-center gap-2 h-9 px-2 rounded-md
+                text-sm text-muted-foreground
+                hover:text-foreground hover:bg-muted
+                border border-transparent hover:border-border/30
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40
               "
             >
@@ -49,7 +67,7 @@ export default function TopBarProfileSettings() {
                 inline-flex items-center gap-2 h-9 px-2 rounded-md
                 text-sm text-muted-foreground
                 hover:text-foreground hover:bg-muted
-                border border-transparent hover:border-border
+                border border-transparent hover:border-border/30
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40
               "
             >

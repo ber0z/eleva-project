@@ -12,7 +12,7 @@ export default function GlobalNotFound() {
     if (!pathname) return;
 
     if (pathname.startsWith("/app")) {
-      router.replace("/app/metrics");
+      router.replace("/app/home");
     } else if (pathname.startsWith("/pro")) {
       router.replace("/pro"); // ou /professional, depende do teu prefixo real
     } else if (pathname.startsWith("/admin")) {

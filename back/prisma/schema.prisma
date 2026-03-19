@@ -40,6 +40,8 @@ model User {
   authentications     Authentication[]     @relation("UserAuthentications")
 
   shareLinksOwned ShareLink[] @relation("ShareOwner")
+
+  anamnesis Anamnesis?
 }
 
 enum AuthSubjectType {
@@ -446,10 +448,28 @@ model PhysicalActivity {
   updatedAt    DateTime @updatedAt
 
   trainingWorkoutId Int?
-  trainingWorkout   TrainingWorkout? @relation(fields: [trainingWorkoutId], references: [id], onDelete: SetNull)
-  user              User             @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  trainingWorkout   TrainingWorkout?           @relation(fields: [trainingWorkoutId], references: [id], onDelete: SetNull)
+  user              User                       @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  exerciseLogs      PhysicalActivityExercise[]
 
   @@index([idUser, date])
+}
+
+model PhysicalActivityExercise {
+  id                 Int      @id @default(autoincrement())
+  physicalActivityId Int
+  trainingExerciseId Int?
+  name               String   @db.VarChar(255)
+  setNumber          Int
+  reps               Int?
+  weight             Float?
+  completed          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  physicalActivity PhysicalActivity @relation(fields: [physicalActivityId], references: [id], onDelete: Cascade)
+
+  @@index([physicalActivityId])
 }
 
 model Sleep {
@@ -648,4 +668,42 @@ model DailyMetric {
   activeUsers Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Anamnesis {
+  id     Int @id @default(autoincrement())
+  idUser Int @unique
+
+  // Histórico de saúde
+  healthConditions    String? @db.VarChar(1024)
+  medications         String? @db.VarChar(512)
+  injuries            String? @db.VarChar(512)
+  physicalLimitations String? @db.VarChar(512)
+
+  // Experiência fitness
+  experienceLevel      String? @db.VarChar(64)  // beginner | intermediate | advanced
+  workoutsPerWeek      Int?
+  preferredWorkoutTime String? @db.VarChar(64)  // morning | afternoon | evening | flexible
+  availableEquipment   String? @db.VarChar(512) // lista livre
+
+  // Preferências alimentares
+  dietaryRestrictions String? @db.VarChar(512)
+  foodAllergies       String? @db.VarChar(512)
+  likedFoods          String? @db.VarChar(1024)
+  dislikedFoods       String? @db.VarChar(1024)
+  mealFrequency       Int?
+  waterIntakeMl       Int?
+
+  // Estilo de vida
+  occupation         String? @db.VarChar(255)
+  dailyActivityLevel String? @db.VarChar(64)  // sedentary | lightly_active | moderately_active | very_active
+  stressLevel        String? @db.VarChar(32)  // low | moderate | high
+  mainGoal           String? @db.VarChar(512)
+  motivation         String? @db.VarChar(512)
+  notes              String? @db.VarChar(1024)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [idUser], references: [id], onDelete: Cascade)
 }

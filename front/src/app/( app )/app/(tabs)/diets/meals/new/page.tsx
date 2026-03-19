@@ -143,7 +143,7 @@ export default function MealsNewPage() {
 
         <form onSubmit={onSubmit} className="grid gap-3">
           <Card className="overflow-hidden">
-            <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+            <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
               <h1 className="text-sm font-semibold flex items-center gap-2">
                 <CalendarDays className="h-4 w-4 text-primary" />
                 Abrir ou criar diário Alimentar por data
@@ -166,7 +166,7 @@ export default function MealsNewPage() {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                 />
               </div>
 

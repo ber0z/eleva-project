@@ -341,7 +341,7 @@ export default function EvolutionsPage() {
       </div>
 
       {/* FAB */}
-      <Button asChild size="icon" className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg">
+      <Button asChild size="icon" className="fixed bottom-28 md:bottom-6 right-6 h-14 w-14 rounded-full shadow-lg">
         <Link href="/app/evolutions/new" aria-label="Criar nova evolução">
           <Plus className="h-6 w-6" />
         </Link>
@@ -364,7 +364,7 @@ export default function EvolutionsPage() {
                 <select
                   value={evoAId ?? ""}
                   onChange={(e) => setEvoAId(e.target.value ? Number(e.target.value) : null)}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   disabled={compareLoading || compareOptions.length === 0}
                 >
                   <option value="" disabled>
@@ -383,7 +383,7 @@ export default function EvolutionsPage() {
                 <select
                   value={evoBId ?? ""}
                   onChange={(e) => setEvoBId(e.target.value ? Number(e.target.value) : null)}
-                  className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                  className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                   disabled={compareLoading || compareOptions.length === 0}
                 >
                   <option value="" disabled>

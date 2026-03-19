@@ -301,7 +301,7 @@ export default function AdminUsersPage() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[780px] border-t border-border text-sm">
+              <table className="w-full min-w-[780px] border-t border-border/30 text-sm">
                 <thead className="bg-muted/40 text-muted-foreground">
                   <tr className="[&>th]:px-4 [&>th]:py-2 [&>th]:text-left">
                     <th>Usuário</th>
@@ -315,7 +315,7 @@ export default function AdminUsersPage() {
                 <tbody>
                   {loading ? (
                     Array.from({ length: 6 }).map((_, i) => (
-                      <tr key={i} className="border-t border-border">
+                      <tr key={i} className="border-t border-border/30">
                         <td className="px-4 py-3">
                           <Skeleton className="h-6 w-44" />
                         </td>
@@ -348,7 +348,7 @@ export default function AdminUsersPage() {
                       const email = emailOf(u);
 
                       return (
-                        <tr key={u.id} className="border-t border-border">
+                        <tr key={u.id} className="border-t border-border/30">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
                               <AvatarMini name={u.name} src={""} />
@@ -455,7 +455,7 @@ export default function AdminUsersPage() {
             </div>
 
             {/* Paginação */}
-            <div className="flex items-center justify-between gap-3 border-t border-border px-4 py-3">
+            <div className="flex items-center justify-between gap-3 border-t border-border/30 px-4 py-3">
               <div className="text-xs text-muted-foreground">
                 {meta ? (
                   <>
@@ -507,7 +507,7 @@ function AvatarMini({ name, src }: { name?: string; src: string | null }) {
   }, [name]);
 
   return (
-    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-border bg-muted text-xs font-semibold">
+    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-border/30 bg-muted text-xs font-semibold">
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

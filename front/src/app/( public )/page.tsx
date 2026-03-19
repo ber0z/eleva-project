@@ -10,9 +10,8 @@ export default function LandingPage() {
         {/* grid sutil */}
         <div className="absolute inset-0 opacity-[0.25] [background:radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.25)_1px,transparent_0)] bg-size-[28px_28px]" />
 
-        {/* blobs */}
-        <div className="absolute -top-72 left-1/2 h-[820px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(250,204,21,0.35)_0,transparent_62%)]" />
-        <div className="absolute -bottom-[520px] left-1/2 h-[1200px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.35)_0,transparent_65%)]" />
+        {/* blob */}
+        <div className="absolute -top-72 left-1/2 h-[820px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(250,204,21,0.18)_0,transparent_62%)]" />
 
         {/* vinheta */}
         <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_20%,transparent_0,rgba(0,0,0,0.06)_100%)] dark:bg-[radial-gradient(60%_50%_at_50%_20%,transparent_0,rgba(0,0,0,0.35)_100%)]" />
@@ -31,10 +30,7 @@ export default function LandingPage() {
             className="mb-5 rounded-2xl shadow-sm"
           />
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3 py-1 text-[11px] text-muted-foreground backdrop-blur">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            Privado • Completo • Tudo em um só lugar
-          </div>
+         
         </div>
 
         {/* Headline */}
@@ -76,7 +72,7 @@ export default function LandingPage() {
             href="/register"
             className="
               inline-flex h-11 items-center justify-center rounded-2xl px-6 font-medium
-              border border-border bg-card/60 text-foreground backdrop-blur
+              border border-border/30 bg-card/60 text-foreground backdrop-blur
               transition hover:bg-accent
               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50
             "
@@ -91,21 +87,21 @@ export default function LandingPage() {
 
         {/* Benefits */}
         <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-border bg-card/60 p-4 text-left backdrop-blur">
+          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 text-left backdrop-blur">
             <div className="text-sm font-semibold">Dieta & Treino</div>
             <p className="mt-1 text-xs text-muted-foreground">
               Registre suas refeições, acompanhe dietas, treinos e atividades no mesmo lugar.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card/60 p-4 text-left backdrop-blur">
+          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 text-left backdrop-blur">
             <div className="text-sm font-semibold">Sono & Rotina</div>
             <p className="mt-1 text-xs text-muted-foreground">
               Monitore seu sono e entenda como seus hábitos impactam o seu resultado.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card/60 p-4 text-left backdrop-blur">
+          <div className="rounded-2xl border border-border/30 bg-card/60 p-4 text-left backdrop-blur">
             <div className="text-sm font-semibold">Evolução & Compartilhar</div>
             <p className="mt-1 text-xs text-muted-foreground">
               Acompanhe medidas e fotos, compare evoluções e compartilhe.

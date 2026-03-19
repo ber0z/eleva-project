@@ -327,7 +327,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
 
     return (
       <div className="min-h-dvh grid place-items-center bg-background px-3">
-        <div className="w-full max-w-md rounded-xl border border-border/70 bg-muted/35 dark:bg-card p-5 shadow-sm text-center">
+        <div className="w-full max-w-md rounded-xl border border-border/30 bg-muted/35 dark:bg-card p-5 shadow-sm text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300">
             <AlertTriangle className="h-5 w-5" />
           </div>
@@ -354,7 +354,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
     <div className="min-h-dvh bg-background">
       {/* HERO */}
       <div
-        className="relative w-full overflow-hidden rounded-b-3xl border-b border-border/70 bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-36 sm:h-44"
+        className="relative w-full overflow-hidden rounded-b-3xl border-b border-border/30 bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-36 sm:h-44"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="absolute inset-x-0 top-0 z-10 mt-1">
@@ -373,7 +373,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
 
       {/* CARTÃO (sem transparência) */}
       <section className="relative z-10 mx-auto -mt-16 sm:-mt-24 lg:-mt-28 w-full max-w-5xl px-3 sm:px-4 pb-8">
-        <div className="relative z-10 rounded-2xl border border-border/70 bg-card p-4 sm:p-6 shadow-md">
+        <div className="relative z-10 rounded-2xl border border-border/30 bg-card p-4 sm:p-6 shadow-md">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
               Comparando evoluções de {data.user.name}
@@ -383,10 +383,10 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
 
           {/* datas */}
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card p-3">
+            <div className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card p-3">
               <div className="text-sm sm:text-base font-semibold text-foreground">{date1 || "—"}</div>
             </div>
-            <div className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card p-3">
+            <div className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card p-3">
               <div className="text-sm sm:text-base font-semibold text-foreground">{date2 || "—"}</div>
             </div>
           </div>
@@ -408,7 +408,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
               const badgeInfo = !showDiff ? { text: "Sem dados", state: "text-muted-foreground" as const } : formatDiff(raw, k, cfg.unit);
 
               return (
-                <div key={k} className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card p-3 shadow-sm">
+                <div key={k} className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card p-3 shadow-sm">
                   <div className="flex items-center justify-between">
                     <MetricIcon icon={cfg.icon} className="h-5 w-5 text-foreground dark:text-foreground/80" />
                     <span className="text-[11px] sm:text-xs text-muted-foreground">{cfg.label}</span>
@@ -421,7 +421,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
                     </div>
 
                     <div className="text-center text-xs sm:text-sm font-medium">
-                      <span className={`inline-block rounded-full px-2 py-0.5 ${badgeInfo.state} bg-background/60 dark:bg-white/5 border border-border/60`}>
+                      <span className={`inline-block rounded-full px-2 py-0.5 ${badgeInfo.state} bg-background/60 dark:bg-white/5 border border-border/30`}>
                         {badgeInfo.text}
                       </span>
                     </div>
@@ -440,15 +440,15 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
           <div className="mt-6 space-y-2 sm:space-y-3">
             <h2 className="text-xs sm:text-sm font-medium text-muted-foreground">Medidas</h2>
 
-            <div className="rounded-xl border border-border/70 overflow-hidden bg-muted/40 dark:bg-card">
-              <div className="grid grid-cols-4 bg-muted/50 dark:bg-card px-3 py-2 text-[11px] sm:text-xs text-muted-foreground border-b border-border/70">
+            <div className="rounded-xl border border-border/30 overflow-hidden bg-muted/40 dark:bg-card">
+              <div className="grid grid-cols-4 bg-muted/50 dark:bg-card px-3 py-2 text-[11px] sm:text-xs text-muted-foreground border-b border-border/30">
                 <div>Medida</div>
                 <div className="text-right">{date1 || "—"}</div>
                 <div className="text-center">Diferença</div>
                 <div className="text-right">{date2 || "—"}</div>
               </div>
 
-              <div className="divide-y divide-border/70">
+              <div className="divide-y divide-border/30">
                 {METRIC_KEYS.filter((k) => !PRIMARY_KEYS.includes(k)).map((k) => {
                   const cfg = METRICS[k];
 
@@ -477,7 +477,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
                       </div>
 
                       <div className="text-center text-xs">
-                        <span className={`inline-block rounded-full px-2 py-0.5 ${badgeInfo.state} bg-background/60 dark:bg-white/5 border border-border/60`}>
+                        <span className={`inline-block rounded-full px-2 py-0.5 ${badgeInfo.state} bg-background/60 dark:bg-white/5 border border-border/30`}>
                           {badgeInfo.text === "Sem diferença" ? "=" : badgeInfo.text}
                         </span>
                       </div>
@@ -496,7 +496,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
           {(evo1?.message || evo2?.message) && (
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {evo1?.message ? (
-                <div className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card p-4">
+                <div className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card p-4">
                   <p className="text-sm text-foreground/90">
                     <span className="mr-1">📝</span>
                     {evo1.message}
@@ -506,7 +506,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
               ) : null}
 
               {evo2?.message ? (
-                <div className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card p-4">
+                <div className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card p-4">
                   <p className="text-sm text-foreground/90">
                     <span className="mr-1">📝</span>
                     {evo2.message}
@@ -528,7 +528,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
                     key={`D1-${img.position}`}
                     type="button"
                     onClick={() => openCompareByPosition(img.position)}
-                    className="snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/70 bg-muted/40 dark:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                    className="snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/30 bg-muted/40 dark:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                     title={`${date1 || "—"} — posição ${img.position}`}
                   >
                     <NextImage
@@ -554,7 +554,7 @@ export default function CompareEvolutionPage({ params }: { params: Promise<{ id:
                     key={`D2-${img.position}`}
                     type="button"
                     onClick={() => openCompareByPosition(img.position)}
-                    className="snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/70 bg-muted/40 dark:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                    className="snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/30 bg-muted/40 dark:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                     title={`${date2 || "—"} — posição ${img.position}`}
                   >
                     <NextImage

@@ -39,7 +39,7 @@ type ExercisesResponse = {
 };
 
 const inputBase =
-  "w-full max-w-full rounded-md border border-border/60 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
+  "w-full max-w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40";
 
 function compactLine(parts: Array<string | null | undefined>) {
   return parts.filter((p) => (p ?? "").toString().trim().length > 0).join(" • ");
@@ -47,7 +47,7 @@ function compactLine(parts: Array<string | null | undefined>) {
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/30 px-2 py-0.5 text-xs text-muted-foreground">
+    <span className="inline-flex items-center rounded-full border border-border/30 bg-muted/30 px-2 py-0.5 text-xs text-muted-foreground">
       {children}
     </span>
   );
@@ -208,7 +208,7 @@ export default function ExercisesListPage() {
           <div className="grid gap-3 lg:grid-cols-[320px_1fr]">
             {/* Sidebar */}
             <Card className="overflow-hidden h-fit lg:sticky lg:top-4">
-              <div className="bg-primary/10 px-4 py-4 border-b border-border/60">
+              <div className="bg-primary/10 px-4 py-4 border-b border-border/30">
                 <h2 className="text-sm font-semibold flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-primary" />
                   Filtros
@@ -234,14 +234,14 @@ export default function ExercisesListPage() {
 
             {/* Lista */}
             <Card className="overflow-hidden">
-              <div className="bg-card px-4 sm:px-6 py-4 border-b border-border/60">
+              <div className="bg-card px-4 sm:px-6 py-4 border-b border-border/30">
                 <h2 className="text-sm font-semibold">Lista de Exercícios</h2>
                 <p className="text-xs text-muted-foreground">Clique em um item para abrir os detalhes.</p>
               </div>
 
               <CardContent className="p-3 sm:p-4">
                 {filteredItems.length === 0 ? (
-                  <div className="rounded-xl border border-border/60 bg-muted/20 px-3 py-4 text-sm text-muted-foreground">
+                  <div className="rounded-xl border border-border/30 bg-muted/20 px-3 py-4 text-sm text-muted-foreground">
                     Nenhum exercício encontrado nesta página.
                   </div>
                 ) : (
@@ -258,7 +258,7 @@ export default function ExercisesListPage() {
                           onKeyDown={(e) => {
                             if (e.key === "Enter" || e.key === " ") openDetails(it.id);
                           }}
-                          className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card px-4 py-3 outline-none transition hover:bg-muted/20 focus:ring-2 focus:ring-ring/40 cursor-pointer"
+                          className="group relative overflow-hidden rounded-2xl border border-border/30 bg-card px-4 py-3 outline-none transition hover:bg-muted/20 focus:ring-2 focus:ring-ring/40 cursor-pointer"
                         >
                           <div className="absolute left-0 top-0 h-full w-1 bg-primary/50 group-hover:bg-primary/70" />
 

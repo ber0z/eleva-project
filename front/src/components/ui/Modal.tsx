@@ -86,14 +86,13 @@ export default function Modal({
           className={`
             w-full ${maxWidthClassName}
             rounded-2xl bg-background text-foreground
-            shadow-xl border border-border
-            overflow-hidden
+            shadow-xl overflow-hidden
           `}
           onMouseDown={(e) => e.stopPropagation()}
         >
           {/* Header */}
           {showHeader && (
-            <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+            <div className="flex items-center justify-between gap-3 border-b border-border/30 px-4 py-3">
               {title ? (
                 <div id={titleId} className="font-semibold">
                   {title}

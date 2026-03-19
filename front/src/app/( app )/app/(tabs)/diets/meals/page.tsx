@@ -403,7 +403,7 @@ export default function MealLogDaysPage() {
 
       <Button
         size="icon"
-        className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg cursor-pointer"
+        className="fixed bottom-28 md:bottom-6 right-6 h-14 w-14 rounded-full shadow-lg cursor-pointer"
         onClick={createTodayAndOpen}
         disabled={creatingBusy}
         aria-label="Criar registro de hoje"

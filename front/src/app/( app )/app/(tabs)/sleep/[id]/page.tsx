@@ -345,28 +345,28 @@ export default function SleepDetailPage() {
               {!editing ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Data</div>
                       <div className="text-sm font-medium">{formatDateBR(item.date.slice(0, 10))}</div>
                     </div>
 
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Qualidade</div>
                       <div className="text-sm font-medium">{qualityLabel(item.sleepQuality)}</div>
                     </div>
 
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Início</div>
                       <div className="text-sm font-medium">{item.startTime}</div>
                     </div>
 
-                    <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                    <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                       <div className="text-xs text-muted-foreground">Fim</div>
                       <div className="text-sm font-medium">{item.endTime}</div>
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-border bg-muted/20 px-3 py-2">
+                  <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2">
                     <div className="text-xs text-muted-foreground">Notas</div>
                     <div className="text-sm">{item.notes ? item.notes : "—"}</div>
                   </div>
@@ -380,7 +380,7 @@ export default function SleepDetailPage() {
                         type="date"
                         value={form.date}
                         onChange={(e) => setForm((p) => (p ? { ...p, date: e.target.value } : p))}
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       />
                     </div>
@@ -392,7 +392,7 @@ export default function SleepDetailPage() {
                         onChange={(e) =>
                           setForm((p) => (p ? { ...p, sleepQuality: e.target.value as SleepQuality } : p))
                         }
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       >
                         <option value="excellent">Excelente</option>
@@ -411,7 +411,7 @@ export default function SleepDetailPage() {
                         type="time"
                         value={form.startTime}
                         onChange={(e) => setForm((p) => (p ? { ...p, startTime: e.target.value } : p))}
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       />
                     </div>
@@ -422,13 +422,13 @@ export default function SleepDetailPage() {
                         type="time"
                         value={form.endTime}
                         onChange={(e) => setForm((p) => (p ? { ...p, endTime: e.target.value } : p))}
-                        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                        className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                         disabled={saving}
                       />
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-border bg-muted/20 px-3 py-2 text-sm text-muted-foreground">
+                  <div className="rounded-lg border border-border/70 bg-black/25 px-3 py-2 text-sm text-muted-foreground">
                     Duração estimada:{" "}
                     <span className="font-medium text-foreground">{calcSleepDuration(form.startTime, form.endTime)}</span>
                   </div>
@@ -440,7 +440,7 @@ export default function SleepDetailPage() {
                       onChange={(e) => setForm((p) => (p ? { ...p, notes: e.target.value } : p))}
                       rows={4}
                       maxLength={1020}
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                      className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                       disabled={saving}
                       placeholder="Ex.: Acordei 1x à noite"
                     />

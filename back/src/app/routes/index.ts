@@ -12,7 +12,8 @@ import { trainingRoutes } from "./trainingRoutes";
 import { dietRoutes } from "./dietRoutes";
 import { mealLogRoutes } from "./mealLogRoutes";
 import { reportRoutes } from "./reportRoutes";
-
+import { aiRoutes } from "../modules/ai/routes/ai.routes";
+import { anamnesisRoutes } from "./anamnesisRoutes";
 
 export async function registerRoutes(fastify: FastifyInstance) {
 
@@ -29,5 +30,8 @@ export async function registerRoutes(fastify: FastifyInstance) {
   await fastify.register(physicalActivityRoutes, { prefix: "/physical-activities" });
   await fastify.register(userRoutes, { prefix: "/user" });
   await fastify.register(evolutionRoutes, { prefix: "/evolution" });
+
+  await fastify.register(aiRoutes, { prefix: "/ai" });
+  await fastify.register(anamnesisRoutes, { prefix: "/anamnesis" });
 
 }

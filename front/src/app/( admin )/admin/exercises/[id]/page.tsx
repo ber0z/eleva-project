@@ -210,7 +210,7 @@ export default function ExerciseDetailsPage() {
                     <div className="grid gap-3">
                         {/* Cabeçalho com destaque */}
                         <Card className="overflow-hidden">
-                            <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/60">
+                            <div className="bg-primary/10 px-4 sm:px-6 py-4 border-b border-border/30">
                                 <h1 className="text-base sm:text-lg font-semibold flex items-center gap-2">
                                     <Dumbbell className="h-4 w-4 text-primary" />
                                     {data.name}
@@ -245,7 +245,7 @@ export default function ExerciseDetailsPage() {
 
                         {/* Vídeo */}
                         <Card className="overflow-hidden">
-                            <div className="bg-card px-4 sm:px-6 py-4 border-b border-border/60">
+                            <div className="bg-card px-4 sm:px-6 py-4 border-b border-border/30">
                                 <h2 className="text-sm font-semibold flex items-center gap-2">
                                     <PlayCircle className="h-4 w-4 text-primary" />
                                     Vídeo

@@ -432,7 +432,7 @@ export default function CompareInternalPage() {
               asChild
               variant="outline"
               size="sm"
-              className="bg-muted/30 dark:bg-card/90 border-border/70 shadow-sm"
+              className="bg-muted/30 dark:bg-card/90 border-border/30 shadow-sm"
             >
               <Link href="/app/evolutions" aria-label="Voltar para lista de evoluções">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -446,7 +446,7 @@ export default function CompareInternalPage() {
             <Button
               variant="outline"
               size="sm"
-              className="bg-muted/30 dark:bg-card/90 border-border/70 shadow-sm cursor-pointer"
+              className="bg-muted/30 dark:bg-card/90 border-border/30 shadow-sm cursor-pointer"
               onClick={openShare}
               disabled={loading || !!err}
             >
@@ -459,11 +459,11 @@ export default function CompareInternalPage() {
           <div className="sm:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" aria-label="Mais ações" className="border-border/70 shadow-sm">
+                <Button variant="outline" size="icon" aria-label="Mais ações" className="border-border/30 shadow-sm">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-44 dark:bg-card/95 border-border/70 shadow-lg">
+              <DropdownMenuContent align="end" className="min-w-44 dark:bg-card/95 border-border/30 shadow-lg">
                 <DropdownMenuLabel>Ações</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={openShare} disabled={loading || !!err}>
@@ -477,7 +477,7 @@ export default function CompareInternalPage() {
 
         {/* Erro */}
         {err && (
-          <Card className="mb-4 border-border/70 bg-muted/35 dark:bg-card/90 shadow-sm">
+          <Card className="mb-4 border-border/30 bg-muted/35 dark:bg-card/90 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5" />
@@ -490,7 +490,7 @@ export default function CompareInternalPage() {
 
         {/* Loading */}
         {loading && (
-          <Card className="border-border/70 bg-muted/35 dark:bg-card/90 shadow-sm">
+          <Card className="border-border/30 bg-muted/35 dark:bg-card/90 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -504,10 +504,10 @@ export default function CompareInternalPage() {
         {/* Conteúdo */}
         {!loading && !err && evo1 && evo2 && differences && (
           <>
-            <div className="relative w-full overflow-hidden rounded-2xl border border-border/70 bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-12" />
+            <div className="relative w-full overflow-hidden rounded-2xl border border-border/30 bg-linear-to-br from-primary/20 via-primary/10 to-transparent h-12" />
 
             <section className="mx-auto -mt-10 sm:-mt-12 w-full">
-              <div className="rounded-2xl border border-border/70 bg-muted/35 dark:bg-card/90 backdrop-blur p-4 sm:p-6 shadow-md">
+              <div className="rounded-2xl border border-border/30 bg-muted/35 dark:bg-card/90 backdrop-blur p-4 sm:p-6 shadow-md">
                 <div className="flex flex-col gap-1">
                   <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Comparação de evoluções</h1>
                   <p className="text-sm text-muted-foreground">
@@ -517,10 +517,10 @@ export default function CompareInternalPage() {
 
                 {/* Datas */}
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card/80 p-3">
+                  <div className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card/80 p-3">
                     <div className="text-sm sm:text-base font-semibold text-foreground">{date1}</div>
                   </div>
-                  <div className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card/80 p-3">
+                  <div className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card/80 p-3">
                     <div className="text-sm sm:text-base font-semibold text-foreground">{date2}</div>
                   </div>
                 </div>
@@ -560,7 +560,7 @@ export default function CompareInternalPage() {
                     return (
                       <div
                         key={k}
-                        className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card/85 p-3 shadow-sm"
+                        className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card/85 p-3 shadow-sm"
                       >
                         <div className="flex items-center justify-between">
                           <MetricIcon icon={cfg.icon} className="h-5 w-5 text-foreground dark:text-foreground/80" />
@@ -575,7 +575,7 @@ export default function CompareInternalPage() {
 
                           <div className="text-center text-xs sm:text-sm font-medium">
                             <span
-                              className={`inline-block rounded-full px-2 py-0.5 ${state} bg-background/60 dark:bg-white/5 border border-border/60`}
+                              className={`inline-block rounded-full px-2 py-0.5 ${state} bg-background/60 dark:bg-white/5 border border-border/30`}
                             >
                               {badge}
                             </span>
@@ -595,15 +595,15 @@ export default function CompareInternalPage() {
                 <div className="mt-6 space-y-2 sm:space-y-3">
                   <h2 className="text-xs sm:text-sm font-medium text-muted-foreground">Medidas</h2>
 
-                  <div className="rounded-xl border border-border/70 overflow-hidden bg-muted/40 dark:bg-card/85">
-                    <div className="grid grid-cols-4 bg-muted/50 dark:bg-card/80 px-3 py-2 text-[11px] sm:text-xs text-muted-foreground border-b border-border/70">
+                  <div className="rounded-xl border border-border/30 overflow-hidden bg-muted/40 dark:bg-card/85">
+                    <div className="grid grid-cols-4 bg-muted/50 dark:bg-card/80 px-3 py-2 text-[11px] sm:text-xs text-muted-foreground border-b border-border/30">
                       <div>Medida</div>
                       <div className="text-right">{date1}</div>
                       <div className="text-center">Diferença</div>
                       <div className="text-right">{date2}</div>
                     </div>
 
-                    <div className="divide-y divide-border/70">
+                    <div className="divide-y divide-border/30">
                       {METRIC_KEYS.filter((k) => !PRIMARY_KEYS.includes(k)).map((k) => {
                         const cfg = METRICS[k];
 
@@ -647,7 +647,7 @@ export default function CompareInternalPage() {
 
                             <div className="text-center text-xs">
                               <span
-                                className={`inline-block rounded-full px-2 py-0.5 ${state} bg-background/60 dark:bg-white/5 border border-border/60`}
+                                className={`inline-block rounded-full px-2 py-0.5 ${state} bg-background/60 dark:bg-white/5 border border-border/30`}
                               >
                                 {sign}
                               </span>
@@ -667,7 +667,7 @@ export default function CompareInternalPage() {
                 {(evo1.message || evo2.message) && (
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {evo1.message ? (
-                      <div className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card/85 p-4">
+                      <div className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card/85 p-4">
                         <p className="text-sm text-foreground/90">
                           <span className="mr-1">📝</span>
                           {evo1.message}
@@ -677,7 +677,7 @@ export default function CompareInternalPage() {
                     ) : null}
 
                     {evo2.message ? (
-                      <div className="rounded-xl border border-border/70 bg-muted/40 dark:bg-card/85 p-4">
+                      <div className="rounded-xl border border-border/30 bg-muted/40 dark:bg-card/85 p-4">
                         <p className="text-sm text-foreground/90">
                           <span className="mr-1">📝</span>
                           {evo2.message}
@@ -701,7 +701,7 @@ export default function CompareInternalPage() {
                             key={`A-${img.position}`}
                             type="button"
                             onClick={() => openCompareByPosition(img.position)}
-                            className="snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/70 bg-muted/40 dark:bg-card/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                            className="snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/30 bg-muted/40 dark:bg-card/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                             title={`${date1} — ${posLabel(img.position)}`}
                           >
                             <Image
@@ -730,7 +730,7 @@ export default function CompareInternalPage() {
                             key={`B-${img.position}`}
                             type="button"
                             onClick={() => openCompareByPosition(img.position)}
-                            className="snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/70 bg-muted/40 dark:bg-card/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                            className="snap-start shrink-0 w-28 sm:w-40 aspect-3/4 overflow-hidden rounded-lg border border-border/30 bg-muted/40 dark:bg-card/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                             title={`${date2} — ${posLabel(img.position)}`}
                           >
                             <Image
@@ -755,7 +755,7 @@ export default function CompareInternalPage() {
 
         {/* ===== Pop-up de compartilhar comparação ===== */}
         <AlertDialog open={shareOpen} onOpenChange={(open) => !shareLoading && setShareOpen(open)}>
-          <AlertDialogContent className="w-[calc(100svw-2rem)] max-w-[520px] p-4 sm:p-6 rounded-2xl sm:rounded-xl border-border/70  dark:bg-card/95 shadow-lg">
+          <AlertDialogContent className="w-[calc(100svw-2rem)] max-w-[520px] p-4 sm:p-6 rounded-2xl sm:rounded-xl border-border/30  dark:bg-card/95 shadow-lg">
             <AlertDialogHeader>
               <AlertDialogTitle>Compartilhar comparação</AlertDialogTitle>
               <AlertDialogDescription>Gere um link temporário para compartilhar esta comparação.</AlertDialogDescription>
@@ -768,7 +768,7 @@ export default function CompareInternalPage() {
                   <select
                     value={String(shareTtlMinutes)}
                     onChange={(e) => setShareTtlMinutes(Number(e.target.value))}
-                    className="w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     disabled={shareLoading}
                   >
                     {TTL_OPTIONS.map((opt) => (
@@ -800,7 +800,7 @@ export default function CompareInternalPage() {
               ) : null}
 
               {shareUrl ? (
-                <div className="rounded-md border border-border/70 bg-background p-3">
+                <div className="rounded-md border border-border/30 bg-background p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="text-xs text-muted-foreground flex items-center gap-2">
@@ -823,7 +823,7 @@ export default function CompareInternalPage() {
                     <button
                       type="button"
                       onClick={copyShareLink}
-                      className="inline-flex items-center gap-2 rounded-md border border-border/70 bg-muted/40 dark:bg-card px-3 py-2 text-sm hover:bg-accent cursor-pointer"
+                      className="inline-flex items-center gap-2 rounded-md border border-border/30 bg-muted/40 dark:bg-card px-3 py-2 text-sm hover:bg-accent cursor-pointer"
                       title="Copiar link"
                     >
                       <Copy className="h-4 w-4" />

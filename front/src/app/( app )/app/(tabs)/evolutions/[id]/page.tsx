@@ -341,7 +341,7 @@ export default function EvolutionDetailPage() {
               asChild
               variant="outline"
               size="sm"
-              className="shrink-0 bg-card/90 hover:bg-accent border-border/70 shadow-sm"
+              className="shrink-0 bg-card/90 hover:bg-accent border-border/30 shadow-sm"
             >
               <Link href="/app/evolutions" aria-label="Voltar para lista de evoluções">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -355,7 +355,7 @@ export default function EvolutionDetailPage() {
             <Button
               variant="outline"
               size="sm"
-              className="bg-card/90 hover:bg-accent border-border/70 shadow-sm cursor-pointer"
+              className="bg-card/90 hover:bg-accent border-border/30 shadow-sm cursor-pointer"
               disabled={!canShare}
               onClick={() => {
                 setShareError(null);
@@ -371,7 +371,7 @@ export default function EvolutionDetailPage() {
             </Button>
 
             {data && (
-              <Button asChild variant="outline" size="sm" className="bg-card/90 hover:bg-accent border-border/70 shadow-sm">
+              <Button asChild variant="outline" size="sm" className="bg-card/90 hover:bg-accent border-border/30 shadow-sm">
                 <Link href={`/app/evolutions/${data.id}/edit`}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Editar
@@ -405,14 +405,14 @@ export default function EvolutionDetailPage() {
           <div className="sm:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" aria-label="Mais ações" className="bg-card/90 border-border/70 shadow-sm">
+                <Button variant="outline" size="icon" aria-label="Mais ações" className="bg-card/90 border-border/30 shadow-sm">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent
                 align="end"
-                className="min-w-44 bg-card/95 backdrop-blur border border-border/70 shadow-lg"
+                className="min-w-44 bg-card/95 backdrop-blur border border-border/30 shadow-lg"
               >
                 <DropdownMenuLabel>Ações</DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -463,7 +463,7 @@ export default function EvolutionDetailPage() {
               text-xs
             "
           >
-            <span className="mr-2 inline-flex items-center gap-1 rounded-lg border border-border/70 bg-accent/40 px-2 py-1 text-foreground/80">
+            <span className="mr-2 inline-flex items-center gap-1 rounded-lg border border-border/30 bg-accent/40 px-2 py-1 text-foreground/80">
               <Calendar className="h-3 w-3" />
               Criado: {fmtDate(data.createdAt)}
             </span>
@@ -472,7 +472,7 @@ export default function EvolutionDetailPage() {
 
         {/* Erro */}
         {err && (
-          <Card className="mb-4 border-border/70 bg-card/95 shadow-sm">
+          <Card className="mb-4 border-border/30 bg-card/95 shadow-sm">
             <CardHeader>
               <CardTitle>Erro</CardTitle>
             </CardHeader>
@@ -482,7 +482,7 @@ export default function EvolutionDetailPage() {
 
         {/* Loading */}
         {loading && (
-          <Card className="border-border/70 bg-card/95 shadow-sm">
+          <Card className="border-border/30 bg-card/95 shadow-sm">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="h-5 w-5" />
@@ -499,7 +499,7 @@ export default function EvolutionDetailPage() {
         {!loading && data && (
           <>
             {/* Resumo */}
-            <Card className="mb-4 border-border/70 bg-card/95 shadow-sm">
+            <Card className="mb-4 border-border/30 bg-card/95 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="flex flex-wrap items-center gap-3">
                   <span className="text-sm font-medium text-foreground/80">
@@ -511,7 +511,7 @@ export default function EvolutionDetailPage() {
 
               <CardContent className="pt-0">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  <div className="rounded-xl border border-border/70 bg-background p-3 shadow-sm">
+                  <div className="rounded-xl border border-border/30 bg-background p-3 shadow-sm">
                     <div className="flex items-center gap-1 text-xs font-medium text-foreground/70">
                       <Scale className="h-4 w-4" /> Peso
                     </div>
@@ -520,7 +520,7 @@ export default function EvolutionDetailPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-border/70 bg-background p-3 shadow-sm">
+                  <div className="rounded-xl border border-border/30 bg-background p-3 shadow-sm">
                     <div className="flex items-center gap-1 text-xs font-medium text-foreground/70">
                       <Ruler className="h-4 w-4" /> Altura
                     </div>
@@ -529,7 +529,7 @@ export default function EvolutionDetailPage() {
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-border/70 bg-background p-3 shadow-sm">
+                  <div className="rounded-xl border border-border/30 bg-background p-3 shadow-sm">
                     <div className="text-xs font-medium text-foreground/70">Objetivo</div>
                     <div className="mt-1 text-sm font-semibold">
                       {goalToLabel(data.goal)}
@@ -538,7 +538,7 @@ export default function EvolutionDetailPage() {
                 </div>
 
                 {data.message && (
-                  <div className="mt-4 rounded-xl border border-border/70 bg-background p-3 shadow-sm">
+                  <div className="mt-4 rounded-xl border border-border/30 bg-background p-3 shadow-sm">
                     <div className="text-xs font-medium text-foreground/70">Mensagem</div>
                     <p className="mt-1 text-sm text-foreground/90">{data.message}</p>
                   </div>
@@ -547,7 +547,8 @@ export default function EvolutionDetailPage() {
             </Card>
 
             {/* Medidas */}
-            <Card className="mb-4 border-border/70 bg-card/95 shadow-sm">
+            {[data.rightBiceps, data.leftBiceps, data.rightThigh, data.leftThigh, data.waist, data.hips, data.chest, data.shoulder, data.rightCalf, data.leftCalf, data.rightForearm, data.leftForearm].some((v) => v != null) && (
+            <Card className="mb-4 border-border/30 bg-card/95 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base sm:text-lg">Medidas</CardTitle>
               </CardHeader>
@@ -568,9 +569,10 @@ export default function EvolutionDetailPage() {
                 </div>
               </CardContent>
             </Card>
+            )}
 
             {/* Fotos */}
-            <Card className="border-border/70 bg-card/95 shadow-sm">
+            <Card className="border-border/30 bg-card/95 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base sm:text-lg">Fotos</CardTitle>
               </CardHeader>
@@ -585,7 +587,7 @@ export default function EvolutionDetailPage() {
                       <CarouselContent className="-ml-3">
                         {images.map((img, idx) => (
                           <CarouselItem key={img.id} className="pl-3 basis-[88%] sm:basis-[60%] lg:basis-[45%]">
-                            <figure className="rounded-xl border border-border/70 overflow-hidden bg-muted/20 shadow-sm">
+                            <figure className="rounded-xl border border-border/30 overflow-hidden bg-muted/20 shadow-sm">
                               <button
                                 type="button"
                                 onClick={() => openLightbox(idx)}
@@ -606,7 +608,7 @@ export default function EvolutionDetailPage() {
                                 />
                               </button>
 
-                              <div className="border-t border-border/70 bg-card/80 px-3 py-2 text-center">
+                              <div className="border-t border-border/30 bg-card/80 px-3 py-2 text-center">
                                 <span className="text-xs font-semibold text-foreground/80">
                                   {posLabel(img.position)}
                                 </span>
@@ -645,7 +647,7 @@ export default function EvolutionDetailPage() {
 
         {/* ===== Dialog: Compartilhar evolução ===== */}
         <AlertDialog open={shareOpen} onOpenChange={(open) => !sharing && setShareOpen(open)}>
-          <AlertDialogContent className="w-[calc(100svw-2rem)] max-w-[calc(100svw-1rem)] sm:max-w-[520px] rounded-2xl sm:rounded-xl border-border/70 bg-card/98 backdrop-blur shadow-lg">
+          <AlertDialogContent className="w-[calc(100svw-2rem)] max-w-[calc(100svw-1rem)] sm:max-w-[520px] rounded-2xl sm:rounded-xl border-border/30 bg-card/98 backdrop-blur shadow-lg">
             <AlertDialogHeader>
               <AlertDialogTitle className="flex items-center gap-2 cursor-pointer">
                 <Share2 className="h-5 w-5" />
@@ -663,7 +665,7 @@ export default function EvolutionDetailPage() {
                   <select
                     value={String(shareTtlMinutes)}
                     onChange={(e) => setShareTtlMinutes(Number(e.target.value))}
-                    className="rounded-md border border-border/70 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                    className="rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                     disabled={sharing}
                   >
                     {TTL_OPTIONS.map((opt) => (
@@ -695,7 +697,7 @@ export default function EvolutionDetailPage() {
               ) : null}
 
               {sharedUrl ? (
-                <div className="rounded-md border border-border/70 bg-muted/20 p-3">
+                <div className="rounded-md border border-border/30 bg-muted/20 p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="text-xs text-foreground/70 flex items-center gap-2">
@@ -715,7 +717,7 @@ export default function EvolutionDetailPage() {
                       </div>
                     </div>
 
-                    <Button variant="outline" onClick={() => copyShareUrl()} disabled={!sharedUrl} className="border-border/70 bg-card/90 hover:bg-accent shadow-sm">
+                    <Button variant="outline" onClick={() => copyShareUrl()} disabled={!sharedUrl} className="border-border/30 bg-card/90 hover:bg-accent shadow-sm">
                       <Copy className="mr-2 h-4 w-4" />
                       {copied ? "Copiado!" : "Copiar"}
                     </Button>
@@ -729,7 +731,7 @@ export default function EvolutionDetailPage() {
             </div>
 
             <AlertDialogFooter>
-              <AlertDialogCancel className="cursor-pointer border-border/70 bg-card/90 hover:bg-accent" disabled={sharing} onClick={() => setShareOpen(false)}>
+              <AlertDialogCancel className="cursor-pointer border-border/30 bg-card/90 hover:bg-accent" disabled={sharing} onClick={() => setShareOpen(false)}>
                 Fechar
               </AlertDialogCancel>
 
@@ -743,7 +745,7 @@ export default function EvolutionDetailPage() {
 
         {/* Dialog de confirmação: excluir */}
         <AlertDialog open={confirmOpen} onOpenChange={(open) => !deleting && setConfirmOpen(open)}>
-          <AlertDialogContent className="w-[calc(100svw-2rem)] max-w-[calc(100svw-1rem)] p-4 sm:p-6 sm:mx-0 sm:w-full sm:max-w-[480px] rounded-2xl sm:rounded-xl border-border/70 bg-card/98 backdrop-blur shadow-lg">
+          <AlertDialogContent className="w-[calc(100svw-2rem)] max-w-[calc(100svw-1rem)] p-4 sm:p-6 sm:mx-0 sm:w-full sm:max-w-[480px] rounded-2xl sm:rounded-xl border-border/30 bg-card/98 backdrop-blur shadow-lg">
             <AlertDialogHeader>
               <AlertDialogTitle>Excluir evolução ?</AlertDialogTitle>
               <AlertDialogDescription className="text-foreground/70">
@@ -751,7 +753,7 @@ export default function EvolutionDetailPage() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleting} className="border-border/70 bg-card/90 hover:bg-accent">
+              <AlertDialogCancel disabled={deleting} className="border-border/30 bg-card/90 hover:bg-accent">
                 Cancelar
               </AlertDialogCancel>
               <Button className="bg-red-600 hover:bg-red-700 cursor-pointer shadow-sm" onClick={handleDelete} disabled={deleting}>
@@ -901,7 +903,7 @@ function Metric({
     : `${Number(value).toLocaleString("pt-BR")}${suffix ? ` ${suffix}` : ""}`;
 
   return (
-    <div className="rounded-xl border border-border/70 bg-background p-3 shadow-sm">
+    <div className="rounded-xl border border-border/30 bg-background p-3 shadow-sm">
       <div className="text-xs font-medium text-foreground/70">{label}</div>
       <div className="mt-1 text-base font-semibold tracking-tight text-foreground">{display}</div>
     </div>

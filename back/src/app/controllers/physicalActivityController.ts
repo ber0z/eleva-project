@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError } from "zod";
 import { Prisma } from "@prisma/client";
 import { PhysicalActivityService } from "../services/physicalActivityService";
+import { NotFoundError } from "../errors/appErrors";
 import {
   createPhysicalActivitySchema,
   updatePhysicalActivitySchema,
@@ -35,12 +36,16 @@ export class PhysicalActivityController {
         observations: body.observations ?? null,
         date: new Date(body.date),
         trainingWorkoutId: body.trainingWorkoutId ?? null,
+        exerciseLogs: body.exerciseLogs ?? [],
       });
 
       return reply.code(201).send(created);
     } catch (error: unknown) {
       if (error instanceof ZodError) {
         return reply.code(400).send({ error: "Dados inválidos", details: error.issues });
+      }
+      if (error instanceof NotFoundError) {
+        return reply.code(404).send({ error: error.message, field: error.field });
       }
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         return reply.code(500).send({ error: "Erro Prisma", code: error.code });

@@ -36,12 +36,45 @@ function initialsFromName(name?: string) {
 /* =========================================================
    Gerenciador global do avatar (deduplica fetch/timer)
    ========================================================= */
+const AVATAR_CACHE_KEY = "eleva_avatar_cache";
+
 class AvatarPhotoManager {
   private url: string | null = null;
   private expiresAt = 0;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private subs = new Set<(url: string | null) => void>();
   private inflight: Promise<void> | null = null;
+
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage() {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(AVATAR_CACHE_KEY);
+      if (!raw) return;
+      const { url, expiresAt } = JSON.parse(raw) as { url: string; expiresAt: number };
+      if (Date.now() < expiresAt - 30_000) {
+        this.url = url;
+        this.expiresAt = expiresAt;
+      }
+    } catch { /* ignore */ }
+  }
+
+  private saveToStorage() {
+    if (typeof window === "undefined" || !this.url) return;
+    try {
+      localStorage.setItem(AVATAR_CACHE_KEY, JSON.stringify({ url: this.url, expiresAt: this.expiresAt }));
+    } catch { /* ignore */ }
+  }
+
+  private clearStorage() {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.removeItem(AVATAR_CACHE_KEY);
+    } catch { /* ignore */ }
+  }
 
   subscribe(cb: (url: string | null) => void) {
     this.subs.add(cb);
@@ -95,6 +128,7 @@ class AvatarPhotoManager {
       .then(({ data }) => {
         this.url = data.url;
         this.expiresAt = new Date(data.expiresAt).getTime();
+        this.saveToStorage();
         this.notify();
         this.scheduleRefresh();
       })
@@ -106,9 +140,23 @@ class AvatarPhotoManager {
       });
     return this.inflight;
   }
+
+  invalidate() {
+    this.url = null;
+    this.expiresAt = 0;
+    this.clearStorage();
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
+    this.inflight = null;
+    this.notify();
+    void this.fetchNow();
+  }
 }
 
 const avatarManager = new AvatarPhotoManager();
+export function invalidateAvatar() { avatarManager.invalidate(); }
 
 /* =========================================================
    Componente

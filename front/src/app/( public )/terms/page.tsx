@@ -25,13 +25,13 @@ export default function LegalPage() {
           <nav className="mt-4 flex flex-wrap gap-3 text-xs sm:text-sm">
             <a
               href="#termos-de-uso"
-              className="rounded-full border border-border bg-muted/40 px-3 py-1 text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              className="rounded-full border border-border/30 bg-muted/40 px-3 py-1 text-muted-foreground hover:bg-muted hover:text-foreground transition"
             >
               Termos de Uso
             </a>
             <a
               href="#politica-de-privacidade"
-              className="rounded-full border border-border bg-muted/40 px-3 py-1 text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              className="rounded-full border border-border/30 bg-muted/40 px-3 py-1 text-muted-foreground hover:bg-muted hover:text-foreground transition"
             >
               Política de Privacidade
             </a>
@@ -398,7 +398,7 @@ export default function LegalPage() {
         </section>
 
         {/* Voltar / navegação */}
-        <footer className="pt-4 border-t border-border/60 mt-4 text-xs sm:text-sm text-muted-foreground flex items-center justify-between gap-2">
+        <footer className="pt-4 border-t border-border/30 mt-4 text-xs sm:text-sm text-muted-foreground flex items-center justify-between gap-2">
           <span>© {new Date().getFullYear()} Eleva</span>
           <Link
             href="/"

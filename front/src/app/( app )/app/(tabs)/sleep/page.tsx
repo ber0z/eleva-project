@@ -146,14 +146,14 @@ function KpiCard({
   icon: typeof CalendarRange;
 }) {
   return (
-    <div className="rounded-2xl border border-border/60 p-3 shadow-sm transition hover:shadow-md bg-background/40">
+    <div className="rounded-xl bg-card border border-border/70 p-3 shadow-sm transition">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] text-muted-foreground">{label}</p>
           <p className="mt-1 text-lg font-semibold leading-none tracking-tight">{value}</p>
         </div>
 
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-background/60">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-muted/70">
           <Icon className="h-4 w-4 text-foreground/80" />
         </div>
       </div>
@@ -173,11 +173,11 @@ function KpiDuoCard({
   rightValue: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border/60 p-3 shadow-sm transition hover:shadow-md bg-background/40">
+    <div className="rounded-xl bg-card border border-border/70 p-3 shadow-sm transition">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-background/60 shrink-0">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-muted/70 shrink-0">
               <Clock className="h-4 w-4 text-foreground/80" />
             </div>
             <div className="min-w-0">
@@ -187,11 +187,11 @@ function KpiDuoCard({
           </div>
         </div>
 
-        <div className="h-8 w-px bg-border/60 shrink-0" />
+        <div className="h-8 w-px bg-border/40 shrink-0" />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 justify-end">
-            <div className="grid h-8 w-8 place-items-center rounded-xl bg-background/60 shrink-0">
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-muted/70 shrink-0">
               <ListChecks className="h-4 w-4 text-foreground/80" />
             </div>
             <div className="min-w-0 text-right">
@@ -470,7 +470,7 @@ export default function SleepPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-card cursor-pointer"
+                className="bg-yellow-500/5 border-yellow-500/15 text-yellow-500/40 hover:bg-yellow-500/10 hover:text-yellow-500/60 cursor-pointer"
                 onClick={() => setFiltersOpen((v) => !v)}
                 disabled={statsLoading}
               >
@@ -488,7 +488,7 @@ export default function SleepPage() {
               <Skeleton className="h-20 w-full rounded-xl" />
             ) : stats && !hasStatsData ? (
               isDefaultWeekRange ? (
-                <div className="rounded-xl border border-border bg-muted/20 p-4">
+                <div className="rounded-xl border border-border/30 bg-muted/20 p-4">
                   <div className="text-sm font-medium">Nenhum registro de sono nesta semana ainda</div>
                   <div className="mt-1 text-sm text-muted-foreground">
                     Assim que você registrar seu sono, suas estatísticas semanais vão aparecer aqui.
@@ -501,7 +501,7 @@ export default function SleepPage() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl border border-border bg-muted/20 p-4">
+                <div className="rounded-xl border border-border/30 bg-muted/20 p-4">
                   <div className="text-sm font-medium">Sem dados no período</div>
                   <div className="mt-1 text-sm text-muted-foreground">
                     Não encontramos registros entre <b>{formatYMD(dateFrom)}</b> e <b>{formatYMD(dateTo)}</b>.
@@ -539,7 +539,7 @@ export default function SleepPage() {
             )}
 
             {filtersOpen ? (
-              <div className="rounded-xl border border-border bg-card/60 p-3 space-y-3">
+              <div className="rounded-xl border border-border/30 bg-card/60 p-3 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
                   <div className="space-y-1">
                     <label className="text-xs text-muted-foreground">Início</label>
@@ -547,7 +547,7 @@ export default function SleepPage() {
                       type="date"
                       value={dateFrom}
                       onChange={(e) => setDateFrom(e.target.value)}
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                      className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                       disabled={statsLoading}
                     />
                   </div>
@@ -558,7 +558,7 @@ export default function SleepPage() {
                       type="date"
                       value={dateTo}
                       onChange={(e) => setDateTo(e.target.value)}
-                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
+                      className="w-full rounded-md border border-border/30 bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/40"
                       disabled={statsLoading}
                     />
                   </div>
@@ -722,7 +722,7 @@ export default function SleepPage() {
       </div>
 
       {/* FAB */}
-      <Button asChild size="icon" className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg">
+      <Button asChild size="icon" className="fixed bottom-28 md:bottom-6 right-6 h-14 w-14 rounded-full shadow-lg">
         <Link href="/app/sleep/new" aria-label="Registrar sono">
           <Plus className="h-6 w-6" />
         </Link>
