@@ -14,6 +14,7 @@ import {
   Trash2,
   ChevronDown,
   ChevronRight,
+  ChevronUp,
   Save,
   Search,
   PlayCircle,
@@ -525,6 +526,21 @@ export default function TrainingEditPage() {
     // openCatalogModal(workoutKey, ex.__key);
   }
 
+  function moveExercise(workoutKey: string, exKey: string, direction: "up" | "down") {
+    setWorkouts((prev) =>
+      prev.map((w) => {
+        if (w.__key !== workoutKey) return w;
+        const idx = w.exercises.findIndex((ex) => ex.__key === exKey);
+        if (idx === -1) return w;
+        const targetIdx = direction === "up" ? idx - 1 : idx + 1;
+        if (targetIdx < 0 || targetIdx >= w.exercises.length) return w;
+        const next = [...w.exercises];
+        [next[idx], next[targetIdx]] = [next[targetIdx], next[idx]];
+        return { ...w, exercises: next };
+      })
+    );
+  }
+
   function removeExercise(workoutKey: string, exKey: string) {
     setWorkouts((prev) =>
       prev.map((w) => (w.__key === workoutKey ? { ...w, exercises: w.exercises.filter((ex) => ex.__key !== exKey) } : w))
@@ -1026,10 +1042,10 @@ export default function TrainingEditPage() {
                                             : "Personalizado";
 
                                       return (
-                                        <div key={ex.__key} className="relative overflow-hidden rounded-2xl bg-card shadow-sm">
+                                        <div key={ex.__key} className="flex relative overflow-hidden rounded-2xl bg-card shadow-sm">
                                           <div className="absolute left-0 top-0 h-full w-1.5 bg-primary/70" />
 
-                                          <div className="p-3 sm:p-4 pl-4 sm:pl-5">
+                                          <div className="flex-1 p-3 sm:p-4 pl-4 sm:pl-5">
                                             <div className="flex flex-wrap items-start justify-between gap-2">
                                               <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-semibold truncate">{exTitle}</p>
@@ -1229,6 +1245,27 @@ export default function TrainingEditPage() {
                                                 </div>
                                               </div>
                                             ) : null}
+                                          </div>
+
+                                          <div className="flex flex-col border-l border-border/60 divide-y divide-border/60">
+                                            <button
+                                              type="button"
+                                              onClick={() => moveExercise(w.__key, ex.__key, "up")}
+                                              disabled={exIdx === 0}
+                                              title="Mover para cima"
+                                              className="flex flex-1 items-center justify-center px-2 hover:bg-muted/60 disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                              <ChevronUp className="h-3 w-3" />
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => moveExercise(w.__key, ex.__key, "down")}
+                                              disabled={exIdx === w.exercises.length - 1}
+                                              title="Mover para baixo"
+                                              className="flex flex-1 items-center justify-center px-2 hover:bg-muted/60 disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                              <ChevronDown className="h-3 w-3" />
+                                            </button>
                                           </div>
                                         </div>
                                       );

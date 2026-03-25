@@ -17,7 +17,8 @@ export class TrainingService {
     async createOwned(
         idUser: number,
         data: CreateDTO,
-        doc?: { buffer: Buffer; contentType?: string; originalName?: string }
+        doc?: { buffer: Buffer; contentType?: string; originalName?: string },
+        idProfessional?: number
     ) {
         let uploadedKey: string | null = null;
 
@@ -38,7 +39,7 @@ export class TrainingService {
             // 2) tx: cria training + workouts + exercises
             const created = await this.db.$transaction(async (tx) => {
                 const training = await this.repo.createTraining(
-                    { idUser, title: data.title ?? null, notes: data.notes ?? null, ...docFields },
+                    { idUser, title: data.title ?? null, notes: data.notes ?? null, ...(idProfessional ? { idProfessional } : {}), ...docFields },
                     tx
                 );
 
@@ -65,19 +66,20 @@ export class TrainingService {
                         tx
                     );
 
-                    const items = w.exercises.map(e => {
+                    const items = w.exercises.map((e, idx) => {
                         const base = e.exerciseId ? baseMap.get(e.exerciseId) : undefined;
                         return {
                             idWorkout: wk.id,
                             exerciseId: base ? e.exerciseId! : null,   // ✅ só persiste FK se existir
                             name: e.name ?? base?.name ?? "Exercise",
-                            technique: e.technique ?? null, 
+                            technique: e.technique ?? null,
                             restTime: e.restTime ?? null,
                             sets: e.sets ?? 0,
                             reps: e.reps ?? null,
                             weight: e.weight ?? null,
                             type: e.type ?? base?.type ?? null,
                             notes: e.notes ?? null,
+                            order: idx,
                         };
                     });
 
@@ -220,10 +222,13 @@ export class TrainingService {
                             weight?: number | null;
                             type?: string | null;
                             notes?: string | null;
+                            order: number;
                         }> = [];
 
                         // 5.3 UPDATE / COLLECT CREATES
-                        for (const e of w.exercises ?? []) {
+                        const exercises = w.exercises ?? [];
+                        for (let exIdx = 0; exIdx < exercises.length; exIdx++) {
+                            const e = exercises[exIdx];
                             const base = typeof e.exerciseId === "number" ? baseMap.get(e.exerciseId) : undefined;
 
                             if (e.id && existingExercises.has(e.id)) {
@@ -249,6 +254,7 @@ export class TrainingService {
                                         weight: e.weight ?? null,
                                         type: e.type ?? base?.type ?? null,
                                         notes: e.notes ?? null,
+                                        order: exIdx,
                                     },
                                 });
 
@@ -266,6 +272,7 @@ export class TrainingService {
                                     weight: e.weight ?? null,
                                     type: e.type ?? base?.type ?? null,
                                     notes: e.notes ?? null,
+                                    order: exIdx,
                                 });
                             }
                         }
@@ -331,5 +338,177 @@ export class TrainingService {
             if (failed.length) console.warn("[R2] falha ao apagar documento do treino:", failed);
         }
         return true;
+    }
+
+    async getByIdForProfessional(trainingId: number, userId: number) {
+        return this.repo.findTrainingForProfessional(trainingId, userId);
+    }
+
+    async deleteByProfessional(trainingId: number, professionalId: number) {
+        const current = await this.repo.findDocPathByProfessional(trainingId, professionalId);
+        if (!current) throw new NotFoundError("Treino não encontrado ou você não é o criador deste treino");
+
+        const ok = await this.repo.deleteTrainingByProfessional(trainingId, professionalId);
+        if (!ok) throw new NotFoundError("Treino não encontrado ou você não é o criador deste treino");
+
+        if (current.documentPath) {
+            const failed = await deleteR2Keys([current.documentPath]);
+            if (failed.length) console.warn("[R2] falha ao apagar documento do treino:", failed);
+        }
+        return true;
+    }
+
+    async updateByProfessional(
+        trainingId: number,
+        userId: number,
+        professionalId: number,
+        data: TrainingUpdateBody,
+        doc?: { buffer: Buffer; contentType?: string; originalName?: string }
+    ) {
+        let newKey: string | null = null;
+        let oldKeyToDelete: string | null = null;
+
+        try {
+            if (doc?.buffer) {
+                const up = await uploadTrainingDocumentR2({
+                    userId,
+                    buffer: doc.buffer,
+                    contentType: doc.contentType,
+                    originalName: doc.originalName,
+                });
+                newKey = up.key;
+            }
+
+            const updated = await this.db.$transaction(async (tx) => {
+                const current = await this.repo.findTrainingForProfessional(trainingId, userId, tx);
+                if (!current || current.idProfessional !== professionalId) {
+                    throw new NotFoundError("Treino não encontrado ou você não é o criador deste treino");
+                }
+
+                let documentPath: string | null | undefined = undefined;
+                let documentType: string | null | undefined = undefined;
+                let documentSize: number | null | undefined = undefined;
+
+                if (newKey) {
+                    oldKeyToDelete = current.documentPath ?? null;
+                    documentPath = newKey;
+                    documentType = doc?.contentType ?? null;
+                    documentSize = doc?.buffer.length ?? null;
+                } else if (data.deleteDocument) {
+                    if (current.documentPath) oldKeyToDelete = current.documentPath;
+                    documentPath = null;
+                    documentType = null;
+                    documentSize = null;
+                }
+
+                await this.repo.updateTrainingByProfessional(
+                    trainingId,
+                    professionalId,
+                    { title: data.title ?? undefined, notes: data.notes ?? undefined, documentPath, documentType, documentSize },
+                    tx
+                );
+
+                if (Array.isArray(data.workouts)) {
+                    const existingWorkouts = new Map(current.workouts.map((w) => [w.id, w]));
+                    const seenWorkoutIds = new Set<number>();
+
+                    const allPayloadExerciseIds = Array.from(
+                        new Set(
+                            data.workouts
+                                .flatMap((w) => w.exercises ?? [])
+                                .map((e) => e.exerciseId)
+                                .filter((v): v is number => typeof v === "number")
+                        )
+                    );
+                    const baseRows = await this.repo.findExercisesByIds(allPayloadExerciseIds, tx);
+                    const baseMap = new Map(baseRows.map((r) => [r.id, r]));
+                    const missing = allPayloadExerciseIds.filter((eid) => !baseMap.has(eid));
+                    if (missing.length) {
+                        throw new NotFoundError(`Exercise(s) not found: ${missing.join(", ")}`, "exerciseId");
+                    }
+
+                    for (const w of data.workouts) {
+                        let workoutId: number;
+                        if (w.id && existingWorkouts.has(w.id)) {
+                            workoutId = w.id;
+                            await this.repo.updateWorkout(workoutId, { title: w.title, notes: w.notes ?? null, dayOfWeek: w.dayOfWeek as unknown as DayOfWeek }, tx);
+                        } else {
+                            const wk = await this.repo.createWorkout({ idTraining: trainingId, title: w.title, notes: w.notes ?? null, dayOfWeek: w.dayOfWeek as unknown as DayOfWeek }, tx);
+                            workoutId = wk.id;
+                        }
+                        seenWorkoutIds.add(workoutId);
+
+                        const existingForThis = existingWorkouts.get(workoutId)?.exercises ?? [];
+                        const existingExercises = new Map(existingForThis.map((e) => [e.id, e]));
+                        const seenExerciseIds = new Set<number>();
+                        const toCreate: Array<{
+                            idWorkout: number; exerciseId?: number | null; name: string; technique?: string | null;
+                            restTime?: number | null; sets: number; reps?: number | null; weight?: number | null;
+                            type?: string | null; notes?: string | null;
+                        }> = [];
+
+                        const exercises = w.exercises ?? [];
+                        for (let exIdx = 0; exIdx < exercises.length; exIdx++) {
+                            const e = exercises[exIdx];
+                            const base = typeof e.exerciseId === "number" ? baseMap.get(e.exerciseId) : undefined;
+
+                            if (e.id && existingExercises.has(e.id)) {
+                                const exerciseRel =
+                                    e.exerciseId === null ? { disconnect: true } :
+                                    typeof e.exerciseId === "number" ? { connect: { id: e.exerciseId } } :
+                                    undefined;
+
+                                await tx.trainingExercise.update({
+                                    where: { id: e.id },
+                                    data: {
+                                        workout: { connect: { id: workoutId } },
+                                        ...(exerciseRel ? { exercise: exerciseRel } : {}),
+                                        name: e.name ?? base?.name ?? "Exercise",
+                                        technique: e.technique ?? null,
+                                        restTime: e.restTime ?? null,
+                                        sets: e.sets ?? existingExercises.get(e.id)!.sets,
+                                        reps: e.reps ?? null,
+                                        weight: e.weight ?? null,
+                                        type: e.type ?? base?.type ?? null,
+                                        notes: e.notes ?? null,
+                                    },
+                                });
+                                seenExerciseIds.add(e.id);
+                            } else {
+                                toCreate.push({
+                                    idWorkout: workoutId,
+                                    exerciseId: typeof e.exerciseId === "number" ? e.exerciseId : null,
+                                    name: e.name ?? base?.name ?? "Exercise",
+                                    technique: e.technique ?? null,
+                                    restTime: e.restTime ?? null,
+                                    sets: e.sets ?? 0,
+                                    reps: e.reps ?? null,
+                                    weight: e.weight ?? null,
+                                    type: e.type ?? base?.type ?? null,
+                                    notes: e.notes ?? null,
+                                });
+                            }
+                        }
+
+                        await this.repo.deleteExercisesByWorkoutNotIn(workoutId, Array.from(seenExerciseIds), tx);
+                        if (toCreate.length) await this.repo.createExercisesBulk(toCreate, tx);
+                    }
+
+                    await this.repo.deleteWorkoutsByIdsNotIn(trainingId, Array.from(seenWorkoutIds), tx);
+                }
+
+                return this.repo.findTrainingForProfessional(trainingId, userId, tx);
+            });
+
+            if (oldKeyToDelete) {
+                const failed = await deleteR2Keys([oldKeyToDelete]);
+                if (failed.length) console.warn("[R2] falha ao apagar documento antigo:", failed);
+            }
+
+            return updated;
+        } catch (err) {
+            if (newKey) await deleteR2Keys([newKey]).catch(() => { });
+            throw err;
+        }
     }
 }

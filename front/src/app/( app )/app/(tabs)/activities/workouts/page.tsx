@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { isAxiosError } from "axios";
-import { Plus, Dumbbell, RefreshCw } from "lucide-react";
+import { Plus, Dumbbell, RefreshCw, UserCheck } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ type Training = {
   notes?: string | null;
   createdAt: string; // ISO
   updatedAt: string; // ISO
+  idProfessional?: number | null;
   workouts: Workout[];
 };
 
@@ -136,7 +137,7 @@ export default function TrainingsPage() {
   }, [hasMore, loadingMore, initialLoading, page]);
 
   return (
-    <div className="min-h-svh bg-background text-foreground">
+    <div className="min-h-svh bg-background text-foreground overflow-x-hidden">
       <div className="mx-auto w-full max-w-3xl px-4 py-6 pb-28">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between gap-2">
@@ -221,6 +222,12 @@ export default function TrainingsPage() {
                               {subtitle ? " • " : ""}
                               {workoutsCount} {workoutsCount === 1 ? "treino" : "treinos"}
                             </p>
+                            {t.idProfessional != null && (
+                              <span className="inline-flex items-center gap-1 mt-1 rounded-full bg-violet-500/10 px-2 py-0.5 text-[11px] font-medium text-violet-600 dark:text-violet-400">
+                                <UserCheck className="h-3 w-3" />
+                                Profissional
+                              </span>
+                            )}
                           </div>
                         </CardHeader>
 

@@ -3,7 +3,8 @@ import { userRoutes } from "./userRoutes";
 import { authenticationRoutes } from "./authRoutes";
 import { evolutionRoutes } from "./evolutionRoutes";
 import { shareRoutes } from "./shareRoutes";
-// import { professionalRoutes } from "./professionalRoutes";
+import { professionalRoutes } from "./professionalRoutes";
+import { inviteRoutes } from "./inviteRoutes";
 import { adminRoutes } from "./adminRoutes";
 import { exerciseRoutes } from "./exerciseRoutes";
 import { physicalActivityRoutes } from "./physicalActivityRoutes";
@@ -14,11 +15,13 @@ import { mealLogRoutes } from "./mealLogRoutes";
 import { reportRoutes } from "./reportRoutes";
 import { aiRoutes } from "../modules/ai/routes/ai.routes";
 import { anamnesisRoutes } from "./anamnesisRoutes";
+import { chatRoutes } from "./chatRoutes";
 
 export async function registerRoutes(fastify: FastifyInstance) {
 
   await fastify.register(authenticationRoutes, { prefix: "/auth" });
-  // await fastify.register(professionalRoutes, { prefix: "/professional" });
+  await fastify.register(professionalRoutes, { prefix: "/professional" });
+  await fastify.register(inviteRoutes, { prefix: "/invite" });
   await fastify.register(adminRoutes, { prefix: "/admin" });
   await fastify.register(shareRoutes, { prefix: "/share" });
   await fastify.register(sleepRoutes, { prefix: "/sleep" });
@@ -33,5 +36,6 @@ export async function registerRoutes(fastify: FastifyInstance) {
 
   await fastify.register(aiRoutes, { prefix: "/ai" });
   await fastify.register(anamnesisRoutes, { prefix: "/anamnesis" });
+  await fastify.register(chatRoutes, { prefix: "/chat" });
 
 }

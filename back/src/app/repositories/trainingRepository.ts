@@ -31,9 +31,10 @@ export class TrainingRepository {
     return db.training.findFirst({
       where: { id, idUser },
       include: {
+        professional: { select: { id: true, name: true } },
         workouts: {
           orderBy: [{ dayOfWeek: "asc" as const }, { id: "asc" as const }],
-          include: { exercises: { orderBy: { id: "asc" } } }
+          include: { exercises: { orderBy: { order: "asc" } } }
         }
       }
     });
@@ -62,10 +63,36 @@ export class TrainingRepository {
       skip, take,
       select: {
         id: true, title: true, notes: true, createdAt: true, updatedAt: true,
+        idProfessional: true,
         documentPath: true, documentType: true, documentSize: true,
         workouts: { select: { id: true, dayOfWeek: true, title: true, _count: { select: { exercises: true } } } },
       },
     });
+  }
+
+  async listByProfessionalAndUser(
+    idProfessional: number,
+    idUser: number,
+    p: { skip: number; take: number },
+    tx?: Prisma.TransactionClient
+  ) {
+    const db = tx ?? this.db;
+    const where = { idUser, idProfessional };
+    const [items, total] = await Promise.all([
+      db.training.findMany({
+        where,
+        orderBy: [{ createdAt: "desc" }],
+        skip: p.skip,
+        take: p.take,
+        select: {
+          id: true, title: true, notes: true, createdAt: true, updatedAt: true,
+          idProfessional: true,
+          workouts: { select: { id: true, dayOfWeek: true, title: true, _count: { select: { exercises: true } } } },
+        },
+      }),
+      db.training.count({ where }),
+    ]);
+    return { items, total };
   }
 
   // workouts/exercises (iguais ao que te passei antes)
@@ -80,6 +107,7 @@ export class TrainingRepository {
   async createExercisesBulk(items: Array<{
     idWorkout: number; exerciseId?: number | null; name: string; technique?: string | null; restTime?: number | null;
     sets: number; reps?: number | null; weight?: number | null; type?: string | null; notes?: string | null;
+    order: number;
   }>, tx: Prisma.TransactionClient) {
     if (items.length === 0) return;
     await tx.trainingExercise.createMany({ data: items.map(i => ({ ...i, exerciseId: i.exerciseId ?? null })) });
@@ -101,7 +129,7 @@ export class TrainingRepository {
     return this.db.trainingWorkout.findFirst({
       where: { id: workoutId, training: { idUser: userId } },
       include: {
-        exercises: { orderBy: { id: "asc" } },
+        exercises: { orderBy: { order: "asc" } },
         training: { select: { id: true, title: true } },
       },
     });
@@ -120,6 +148,7 @@ export class TrainingRepository {
   async updateExercise(id: number, data: {
     idWorkout?: number; exerciseId?: number | null; name?: string; technique?: string | null; restTime?: number | null;
     sets?: number; reps?: number | null; weight?: number | null; type?: string | null; notes?: string | null;
+    order?: number;
   }, tx: Prisma.TransactionClient) {
     return tx.trainingExercise.update({ where: { id }, data });
   }
@@ -129,6 +158,39 @@ export class TrainingRepository {
     });
   }
 
+  async findTrainingForProfessional(trainingId: number, userId: number, tx?: Prisma.TransactionClient) {
+    const db = tx ?? this.db;
+    return db.training.findFirst({
+      where: { id: trainingId, idUser: userId },
+      include: {
+        professional: { select: { id: true, name: true } },
+        workouts: {
+          orderBy: [{ dayOfWeek: "asc" as const }, { id: "asc" as const }],
+          include: { exercises: { orderBy: { id: "asc" } } }
+        }
+      }
+    });
+  }
+
+  async deleteTrainingByProfessional(trainingId: number, professionalId: number, tx?: Prisma.TransactionClient): Promise<boolean> {
+    const db = tx ?? this.db;
+    const res = await db.training.deleteMany({ where: { id: trainingId, idProfessional: professionalId } });
+    return res.count > 0;
+  }
+
+  async updateTrainingByProfessional(
+    trainingId: number, professionalId: number, data: Prisma.TrainingUpdateInput, tx?: Prisma.TransactionClient
+  ): Promise<Training | null> {
+    const db = tx ?? this.db;
+    const res = await db.training.updateMany({ where: { id: trainingId, idProfessional: professionalId }, data });
+    if (res.count === 0) return null;
+    return db.training.findUnique({ where: { id: trainingId } });
+  }
+
+  async findDocPathByProfessional(trainingId: number, professionalId: number, tx?: Prisma.TransactionClient) {
+    const db = tx ?? this.db;
+    return db.training.findFirst({ where: { id: trainingId, idProfessional: professionalId }, select: { documentPath: true, documentType: true, idUser: true } });
+  }
 
 }
 

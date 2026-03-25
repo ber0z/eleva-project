@@ -251,11 +251,19 @@ export default function LoginClient() {
 
             </div>
 
-            <div className="border-t border-border/30 px-6 py-4 text-center text-sm text-muted-foreground">
-              Não tem conta?{" "}
-              <Link href="/register" className="font-medium text-primary hover:underline">
-                Criar conta
-              </Link>
+            <div className="border-t border-border/30 px-6 py-4 text-center text-sm text-muted-foreground space-y-1">
+              <div>
+                Não tem conta?{" "}
+                <Link href="/register" className="font-medium text-primary hover:underline">
+                  Criar conta
+                </Link>
+              </div>
+              <div>
+                É profissional?{" "}
+                <Link href="/register/professional" className="font-medium text-primary hover:underline">
+                  Registre-se aqui
+                </Link>
+              </div>
             </div>
           </div>
 

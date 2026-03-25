@@ -1,3 +1,5 @@
-export default function Page() {
-  return <h1>Landing (/pro) — OK</h1>;
+import { redirect } from "next/navigation";
+
+export default function ProPage() {
+  redirect("/pro/dashboard");
 }

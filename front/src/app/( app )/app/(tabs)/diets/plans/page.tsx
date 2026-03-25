@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { isAxiosError } from "axios";
-import { Plus, FileText, RefreshCw } from "lucide-react";
+import { Plus, FileText, RefreshCw, UserCheck } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ type Diet = {
   date: string; // ISO
   createdAt: string;
   updatedAt: string;
+  idProfessional?: number | null;
 };
 
 type DietsResponse = {
@@ -214,6 +215,12 @@ useEffect(() => {
                             <p className="text-xs text-muted-foreground truncate">
                               {dateLabel} • {subtitle}
                             </p>
+                            {d.idProfessional != null && (
+                              <span className="inline-flex items-center gap-1 mt-1 rounded-full bg-violet-500/10 px-2 py-0.5 text-[11px] font-medium text-violet-600 dark:text-violet-400">
+                                <UserCheck className="h-3 w-3" />
+                                Profissional
+                              </span>
+                            )}
                           </div>
                         </CardHeader>
                       </Card>

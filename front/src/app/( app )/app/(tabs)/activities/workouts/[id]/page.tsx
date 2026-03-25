@@ -16,6 +16,7 @@ import {
   Trash2,
   Pencil,
   PlayCircle,
+  UserCheck,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,6 +75,7 @@ type TrainingDetails = {
   createdAt: string;
   updatedAt: string;
   idProfessional: number | null;
+  professional?: { id: number; name: string } | null;
   workouts: Workout[];
   documentUrl?: string | null;
   documentUrlExpiresAt?: string | null;
@@ -421,6 +423,15 @@ export default function TrainingDetailsPage() {
                   <span>
                     {totalWorkouts} {totalWorkouts === 1 ? "treino" : "treinos"}
                   </span>
+                  {data.idProfessional != null && (
+                    <>
+                      <span className="text-muted-foreground/60">•</span>
+                      <span className="inline-flex items-center gap-1 text-violet-600 dark:text-violet-400">
+                        <UserCheck className="h-3.5 w-3.5" />
+                        Passado por {data.professional?.name ?? "profissional"}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
 

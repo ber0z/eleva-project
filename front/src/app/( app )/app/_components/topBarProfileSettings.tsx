@@ -9,9 +9,11 @@ export default function TopBarProfileSettings() {
   const isProfile = pathname.startsWith("/app/profile");
   const isSettings = pathname.startsWith("/app/settings");
   const isMeasures = pathname.startsWith("/app/measures");
+  const isNotifications = pathname.startsWith("/app/notifications");
+  const isProfessionals = pathname.startsWith("/app/professionals");
 
   // Só renderiza nas páginas alvo
-  if (!isProfile && !isSettings && !isMeasures) return null;
+  if (!isProfile && !isSettings && !isMeasures && !isNotifications && !isProfessionals) return null;
 
   return (
     <header
@@ -25,7 +27,7 @@ export default function TopBarProfileSettings() {
       <div className="mx-auto max-w-screen-lg h-14 px-4 flex items-center justify-between">
         {/* Lado esquerdo */}
         <div className="flex items-center gap-2">
-          {isMeasures && (
+          {(isMeasures || isNotifications || isProfessionals) && (
             <Link
               href="/app/home"
               aria-label="Voltar para início"

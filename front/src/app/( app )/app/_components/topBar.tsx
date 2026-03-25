@@ -1,5 +1,7 @@
 import Link from "next/link";
 import AvatarCircle from "../_components/avatarCircle";
+import NotificationBell from "../_components/notificationBell";
+import ChatBadge from "../_components/chatBadge";
 
 export default function TopBar() {
   return (
@@ -26,7 +28,9 @@ export default function TopBar() {
         </Link>
 
         <div className="flex items-center gap-3">
-<Link
+          <ChatBadge />
+          <NotificationBell />
+          <Link
             href="/app/profile"
             className="
               group flex items-center gap-2

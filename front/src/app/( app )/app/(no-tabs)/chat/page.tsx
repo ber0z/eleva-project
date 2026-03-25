@@ -68,7 +68,6 @@ export default function ChatPage() {
       setInput(text);
     } finally {
       setLoading(false);
-      setTimeout(() => inputRef.current?.focus(), 100);
     }
   }
 

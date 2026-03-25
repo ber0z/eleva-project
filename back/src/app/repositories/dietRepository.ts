@@ -12,6 +12,8 @@ export type DietCreateInput = {
   carbs: number;
   fat: number;
 
+  idProfessional?: number | null;
+
   documentPath?: string | null;
   documentType?: string | null;
   documentSize?: number | null;
@@ -49,6 +51,7 @@ export class DietRepository {
     const created = await db.diet.create({
       data: {
         idUser: data.idUser,
+        idProfessional: data.idProfessional ?? null,
         title: data.title,
         notes: data.notes ?? null,
         date: data.date,
@@ -81,7 +84,7 @@ export class DietRepository {
     const db = tx ?? this.db;
     return db.diet.findFirst({
       where: { id, idUser },
-      include: { meals: { orderBy: { id: "asc" } } },
+      include: { meals: { orderBy: { id: "asc" } }, professional: { select: { id: true, name: true } } },
     });
   }
 
@@ -135,6 +138,18 @@ export class DietRepository {
     return res.count > 0;
   }
 
+  async findDocPathByProfessional(dietId: number, professionalId: number) {
+    return this.db.diet.findFirst({
+      where: { id: dietId, idProfessional: professionalId },
+      select: { id: true, documentPath: true, documentType: true },
+    });
+  }
+
+  async deleteDietByProfessional(dietId: number, professionalId: number): Promise<boolean> {
+    const res = await this.db.diet.deleteMany({ where: { id: dietId, idProfessional: professionalId } });
+    return res.count > 0;
+  }
+
   async listByUser(
     idUser: number,
     p: { page: number; pageSize: number; dateFrom?: Date; dateTo?: Date },
@@ -159,11 +174,35 @@ export class DietRepository {
         take: pageSize,
         orderBy: [{ date: "desc" }, { createdAt: "desc" }],
         // não trazer campos de documento no list
-        select: { id: true, title: true, notes: true, date: true, createdAt: true, updatedAt: true },
+        select: { id: true, title: true, notes: true, date: true, createdAt: true, updatedAt: true, idProfessional: true },
       }),
       db.diet.count({ where }),
     ]);
 
     return { items, total, page, pageSize };
+  }
+
+  async listByProfessionalAndUser(
+    idProfessional: number,
+    idUser: number,
+    p: { page: number; pageSize: number },
+    tx?: Prisma.TransactionClient
+  ) {
+    const db = tx ?? this.db;
+    const skip = (p.page - 1) * p.pageSize;
+    const where: Prisma.DietWhereInput = { idUser, idProfessional };
+
+    const [items, total] = await Promise.all([
+      db.diet.findMany({
+        where,
+        skip,
+        take: p.pageSize,
+        orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+        select: { id: true, title: true, notes: true, date: true, createdAt: true, updatedAt: true, idProfessional: true },
+      }),
+      db.diet.count({ where }),
+    ]);
+
+    return { items, total, page: p.page, pageSize: p.pageSize };
   }
 }

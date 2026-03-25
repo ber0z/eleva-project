@@ -4,6 +4,7 @@ import { DietRepository, DietUpdateTopInput } from "../repositories/dietReposito
 import { uploadDietDocumentR2 } from "./uploadService";
 import { deleteR2Keys } from "../services/r2Service";
 import type { DietCreateBody, DietUpdateBody } from "../schemas/dietSchema";
+import { NotFoundError } from "../errors/appErrors";
 
 
 
@@ -36,7 +37,8 @@ export class DietService {
   async createOwned(
     idUser: number,
     body: DietCreateBody,
-    doc?: { buffer: Buffer; contentType?: string; originalName?: string }
+    doc?: { buffer: Buffer; contentType?: string; originalName?: string },
+    idProfessional?: number
   ) {
     let uploadedKey: string | null = null;
 
@@ -94,6 +96,7 @@ export class DietService {
         return this.repo.createDiet(
           {
             idUser,
+            ...(idProfessional ? { idProfessional } : {}),
             title: body.title,
             notes: body.notes ?? null,
             date: body.date,
@@ -270,6 +273,146 @@ export class DietService {
         if (failed.length) {
           console.warn("[R2] falha ao apagar documento antigo da Diet:", failed);
         }
+      }
+
+      return updated;
+    } catch (err) {
+      if (newKey) await deleteR2Keys([newKey]).catch(() => { });
+      throw err;
+    }
+  }
+
+  async getByIdForProfessional(dietId: number, userId: number) {
+    return this.repo.findOwned(dietId, userId);
+  }
+
+  async deleteByProfessional(dietId: number, professionalId: number) {
+    const current = await this.repo.findDocPathByProfessional(dietId, professionalId);
+    if (!current) throw new NotFoundError("Dieta não encontrada ou você não é o criador desta dieta");
+
+    const ok = await this.repo.deleteDietByProfessional(dietId, professionalId);
+    if (!ok) throw new NotFoundError("Dieta não encontrada ou você não é o criador desta dieta");
+
+    if (current.documentPath) {
+      const failed = await deleteR2Keys([current.documentPath]);
+      if (failed.length) console.warn("[R2] falha ao apagar documento da Diet:", failed);
+    }
+    return true;
+  }
+
+  async updateByProfessional(
+    dietId: number,
+    userId: number,
+    professionalId: number,
+    data: DietUpdateBody,
+    doc?: { buffer: Buffer; contentType?: string; originalName?: string }
+  ) {
+    let newKey: string | null = null;
+    let oldKeyToDelete: string | null = null;
+
+    try {
+      if (doc?.buffer) {
+        const up = await uploadDietDocumentR2({
+          userId,
+          buffer: doc.buffer,
+          contentType: doc.contentType,
+          originalName: doc.originalName,
+        });
+        newKey = up.key;
+      }
+
+      const updated = await this.db.$transaction(async (tx) => {
+        const current = await this.repo.findOwned(dietId, userId, tx);
+        if (!current || current.idProfessional !== professionalId) {
+          throw new NotFoundError("Dieta não encontrada ou você não é o criador desta dieta");
+        }
+
+        const top: DietUpdateTopInput = {};
+
+        if (newKey) {
+          oldKeyToDelete = current.documentPath ?? null;
+          top.documentPath = newKey;
+          top.documentType = doc?.contentType ?? null;
+          top.documentSize = doc?.buffer.length ?? null;
+        } else if (data.deleteDocument) {
+          if (current.documentPath) oldKeyToDelete = current.documentPath;
+          top.documentPath = null;
+          top.documentType = null;
+          top.documentSize = null;
+        }
+
+        if (data.title !== undefined) top.title = data.title;
+        if (data.notes !== undefined) top.notes = data.notes ?? null;
+        if (data.date !== undefined) top.date = data.date;
+
+        const explicitTotalsProvided =
+          data.protein !== undefined ||
+          data.carbs !== undefined ||
+          data.fat !== undefined;
+
+        if (explicitTotalsProvided) {
+          if (data.protein !== undefined) top.protein = data.protein;
+          if (data.carbs !== undefined) top.carbs = data.carbs;
+          if (data.fat !== undefined) top.fat = data.fat;
+        }
+
+        await this.repo.updateTopOwned(dietId, userId, top, tx);
+
+        if (Array.isArray(data.meals)) {
+          const existingMap = new Map(current.meals.map(m => [m.id, m]));
+          const seenIds = new Set<number>();
+          const toCreate: Array<{
+            title: string; time?: string | null; meal: string; notes?: string | null;
+            protein?: number; carbs?: number; fat?: number;
+          }> = [];
+
+          for (const m of data.meals) {
+            if (m.id && existingMap.has(m.id)) {
+              const prev = existingMap.get(m.id)!;
+              await this.repo.updateMeal(m.id, {
+                title: m.title ?? prev.title,
+                time: m.time ?? prev.time,
+                meal: m.meal ?? prev.meal,
+                notes: m.notes ?? prev.notes,
+                protein: m.protein ?? prev.protein,
+                carbs: m.carbs ?? prev.carbs,
+                fat: m.fat ?? prev.fat,
+              }, tx);
+              seenIds.add(m.id);
+            } else {
+              toCreate.push({
+                title: m.title ?? "Refeição",
+                time: m.time ?? null,
+                meal: m.meal ?? "",
+                notes: m.notes ?? null,
+                protein: m.protein ?? 0,
+                carbs: m.carbs ?? 0,
+                fat: m.fat ?? 0,
+              });
+            }
+          }
+
+          await this.repo.deleteMealsNotIn(dietId, Array.from(seenIds), tx);
+
+          if (toCreate.length) {
+            await this.repo.createMealsBulk(dietId, toCreate, tx);
+          }
+
+          if (!explicitTotalsProvided) {
+            const fresh = await this.repo.findOwned(dietId, userId, tx);
+            if (!fresh) return null;
+            const sums = sumMealsMacros(fresh.meals);
+            await this.repo.updateTopOwned(dietId, userId, { protein: sums.protein, carbs: sums.carbs, fat: sums.fat }, tx);
+            return this.repo.findOwned(dietId, userId, tx);
+          }
+        }
+
+        return this.repo.findOwned(dietId, userId, tx);
+      });
+
+      if (oldKeyToDelete) {
+        const failed = await deleteR2Keys([oldKeyToDelete]);
+        if (failed.length) console.warn("[R2] falha ao apagar documento antigo da Diet:", failed);
       }
 
       return updated;

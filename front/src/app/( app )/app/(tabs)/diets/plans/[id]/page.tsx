@@ -15,6 +15,7 @@ import {
   CalendarDays,
   Pencil,
   Trash2,
+  UserCheck,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +58,7 @@ type DietDetails = {
   createdAt: string;
   updatedAt: string;
   idProfessional: number | null;
+  professional?: { id: number; name: string } | null;
   meals: Meal[];
   documentUrl?: string | null;
   documentUrlExpiresAt?: string | null;
@@ -290,6 +292,15 @@ export default function DietDetailsPage() {
                     <Utensils className="h-4 w-4" />
                     {meals.length} refeição(ões)
                   </span>
+                  {data.idProfessional != null && (
+                    <>
+                      <span className="text-muted-foreground/60">•</span>
+                      <span className="inline-flex items-center gap-1 text-violet-600 dark:text-violet-400">
+                        <UserCheck className="h-3.5 w-3.5" />
+                        Passado por {data.professional?.name ?? "profissional"}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
 

@@ -1,6 +1,6 @@
 // app/app/home/page.tsx
 import Link from "next/link";
-import { ClipboardList, Bot, Dumbbell, Ruler, ArrowRight } from "lucide-react";
+import { ClipboardList, Bot, Dumbbell, Ruler, Bell, Stethoscope, ArrowRight } from "lucide-react";
 
 const SHORTCUTS = [
   {
@@ -26,6 +26,12 @@ const SHORTCUTS = [
     label: "Assistente IA",
     description: "Converse com seu assistente",
     Icon: Bot,
+  },
+  {
+    href: "/app/professionals",
+    label: "Profissionais",
+    description: "Gerencie seus profissionais conectados",
+    Icon: Stethoscope,
   },
 ];
 

@@ -53,6 +53,25 @@ export async function uploadUserProfilePhotoR2(params: {
   return key;
 }
 
+export async function uploadProfessionalProfilePhotoR2(params: {
+  professionalId: number;
+  buffer: Buffer;
+  contentType?: string;
+}): Promise<string> {
+  const { professionalId, buffer, contentType = "image/webp" } = params;
+  const { yyyy, mm, dd } = todayUTC();
+  const key = `professionals/${professionalId}/profile/${yyyy}/${mm}/${dd}/${randomUUID()}.webp`;
+
+  await r2.send(new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+    Body: buffer,
+    ContentType: contentType,
+    CacheControl: "private, max-age=0, no-store",
+  }));
+
+  return key;
+}
 
 export async function presignR2GetUrlByKey(
   key: string,
