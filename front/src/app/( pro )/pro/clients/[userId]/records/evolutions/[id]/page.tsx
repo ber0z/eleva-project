@@ -150,7 +150,7 @@ export default function EvolutionDetailPage() {
                         if (val == null) return null;
                         return (
                             <div key={key} className="rounded-xl bg-muted/50 p-3 text-center">
-                                <p className="text-lg font-bold">{val}</p>
+                                <p className="text-lg font-bold">{val as string | number}</p>
                                 <p className="text-xs text-muted-foreground">{label}</p>
                             </div>
                         );
