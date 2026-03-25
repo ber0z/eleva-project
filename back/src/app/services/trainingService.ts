@@ -444,7 +444,7 @@ export class TrainingService {
                         const toCreate: Array<{
                             idWorkout: number; exerciseId?: number | null; name: string; technique?: string | null;
                             restTime?: number | null; sets: number; reps?: number | null; weight?: number | null;
-                            type?: string | null; notes?: string | null;
+                            type?: string | null; notes?: string | null; order: number;
                         }> = [];
 
                         const exercises = w.exercises ?? [];
@@ -486,6 +486,7 @@ export class TrainingService {
                                     weight: e.weight ?? null,
                                     type: e.type ?? base?.type ?? null,
                                     notes: e.notes ?? null,
+                                    order: exIdx,
                                 });
                             }
                         }
