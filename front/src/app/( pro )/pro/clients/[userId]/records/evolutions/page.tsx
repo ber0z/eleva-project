@@ -64,7 +64,7 @@ export default function EvolutionsRecordPage() {
                             <LineChart data={chartData}>
                                 <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                                 <YAxis tick={{ fontSize: 11 }} domain={["dataMin - 2", "dataMax + 2"]} />
-                                <Tooltip formatter={(val: number) => `${val} kg`} />
+                                <Tooltip formatter={(val: number | undefined) => `${val ?? 0} kg`} />
                                 <Line
                                     type="monotone"
                                     dataKey="weight"

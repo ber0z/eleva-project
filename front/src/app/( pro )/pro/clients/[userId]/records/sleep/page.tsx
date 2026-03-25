@@ -139,7 +139,7 @@ export default function SleepRecordPage() {
                                         <BarChart data={stats.dailySeries}>
                                             <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                                             <YAxis tick={{ fontSize: 11 }} />
-                                            <Tooltip formatter={(val: number) => `${Math.round(val * 10) / 10}h`} />
+                                            <Tooltip formatter={(val: number | undefined) => `${Math.round((val ?? 0) * 10) / 10}h`} />
                                             <Bar dataKey="durationHours" fill="#2D9CDB" radius={[4, 4, 0, 0]} name="Horas" />
                                         </BarChart>
                                     </ResponsiveContainer>
@@ -160,7 +160,7 @@ export default function SleepRecordPage() {
                                                 cx="50%"
                                                 cy="50%"
                                                 outerRadius={80}
-                                                label={({ quality }) => QUALITY_LABELS[quality] ?? quality}
+                                                label={({ payload }) => { const q = (payload as { quality?: string })?.quality; return QUALITY_LABELS[q ?? ""] ?? q; }}
                                             >
                                                 {stats.qualityDistribution.map((entry, i) => (
                                                     <Cell key={i} fill={QUALITY_COLORS[entry.quality] ?? "#888"} />

@@ -894,7 +894,7 @@ export default function TrainingEditPage() {
 
       {/* Catalog Modal */}
       {catalogModalOpen && catalogModalTarget ? (
-        <Modal onClose={closeCatalogModal}>
+        <Modal open={true} onClose={closeCatalogModal}>
           <div className="w-full max-w-lg rounded-2xl bg-background p-4 sm:p-6 shadow-xl">
             <div className="flex items-center justify-between gap-2 mb-4">
               <h3 className="text-sm font-semibold">Catálogo de exercícios</h3>
