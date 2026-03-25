@@ -173,13 +173,13 @@ export default function ActivitiesRecordPage() {
                                                 cx="50%"
                                                 cy="50%"
                                                 outerRadius={80}
-                                                label={({ type }) => TYPE_LABELS[type] ?? type}
+                                                label={({ payload }) => { const t = (payload as { type?: string })?.type; return TYPE_LABELS[t ?? ""] ?? t; }}
                                             >
                                                 {stats.byType.map((entry, i) => (
                                                     <Cell key={i} fill={TYPE_COLORS[entry.type] ?? "#888"} />
                                                 ))}
                                             </Pie>
-                                            <Tooltip formatter={(val: number) => `${val} min`} />
+                                            <Tooltip formatter={(val) => `${val ?? 0} min`} />
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
